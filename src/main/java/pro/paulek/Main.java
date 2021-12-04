@@ -14,18 +14,8 @@ public class Main {
     private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
-        BotConfiguration configuration = null;
-        try {
-            var inputStream = new FileInputStream(new File("settings.yml"));
-
-            var yaml = new Yaml(new Constructor(BotConfiguration.class));
-            configuration = yaml.load(inputStream);
-        } catch (FileNotFoundException exception) {
-            logger.error("Cannot load settings.yml", exception);
-        }
-
-        var rocket = new RocketDiscord(configuration);
-        rocket.prepareJDA();
+        var rocket = new RocketDiscord();
+        rocket.init();
         rocket.start();
     }
 }

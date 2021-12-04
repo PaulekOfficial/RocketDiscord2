@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.events.GenericEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.EventListener;
 import org.jetbrains.annotations.NotNull;
-import pro.paulek.RocketDiscord;
+import pro.paulek.IRocketDiscord;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +13,10 @@ import java.util.Objects;
 
 public class CommandManager implements EventListener {
 
-    private final RocketDiscord rocketDiscord;
+    private final IRocketDiscord rocketDiscord;
     private Map<String, Command> commandList;
 
-    public CommandManager(RocketDiscord rocketDiscord) {
+    public CommandManager(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = rocketDiscord;
         this.commandList = new HashMap<>();
     }
