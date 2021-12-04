@@ -5,6 +5,8 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pro.paulek.commands.CommandManager;
+import pro.paulek.commands.HelpCommand;
 import pro.paulek.listeners.LoggingListeners;
 import pro.paulek.listeners.RandomFunctionsListeners;
 
@@ -18,6 +20,8 @@ public class RocketDiscord {
     private JDABuilder jdaBuilder;
     private BotConfiguration configuration;
 
+    private CommandManager commandManager;
+
     public RocketDiscord(BotConfiguration configuration) {
         this.configuration = configuration;
     }
@@ -25,8 +29,14 @@ public class RocketDiscord {
     public void prepareJDA() {
         jdaBuilder = JDABuilder.createDefault(configuration.getEndpoint());
 
+        //Load commands
+        commandManager = new CommandManager(this);
+        commandManager.addCommand(new HelpCommand());
+
         //Load listeners
-        this.loadListeners();
+        jdaBuilder.addEventListeners(commandManager);
+        jdaBuilder.addEventListeners(new RandomFunctionsListeners());
+        jdaBuilder.addEventListeners(new LoggingListeners());
 
         jdaBuilder.setActivity(Activity.streaming(configuration.getStatus(), "https://paulek.pro/rocketdiscord"));
     }
@@ -39,11 +49,6 @@ public class RocketDiscord {
             return;
         }
         logger.info("Bot started!");
-    }
-
-    private void loadListeners() {
-        jdaBuilder.addEventListeners(new RandomFunctionsListeners());
-        jdaBuilder.addEventListeners(new LoggingListeners());
     }
 
     public JDA getJda() {
