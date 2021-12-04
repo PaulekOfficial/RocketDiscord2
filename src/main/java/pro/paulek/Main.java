@@ -11,7 +11,7 @@ import java.io.FileNotFoundException;
 
 public class Main {
 
-    private static Logger logger = LoggerFactory.getLogger(Main.class);
+    private final static Logger logger = LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
         BotConfiguration configuration = null;

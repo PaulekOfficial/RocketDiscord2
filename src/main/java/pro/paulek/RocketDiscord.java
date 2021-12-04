@@ -5,12 +5,14 @@ import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import pro.paulek.listeners.LoggingListeners;
+import pro.paulek.listeners.RandomFunctionsListeners;
 
 import javax.security.auth.login.LoginException;
 
 public class RocketDiscord {
 
-    private static Logger logger = LoggerFactory.getLogger(RocketDiscord.class);
+    private final static Logger logger = LoggerFactory.getLogger(RocketDiscord.class);
 
     private JDA jda;
     private JDABuilder jdaBuilder;
@@ -41,6 +43,14 @@ public class RocketDiscord {
 
     private void loadListeners() {
         jdaBuilder.addEventListeners(new RandomFunctionsListeners());
+        jdaBuilder.addEventListeners(new LoggingListeners());
     }
 
+    public JDA getJda() {
+        return jda;
+    }
+
+    public BotConfiguration getConfiguration() {
+        return configuration;
+    }
 }
