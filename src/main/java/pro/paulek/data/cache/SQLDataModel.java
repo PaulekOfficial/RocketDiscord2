@@ -1,7 +1,7 @@
 package pro.paulek.data.cache;
 
-import pro.paulek.data.Data;
-import pro.paulek.data.Serializable;
+import pro.paulek.data.api.Data;
+import pro.paulek.data.api.Serializable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

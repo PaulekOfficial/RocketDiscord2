@@ -1,9 +1,6 @@
 package pro.paulek.listeners;
 
-import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleAddEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberRoleRemoveEvent;
-import net.dv8tion.jda.api.events.guild.member.GuildMemberUpdateEvent;
+import net.dv8tion.jda.api.events.guild.member.*;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateAvatarEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
@@ -34,7 +31,7 @@ public class LoggingListeners extends ListenerAdapter {
 
     @Override
     public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
-        super.onMessageUpdate(event);
+
     }
 
     @Override
@@ -50,6 +47,11 @@ public class LoggingListeners extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
         super.onGuildMemberJoin(event);
+    }
+
+    @Override
+    public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
+        super.onGuildMemberRemove(event);
     }
 
     @Override

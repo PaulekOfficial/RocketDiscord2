@@ -3,7 +3,7 @@ package pro.paulek;
 import net.dv8tion.jda.api.JDA;
 import pro.paulek.commands.CommandManager;
 import pro.paulek.data.Configuration;
-import pro.paulek.data.DataModel;
+import pro.paulek.data.api.DataModel;
 import pro.paulek.database.Database;
 
 public interface IRocketDiscord {

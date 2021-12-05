@@ -1,4 +1,4 @@
-package pro.paulek.data;
+package pro.paulek.data.api;
 
 import java.util.Collection;
 
