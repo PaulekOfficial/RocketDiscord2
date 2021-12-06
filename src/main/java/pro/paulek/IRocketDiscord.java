@@ -6,6 +6,9 @@ import pro.paulek.data.Configuration;
 import pro.paulek.data.api.DataModel;
 import pro.paulek.database.Database;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+
 public interface IRocketDiscord {
 
     /**
@@ -48,4 +51,11 @@ public interface IRocketDiscord {
      * @return
      */
     CommandManager getCommandManager();
+
+    /**
+     * Returns database connection to chosen database type
+     * @return
+     * @throws SQLException
+     */
+    Connection getDatabaseConnection() throws SQLException;
 }
