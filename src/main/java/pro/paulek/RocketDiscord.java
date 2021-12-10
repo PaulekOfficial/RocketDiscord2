@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -25,6 +26,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
 
@@ -38,6 +40,8 @@ public class RocketDiscord implements IRocketDiscord {
 
     private Configuration configuration;
     private CommandManager commandManager;
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public RocketDiscord() {
     }
@@ -105,6 +109,41 @@ public class RocketDiscord implements IRocketDiscord {
         SQLite sqLite = new SQLite(databaseFile);
         sqLite.init();
         return sqLite;
+    }
+
+    @Override
+    public User getJDAUser(String discordID) {
+        return jda.getUserById(discordID);
+    }
+
+    @Override
+    public Future<User.Profile> getUserProfile(String discordID) {
+        CompletableFuture<User.Profile> completableFuture = new CompletableFuture<>();
+
+        executorService.submit(() -> {
+            var user = this.getJDAUser(discordID);
+            if(user == null) {
+                return;
+            }
+            var restProfile = user.retrieveProfile();
+            restProfile.timeout(5, TimeUnit.SECONDS);
+            completableFuture.complete(restProfile.complete());
+        });
+
+        return completableFuture;
+    }
+
+    @Override
+    public Future<User.Profile> getUserProfile(User user) {
+        CompletableFuture<User.Profile> completableFuture = new CompletableFuture<>();
+
+        executorService.submit(() -> {
+            var restProfile = user.retrieveProfile();
+            restProfile.timeout(5, TimeUnit.SECONDS);
+            completableFuture.complete(restProfile.complete());
+        });
+
+        return completableFuture;
     }
 
     @Override

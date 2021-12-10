@@ -1,6 +1,7 @@
 package pro.paulek;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.User;
 import pro.paulek.commands.CommandManager;
 import pro.paulek.data.Configuration;
 import pro.paulek.data.api.DataModel;
@@ -8,6 +9,7 @@ import pro.paulek.database.Database;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.concurrent.Future;
 
 public interface IRocketDiscord {
 
@@ -58,4 +60,25 @@ public interface IRocketDiscord {
      * @throws SQLException
      */
     Connection getDatabaseConnection() throws SQLException;
+
+    /**
+     * Gets user data from discord id
+     * @param discordID
+     * @return
+     */
+    User getJDAUser(String discordID);
+
+    /**
+     * Gets user profile from discord id
+     * @param discordID
+     * @return
+     */
+    Future<User.Profile> getUserProfile(String discordID);
+
+    /**
+     * Gets user profile from discord user
+     * @param user
+     * @return
+     */
+    Future<User.Profile> getUserProfile(User user);
 }
