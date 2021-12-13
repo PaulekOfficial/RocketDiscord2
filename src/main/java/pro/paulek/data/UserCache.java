@@ -4,8 +4,9 @@ import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.data.api.Cache;
+import pro.paulek.objects.CachedUser;
 
-public class UserCache implements Cache<User, String> {
+public class UserCache implements Cache<CachedUser, String> {
 
     @Override
     public void init(IRocketDiscord rocketDiscord, Logger logger) {
@@ -13,12 +14,12 @@ public class UserCache implements Cache<User, String> {
     }
 
     @Override
-    public User get(String s) {
+    public CachedUser get(String s) {
         return null;
     }
 
     @Override
-    public void add(String s, User user) {
+    public void add(String s, CachedUser user) {
 
     }
 
@@ -33,7 +34,7 @@ public class UserCache implements Cache<User, String> {
     }
 
     @Override
-    public void save(String s, User user) {
+    public void save(String s, CachedUser user) {
 
     }
 

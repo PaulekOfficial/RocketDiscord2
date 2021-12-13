@@ -1,10 +1,10 @@
 package pro.paulek.data.cache.mysql;
 
-import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.data.cache.SQLDataModel;
+import pro.paulek.objects.CachedUser;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -12,7 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 
-public class UserCacheModel implements SQLDataModel<User, String> {
+public class UserCacheModel implements SQLDataModel<CachedUser, String> {
 
     private final static Logger logger = LoggerFactory.getLogger(UserCacheModel.class);
 
@@ -23,7 +23,7 @@ public class UserCacheModel implements SQLDataModel<User, String> {
     }
 
     @Override
-    public User load(String s) {
+    public CachedUser load(String s) {
         try (Connection connection = rocketDiscord.getDatabaseConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `user_data` WHERE `discord_id`=? ORDER BY `timestamp` DESC LIMIT 1");
             preparedStatement.setString(1, s);
@@ -48,7 +48,7 @@ public class UserCacheModel implements SQLDataModel<User, String> {
 
 
     @Override
-    public User load(int id) {
+    public CachedUser load(int id) {
         try (Connection connection = rocketDiscord.getDatabaseConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `user_data` WHERE `id`=? ORDER BY `timestamp` DESC LIMIT 1");
             preparedStatement.setInt(1, id);
@@ -72,14 +72,14 @@ public class UserCacheModel implements SQLDataModel<User, String> {
     }
 
     @Override
-    public void save(Collection<User> collection, boolean ignoreNotChanged) {
-        for (User user : collection) {
+    public void save(Collection<CachedUser> collection, boolean ignoreNotChanged) {
+        for (CachedUser user : collection) {
             this.serializeData(user);
         }
     }
 
     @Override
-    public void save(User user) {
+    public void save(CachedUser user) {
         this.serializeData(user);
     }
 
@@ -106,23 +106,22 @@ public class UserCacheModel implements SQLDataModel<User, String> {
     }
 
     @Override
-    public ResultSet serializeData(User user) {
+    public ResultSet serializeData(CachedUser user) {
         try (Connection connection = rocketDiscord.getDatabaseConnection()) {
             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `user_data` SET `discord_id`=?, `username`=? , `avatar`=?, `bot`=?, `system`=?, `mfa_enabled`=?, `banner`=?, `accent_color`=?, `locale`=?, `verified`=?, `email`=?, `flags`=?, `premium_type`=?, `public_flags`=?");
-            preparedStatement.setString(1, user.getId());
-            preparedStatement.setString(2, user.getName());
+            preparedStatement.setString(1, user.getDiscordID());
+            preparedStatement.setString(2, user.getUsername());
             preparedStatement.setString(3, user.getAvatarUrl());
             preparedStatement.setBoolean(4, user.isBot());
             preparedStatement.setBoolean(5, user.isSystem());
-            preparedStatement.setBoolean(6, false); //TODO get mfa info
-            preparedStatement.setString(7, ""); //TODO get banner info
-            preparedStatement.setInt(8, 0); //TODO get accent color info
-            preparedStatement.setString(9, ""); //TODO get accent color info
+            preparedStatement.setBoolean(6, user.isMfaEnabled());
+            preparedStatement.setString(7, user.getBannerUrl());
+            preparedStatement.setInt(8, user.getAccentColor());
             preparedStatement.setBoolean(10, false); //TODO get verification info
-            preparedStatement.setString(11, ""); //TODO get email info
-            preparedStatement.setInt(12, user.getFlagsRaw());
-            preparedStatement.setInt(13, 0); //TODO get premium type
-            preparedStatement.setInt(14, 0); //TODO get public flags
+            preparedStatement.setString(11, user.getEmail());
+            preparedStatement.setInt(12, user.getFlags());
+            preparedStatement.setInt(13, user.getPremiumType());
+            preparedStatement.setInt(14, user.getPublicFlags());
 
             return preparedStatement.executeQuery();
         } catch (SQLException exception) {
@@ -132,7 +131,7 @@ public class UserCacheModel implements SQLDataModel<User, String> {
     }
 
     @Override
-    public User deserializeData(ResultSet resultSet) throws SQLException {
+    public CachedUser deserializeData(ResultSet resultSet) throws SQLException {
         return null;
     }
 
