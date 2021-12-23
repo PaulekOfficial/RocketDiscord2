@@ -49,32 +49,40 @@ public class RocketDiscord implements IRocketDiscord {
     @Override
     public void init() {
         //Load bot general configuration
+        logger.info("Loading bot settings...");
         try {
             var inputStream = new FileInputStream(new File("settings.yml"));
 
             var yaml = new Yaml(new Constructor(Configuration.class));
             configuration = yaml.load(inputStream);
         } catch (FileNotFoundException exception) {
-            logger.error("Cannot load settings.yml", exception);
+            logger.error("Cannot load settingsw.yml", exception);
         }
 
         //Load database configuration and connect to it
+        logger.info("Initializing database...");
         this.database = createDatabase();
 
         //Create jda builder
+        logger.info("Initializing discord gateway...");
         jdaBuilder = JDABuilder.createDefault(configuration.getEndpoint());
 
         //Load commands
+        logger.info("Initializing bot commands...");
         commandManager = new CommandManager(this);
         commandManager.addCommand(new HelpCommand());
 
         //Load listeners
+        logger.info("Initializing bot listeners...");
         jdaBuilder.addEventListeners(commandManager);
         jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners());
 
         //Set activity of this bot
         jdaBuilder.setActivity(Activity.streaming(configuration.getStatus(), "https://paulek.pro/rocketdiscord"));
+
+        logger.info("Initialization complete");
+        logger.info("Bot running on version:" + "EXPERIMENTAL");
     }
 
     @Override

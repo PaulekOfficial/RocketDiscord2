@@ -117,7 +117,7 @@ public class UserCacheModel implements SQLDataModel<CachedUser, String> {
             preparedStatement.setBoolean(6, user.isMfaEnabled());
             preparedStatement.setString(7, user.getBannerUrl());
             preparedStatement.setInt(8, user.getAccentColor());
-            preparedStatement.setBoolean(10, false); //TODO get verification info
+            preparedStatement.setBoolean(10, user.isVerificated());
             preparedStatement.setString(11, user.getEmail());
             preparedStatement.setInt(12, user.getFlags());
             preparedStatement.setInt(13, user.getPremiumType());

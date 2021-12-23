@@ -20,6 +20,7 @@ public class CachedUser {
     private boolean bot;
     private boolean system;
     private boolean mfaEnabled;
+    private boolean verificated;
 
     private String bannerUrl;
     private int accentColor;
@@ -123,6 +124,14 @@ public class CachedUser {
 
     public void setBannerUrl(String bannerUrl) {
         this.bannerUrl = bannerUrl;
+    }
+
+    public boolean isVerificated() {
+        return verificated;
+    }
+
+    public void setVerificated(boolean verificated) {
+        this.verificated = verificated;
     }
 
     public int getAccentColor() {
