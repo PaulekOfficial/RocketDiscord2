@@ -80,7 +80,7 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder.addEventListeners(commandManager);
         jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners());
-        jdaBuilder.addEventListeners(new SplashCommandListener());
+        jdaBuilder.addEventListeners(new SplashCommandListener(this));
 
         logger.info("Initialization complete");
     }
@@ -101,7 +101,8 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     public void registerSplashCommands() {
-        jda.upsertCommand("help", "Shows RocketDiscord bot help").queue();
+        commandManager.getCommandList().values().forEach(command -> jda.upsertCommand(command.getCommandData()).queue());
+
         jda.updateCommands().queue();
     }
 

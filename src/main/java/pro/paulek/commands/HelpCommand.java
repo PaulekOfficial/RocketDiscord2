@@ -6,6 +6,7 @@ import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.jetbrains.annotations.NotNull;
 import pro.paulek.IRocketDiscord;
 
@@ -15,6 +16,7 @@ public class HelpCommand extends Command {
         this.setName("help");
         this.setDescription("Pokazuje pomoc każdego polecenia");
         this.setUsage("Użycie: /help <nazwa-polecenia>");
+        this.setCommandData(new CommandData("help", "Shows RocketDiscord bot help"));
     }
 
     @Override

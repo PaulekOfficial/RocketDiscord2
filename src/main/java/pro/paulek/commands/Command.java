@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ public abstract class Command extends ListenerAdapter {
     private String name;
     private String description;
     private String usage;
+    private CommandData commandData;
     private boolean supremeCommand;
     private boolean guildOwnerOnly;
     private boolean requirePermission;
@@ -99,6 +101,14 @@ public abstract class Command extends ListenerAdapter {
 
     public void setNSFW(boolean NSFW) {
         this.NSFW = NSFW;
+    }
+
+    public CommandData getCommandData() {
+        return commandData;
+    }
+
+    public void setCommandData(CommandData commandData) {
+        this.commandData = commandData;
     }
 
     public boolean isSubCommandGroup() {
