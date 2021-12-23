@@ -17,6 +17,7 @@ import pro.paulek.database.MySQL;
 import pro.paulek.database.SQLite;
 import pro.paulek.listeners.LoggingListeners;
 import pro.paulek.listeners.RandomFunctionsListeners;
+import pro.paulek.listeners.SplashCommandListener;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -66,6 +67,9 @@ public class RocketDiscord implements IRocketDiscord {
         logger.info("Initializing discord gateway...");
         jdaBuilder = JDABuilder.createDefault(configuration.getEndpoint());
 
+        //Set activity of this bot
+        jdaBuilder.setActivity(Activity.streaming(configuration.getStatus(), "https://paulek.pro/rocketdiscord"));
+
         //Load commands
         logger.info("Initializing bot commands...");
         commandManager = new CommandManager(this);
@@ -76,24 +80,29 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder.addEventListeners(commandManager);
         jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners());
-
-        //Set activity of this bot
-        jdaBuilder.setActivity(Activity.streaming(configuration.getStatus(), "https://paulek.pro/rocketdiscord"));
+        jdaBuilder.addEventListeners(new SplashCommandListener());
 
         logger.info("Initialization complete");
-        logger.info("Bot running on version:" + "EXPERIMENTAL");
     }
 
     @Override
     public void start() {
         //Starts JDA and connect to discord api
         try {
-            jdaBuilder.build();
+            jda = jdaBuilder.build();
         } catch (LoginException exception) {
             logger.error("Cannot build JDA application", exception);
             return;
         }
+
+        this.registerSplashCommands();
+
         logger.info("Bot started!");
+    }
+
+    public void registerSplashCommands() {
+        jda.upsertCommand("help", "Shows RocketDiscord bot help").queue();
+        jda.updateCommands().queue();
     }
 
     @Override

@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -22,11 +23,11 @@ public abstract class Command extends ListenerAdapter {
     private boolean requirePermission;
     private Permission requiredPermission;
     private boolean requireArguments;
-    private int minArguments;
-    private int maxArguments;
+    private boolean subCommandGroup;
+    private boolean subCommandName;
     private boolean NSFW;
 
-    public abstract void execute(@NotNull MessageReceivedEvent event, TextChannel channel, Guild guild, Member member);
+    public abstract void execute(@NotNull SlashCommandEvent event, TextChannel channel, Guild guild, Member member);
 
     public String getName() {
         return name;
@@ -92,27 +93,27 @@ public abstract class Command extends ListenerAdapter {
         this.requireArguments = requireArguments;
     }
 
-    public int getMinArguments() {
-        return minArguments;
-    }
-
-    public void setMinArguments(int minArguments) {
-        this.minArguments = minArguments;
-    }
-
-    public int getMaxArguments() {
-        return maxArguments;
-    }
-
-    public void setMaxArguments(int maxArguments) {
-        this.maxArguments = maxArguments;
-    }
-
     public boolean isNSFW() {
         return NSFW;
     }
 
     public void setNSFW(boolean NSFW) {
         this.NSFW = NSFW;
+    }
+
+    public boolean isSubCommandGroup() {
+        return subCommandGroup;
+    }
+
+    public void setSubCommandGroup(boolean subCommandGroup) {
+        this.subCommandGroup = subCommandGroup;
+    }
+
+    public boolean isSubCommandName() {
+        return subCommandName;
+    }
+
+    public void setSubCommandName(boolean subCommandName) {
+        this.subCommandName = subCommandName;
     }
 }
