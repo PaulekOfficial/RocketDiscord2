@@ -31,15 +31,15 @@ public class Main {
                     logger.info("Created empty file...");
                 }
             } catch (IOException exception) {
-                logger.error("Cannot create settingsw.yml file", exception);
+                logger.error("Cannot create settings.yml file", exception);
             }
 
             try(var os = new FileWriter(settingsFile)){
                 IOUtils.copy(reader, os);
             } catch (FileNotFoundException exception) {
-                logger.error("Could not find settingsw.yml in order to copy from pattern", exception);
+                logger.error("Could not find settings.yml in order to copy from pattern", exception);
             } catch (IOException exception) {
-                logger.error("Could not copy settingsw.yml ", exception);
+                logger.error("Could not copy settings.yml ", exception);
             }
             logger.info("File created successfully!");
         }

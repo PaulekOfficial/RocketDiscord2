@@ -3,7 +3,7 @@ status: "Ready to lift off!"
 
 storageType: "MySQL"
 mysql:
-  "jdbcUrl": "jdbc:mysql//{host}:{port}/{database-name}"
+  "jdbcUrl": "jdbc:mysql://{host}:{port}/{database-name}"
   "host": "127.0.0.1"
   "port": "3306"
   "user": "rocketDiscordUser"

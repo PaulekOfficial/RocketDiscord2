@@ -33,6 +33,11 @@
             <artifactId>HikariCP</artifactId>
             <version>5.0.0</version>
         </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.27</version>
+        </dependency>
 
         <!-- Logging dependencies -->
         <dependency>
@@ -112,6 +117,7 @@
                                 <includes>
                                     <include>com.zaxxer:HikariCP</include>
                                     <include>net.dv8tion:JDA</include>
+                                    <include>mysql:mysql-connector-java</include>
                                     <include>org.apache.logging.log4j:*</include>
                                     <include>org.slf4j:*</include>
                                 </includes>
