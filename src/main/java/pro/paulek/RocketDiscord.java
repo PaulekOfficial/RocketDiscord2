@@ -73,7 +73,7 @@ public class RocketDiscord implements IRocketDiscord {
         //Load commands
         logger.info("Initializing bot commands...");
         commandManager = new CommandManager(this);
-        commandManager.addCommand(new HelpCommand());
+        commandManager.addCommand(new HelpCommand(this));
 
         //Load listeners
         logger.info("Initializing bot listeners...");

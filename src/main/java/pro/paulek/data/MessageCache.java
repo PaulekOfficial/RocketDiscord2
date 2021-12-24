@@ -8,11 +8,9 @@ import pro.paulek.objects.CachedMessage;
 import java.util.HashMap;
 import java.util.Map;
 
-//TODO zapisujemy każdą wiadomość, nawet zedytowaną - jeżeli wystopi więcej niż 1 rekord wiadomości to znaczy, że wiadomość była edytowana
-//jeżeli usunięta wszystkim ustawiamy flagę deleted
 public class MessageCache implements Cache<CachedMessage, String> {
 
-    private Map<CachedMessage, Integer> messageCache = new HashMap<>();
+    private final Map<String, CachedMessage> messageCache = new HashMap<>();
 
     @Override
     public void init(IRocketDiscord rocketDiscord, Logger logger) {
@@ -26,7 +24,7 @@ public class MessageCache implements Cache<CachedMessage, String> {
 
     @Override
     public void add(String string, CachedMessage message) {
-
+        this.messageCache.put(string, message);
     }
 
     @Override
@@ -36,7 +34,7 @@ public class MessageCache implements Cache<CachedMessage, String> {
 
     @Override
     public void remove(String string) {
-
+        this.messageCache.remove(string);
     }
 
     @Override

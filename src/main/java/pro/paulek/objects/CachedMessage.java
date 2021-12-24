@@ -1,8 +1,10 @@
 package pro.paulek.objects;
 
-public class CachedMessage {
+import net.dv8tion.jda.api.entities.*;
 
-    private int id;
+import java.util.List;
+
+public class CachedMessage {
 
     private String authorName;
     private String authorID;
@@ -11,100 +13,33 @@ public class CachedMessage {
     private String content;
 
     private boolean tts;
-    private String[] embeds;
-    private String[] allowedMentions;
-    private String messageReference;
-    private String[] stickerIDs;
-    private String[] filesURLs;
-    private String payloadJson;
-    private String[] attachments;
+    private List<MessageEmbed> embeds;
+    private MessageReference messageReference;
+    private List<MessageSticker> stickerIDs;
+    private List<Message.Attachment> attachments;
 
-    public CachedMessage(int id, String authorName, String authorID, String messageID, String content, boolean tts, String[] embeds, String[] allowedMentions, String messageReference, String[] stickerIDs, String[] filesURLs, String payloadJson, String[] attachments) {
-        this.id = id;
+    public CachedMessage(Message message) {
+        this.authorName = message.getAuthor().getName();
+        this.authorID = message.getAuthor().getId();
+        this.messageID = message.getId();
+        this.content = message.getContentRaw();
+        this.tts = message.isTTS();
+        this.embeds = message.getEmbeds();
+        this.messageReference = message.getMessageReference();
+        this.stickerIDs = message.getStickers();
+        this.attachments = message.getAttachments();
+    }
+
+    public CachedMessage(String authorName, String authorID, String messageID, String content, boolean tts, List<MessageEmbed> embeds, MessageReference messageReference, List<MessageSticker> stickerIDs, List<Message.Attachment> attachments) {
         this.authorName = authorName;
         this.authorID = authorID;
         this.messageID = messageID;
         this.content = content;
         this.tts = tts;
         this.embeds = embeds;
-        this.allowedMentions = allowedMentions;
         this.messageReference = messageReference;
         this.stickerIDs = stickerIDs;
-        this.filesURLs = filesURLs;
-        this.payloadJson = payloadJson;
         this.attachments = attachments;
-    }
-
-    public boolean isTts() {
-        return tts;
-    }
-
-    public void setTts(boolean tts) {
-        this.tts = tts;
-    }
-
-    public String[] getEmbeds() {
-        return embeds;
-    }
-
-    public void setEmbeds(String[] embeds) {
-        this.embeds = embeds;
-    }
-
-    public String[] getAllowedMentions() {
-        return allowedMentions;
-    }
-
-    public void setAllowedMentions(String[] allowedMentions) {
-        this.allowedMentions = allowedMentions;
-    }
-
-    public String getMessageReference() {
-        return messageReference;
-    }
-
-    public void setMessageReference(String messageReference) {
-        this.messageReference = messageReference;
-    }
-
-    public String[] getStickerIDs() {
-        return stickerIDs;
-    }
-
-    public void setStickerIDs(String[] stickerIDs) {
-        this.stickerIDs = stickerIDs;
-    }
-
-    public String[] getFilesURLs() {
-        return filesURLs;
-    }
-
-    public void setFilesURLs(String[] filesURLs) {
-        this.filesURLs = filesURLs;
-    }
-
-    public String getPayloadJson() {
-        return payloadJson;
-    }
-
-    public void setPayloadJson(String payloadJson) {
-        this.payloadJson = payloadJson;
-    }
-
-    public String[] getAttachments() {
-        return attachments;
-    }
-
-    public void setAttachments(String[] attachments) {
-        this.attachments = attachments;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getAuthorName() {
@@ -137,5 +72,45 @@ public class CachedMessage {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public boolean isTts() {
+        return tts;
+    }
+
+    public void setTts(boolean tts) {
+        this.tts = tts;
+    }
+
+    public List<MessageEmbed> getEmbeds() {
+        return embeds;
+    }
+
+    public void setEmbeds(List<MessageEmbed> embeds) {
+        this.embeds = embeds;
+    }
+
+    public MessageReference getMessageReference() {
+        return messageReference;
+    }
+
+    public void setMessageReference(MessageReference messageReference) {
+        this.messageReference = messageReference;
+    }
+
+    public List<MessageSticker> getStickerIDs() {
+        return stickerIDs;
+    }
+
+    public void setStickerIDs(List<MessageSticker> stickerIDs) {
+        this.stickerIDs = stickerIDs;
+    }
+
+    public List<Message.Attachment> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<Message.Attachment> attachments) {
+        this.attachments = attachments;
     }
 }
