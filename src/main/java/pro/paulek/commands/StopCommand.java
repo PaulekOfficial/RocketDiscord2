@@ -26,7 +26,7 @@ public class StopCommand  extends Command {
         this.setName("stop");
         this.setDescription("zatrzymuje granie muzyki");
         this.setUsage("/stop");
-        this.setCommandData(new CommandData("volume", "Stops music player and removes all tracks"));
+        this.setCommandData(new CommandData("stop", "Stops music player and removes all tracks"));
     }
 
     @Override
