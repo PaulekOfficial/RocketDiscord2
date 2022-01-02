@@ -11,6 +11,8 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import pro.paulek.commands.CommandManager;
 import pro.paulek.commands.HelpCommand;
 import pro.paulek.data.Configuration;
+import pro.paulek.data.MusicPlayerCache;
+import pro.paulek.data.api.Cache;
 import pro.paulek.data.api.DataModel;
 import pro.paulek.database.Database;
 import pro.paulek.database.MySQL;
@@ -18,6 +20,7 @@ import pro.paulek.database.SQLite;
 import pro.paulek.listeners.LoggingListeners;
 import pro.paulek.listeners.RandomFunctionsListeners;
 import pro.paulek.listeners.SplashCommandListener;
+import pro.paulek.objects.MusicManager;
 
 import javax.security.auth.login.LoginException;
 import java.io.File;
@@ -40,6 +43,8 @@ public class RocketDiscord implements IRocketDiscord {
 
     private Configuration configuration;
     private CommandManager commandManager;
+
+    private Cache<MusicManager, String> musicManager;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -81,6 +86,9 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners());
         jdaBuilder.addEventListeners(new SplashCommandListener(this));
+
+        //Load cache
+        musicManager = new MusicPlayerCache(this);
 
         logger.info("Initialization complete");
     }
@@ -161,6 +169,16 @@ public class RocketDiscord implements IRocketDiscord {
         });
 
         return completableFuture;
+    }
+
+    @Override
+    public Cache<MusicManager, String> getMusicManagers() {
+        return musicManager;
+    }
+
+    @Override
+    public MusicManager getMusicManager(String guildID) {
+        return musicManager.get(guildID);
     }
 
     @Override

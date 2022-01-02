@@ -18,7 +18,11 @@
     </properties>
 
     <repositories>
-
+        <repository>
+            <id>dv8tion</id>
+            <name>m2-dv8tion</name>
+            <url>https://m2.dv8tion.net/releases</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -28,6 +32,13 @@
             <artifactId>JDA</artifactId>
             <version>5.0.0-alpha.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.sedmelluq</groupId>
+            <artifactId>lavaplayer</artifactId>
+            <version>1.3.77</version>
+        </dependency>
+
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
@@ -118,6 +129,7 @@
                                     <include>com.zaxxer:HikariCP</include>
                                     <include>net.dv8tion:JDA</include>
                                     <include>mysql:mysql-connector-java</include>
+                                    <include>com.sedmelluq:lavaplayer</include>
                                     <include>org.apache.logging.log4j:*</include>
                                     <include>org.slf4j:*</include>
                                 </includes>

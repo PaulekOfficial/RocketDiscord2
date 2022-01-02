@@ -1,11 +1,14 @@
 package pro.paulek;
 
 import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import pro.paulek.commands.CommandManager;
 import pro.paulek.data.Configuration;
+import pro.paulek.data.api.Cache;
 import pro.paulek.data.api.DataModel;
 import pro.paulek.database.Database;
+import pro.paulek.objects.MusicManager;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -81,4 +84,16 @@ public interface IRocketDiscord {
      * @return
      */
     Future<User.Profile> getUserProfile(User user);
+
+    /**
+     * Gets music manager for guilds
+     * @return
+     */
+    Cache<MusicManager, String> getMusicManagers();
+
+    /**
+     * Gets music manager for guild
+     * @return
+     */
+    MusicManager getMusicManager(String guildID);
 }
