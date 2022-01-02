@@ -1,5 +1,8 @@
 package pro.paulek;
 
+import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
+import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -8,8 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import pro.paulek.commands.CommandManager;
-import pro.paulek.commands.HelpCommand;
+import pro.paulek.commands.*;
 import pro.paulek.data.Configuration;
 import pro.paulek.data.MusicPlayerCache;
 import pro.paulek.data.api.Cache;
@@ -43,6 +45,8 @@ public class RocketDiscord implements IRocketDiscord {
 
     private Configuration configuration;
     private CommandManager commandManager;
+
+    private AudioPlayerManager audioPlayerManager;
 
     private Cache<MusicManager, String> musicManager;
 
@@ -79,6 +83,10 @@ public class RocketDiscord implements IRocketDiscord {
         logger.info("Initializing bot commands...");
         commandManager = new CommandManager(this);
         commandManager.addCommand(new HelpCommand(this));
+        commandManager.addCommand(new PlayCommand(this));
+        commandManager.addCommand(new VolumeCommand(this));
+        commandManager.addCommand(new StopCommand(this));
+        commandManager.addCommand(new SkipCommand(this));
 
         //Load listeners
         logger.info("Initializing bot listeners...");
@@ -86,6 +94,11 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners());
         jdaBuilder.addEventListeners(new SplashCommandListener(this));
+
+        //Load music manager
+        audioPlayerManager = new DefaultAudioPlayerManager();
+        AudioSourceManagers.registerLocalSource(audioPlayerManager);
+        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
 
         //Load cache
         musicManager = new MusicPlayerCache(this);
@@ -169,6 +182,11 @@ public class RocketDiscord implements IRocketDiscord {
         });
 
         return completableFuture;
+    }
+
+    @Override
+    public AudioPlayerManager getAudioManager() {
+        return audioPlayerManager;
     }
 
     @Override

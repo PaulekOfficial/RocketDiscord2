@@ -30,6 +30,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     private final MutableAudioFrame audioFrame;
     private final BlockingQueue<AudioTrack> queue;
 
+    private AudioTrack currentTrack;
+
     private long sumTrackTime;
 
     public MusicManager(AudioPlayer audioPlayer, Guild guild) {
@@ -44,6 +46,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     public void init() {
         this.audioPlayer.addListener(this);
         this.guild.getAudioManager().setSendingHandler(this);
+        this.audioFrame.setBuffer(byteBuffer);
 
         this.watchdogThread = new Thread(this);
         this.watchdogThread.setDaemon(true);
@@ -75,8 +78,14 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         }
     }
 
+    public void removeAllTracks() {
+        queue.clear();
+    }
+
     public void queue(AudioTrack audioTrack) {
-        if (!audioPlayer.startTrack(audioTrack, true)) {
+        if (audioPlayer.startTrack(audioTrack, true)) {
+            this.currentTrack = audioTrack;
+            this.sumTrackTime += audioTrack.getDuration();
             return;
         }
 
@@ -85,7 +94,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     }
 
     public void nextTrack() {
-        audioPlayer.startTrack(queue.poll(), false);
+        this.currentTrack = queue.poll();
+        audioPlayer.startTrack(currentTrack, false);
     }
 
     public void killWatchdog() {
@@ -94,6 +104,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
+        this.currentTrack = null;
         if (!endReason.mayStartNext) {
             return;
         }
@@ -136,11 +147,20 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         logger.error("Cannot play track in guild " + guild.getName(), exception);
+        this.currentTrack = null;
     }
 
     @Override
     public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
         logger.warn("Music player stuck at " + thresholdMs + " on " + guild.getName());
+    }
+
+    public AudioTrack getCurrentTrack() {
+        return currentTrack;
+    }
+
+    public void setCurrentTrack(AudioTrack currentTrack) {
+        this.currentTrack = currentTrack;
     }
 
     public Thread getWatchdogThread() {

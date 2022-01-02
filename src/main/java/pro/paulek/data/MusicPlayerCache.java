@@ -18,19 +18,16 @@ public class MusicPlayerCache implements Cache<MusicManager, String> {
     private final static Logger logger = LoggerFactory.getLogger(MusicPlayerCache.class);
 
     private final IRocketDiscord rocketDiscord;
-    private final AudioPlayerManager audioPlayerManager;
     private final Map<String, MusicManager> musicManagers;
 
     public MusicPlayerCache(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);
-        this.audioPlayerManager = new DefaultAudioPlayerManager();
         this.musicManagers = new HashMap<>();
     }
 
     @Override
     public void init(IRocketDiscord rocketDiscord, Logger logger) {
-        AudioSourceManagers.registerLocalSource(audioPlayerManager);
-        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
+
     }
 
     @Override

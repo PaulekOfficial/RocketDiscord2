@@ -3,11 +3,15 @@ package pro.paulek.listeners;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 
 import java.util.Objects;
 
 public class SplashCommandListener extends ListenerAdapter {
+
+    private final static Logger logger = LoggerFactory.getLogger(SplashCommandListener.class);
 
     private final IRocketDiscord rocketDiscord;
 
@@ -25,7 +29,12 @@ public class SplashCommandListener extends ListenerAdapter {
             return;
         }
 
-        rocketDiscord.getCommandManager().getCommandList().values().forEach(command -> event.getGuild().upsertCommand(command.getCommandData()).queue());
+        rocketDiscord.getCommandManager().getCommandList().values().forEach(command -> {
+            event.getGuild().upsertCommand(command.getCommandData()).queue();
+            logger.debug("Added " + command.getName() + " command to guild " + event.getGuild().getName());
+        });
         event.getGuild().updateCommands().queue();
+
+        event.getMessage().reply(":wink:").queue();
     }
 }
