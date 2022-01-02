@@ -126,12 +126,7 @@
                         <configuration>
                             <artifactSet>
                                 <includes>
-                                    <include>com.zaxxer:HikariCP</include>
-                                    <include>net.dv8tion:JDA</include>
-                                    <include>mysql:mysql-connector-java</include>
-                                    <include>com.sedmelluq:lavaplayer</include>
-                                    <include>org.apache.logging.log4j:*</include>
-                                    <include>org.slf4j:*</include>
+                                    <include>**</include>
                                 </includes>
                             </artifactSet>
                         </configuration>

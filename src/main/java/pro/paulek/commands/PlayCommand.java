@@ -121,13 +121,13 @@ public class PlayCommand extends Command {
                         stringBuilder.append(System.getProperty("line.separator"));
                         stringBuilder.append(System.getProperty("line.separator"));
                     }
-                    stringBuilder.append(System.getProperty("line.separator"));
-                    stringBuilder.append("Liczba utworów w playliście: ");
-                    stringBuilder.append(String.valueOf(musicManagerCopy.getQueue().size()));
 
                     musicManagerCopy.queue(audioTrack);
                     i++;
                 }
+                stringBuilder.append(System.getProperty("line.separator"));
+                stringBuilder.append("Liczba utworów w playliście: ");
+                stringBuilder.append(String.valueOf(musicManagerCopy.getQueue().size()));
 
                 var embed = new EmbedBuilder()
                         .setDescription(stringBuilder.toString())
