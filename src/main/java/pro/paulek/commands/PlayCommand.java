@@ -58,6 +58,7 @@ public class PlayCommand extends Command {
                     event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
                     return;
                 }
+
                 if (!guild.getAudioManager().isConnected()) {
                     guild.getAudioManager().openAudioConnection(audioChannel);
                 }

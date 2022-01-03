@@ -1,12 +1,13 @@
 package pro.paulek;
 
-import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.*;
 import org.apache.logging.log4j.core.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 
+import javax.swing.*;
 import java.io.*;
 
 public class Main {
@@ -17,7 +18,25 @@ public class Main {
         //Init log4j
         BasicConfigurator.configure();
 
-        //Load settingsw.yml file if not exists
+        File logFile = new File("latest.log");
+        if (!logFile.exists()) {
+            try {
+                logFile.createNewFile();
+            } catch (IOException exception) {
+                logger.error("Cannot create latest.log file", exception);
+                return;
+            }
+        }
+        var rootLogger = org.apache.log4j.Logger.getRootLogger();
+        try {
+            rootLogger.addAppender(new FileAppender(new PatternLayout("%r [%t] %p %c %x - %m%n"), logFile.getAbsolutePath(), true));
+        } catch (IOException exception) {
+            logger.error("Cannot create latest.log file appender for log4j", exception);
+            return;
+        }
+
+
+        //Load settings.yml file if not exists
         File settingsFile = new File("settings.yml");
         if (!settingsFile.exists()) {
             logger.info("settings.yml does not exists, creating a new one...");

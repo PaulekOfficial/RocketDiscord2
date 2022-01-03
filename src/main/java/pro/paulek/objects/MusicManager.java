@@ -49,32 +49,30 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         this.audioFrame.setBuffer(byteBuffer);
 
         this.watchdogThread = new Thread(this);
-        this.watchdogThread.setDaemon(true);
         this.watchdogThread.start();
     }
 
     @Override
     public void run() {
-        var currentTrack = audioPlayer.getPlayingTrack();
-        var duration = currentTrack.getDuration();
-        var time = 0L;
+//        var currentTrack = audioPlayer.getPlayingTrack();
+//        var duration = currentTrack.getDuration();
+//        var time = 0L;
+//        var v = duration - currentTrack.getPosition();
+//
+//        if (time != v) {
+//            sumTrackTime -= v - time;
+//            time = v;
+//        }
+        if (sumTrackTime <=0) {
+            sumTrackTime = 0;
+        } else {
+            sumTrackTime -= 1000;
+        }
 
-        while (true) {
-            var v = duration - currentTrack.getPosition();
-            if (time != v) {
-                sumTrackTime -= v - time;
-                time = v;
-            }
-
-            if(duration <= currentTrack.getPosition()) {
-                break;
-            }
-
-            try {
-                Thread.sleep(250L);
-            } catch (InterruptedException exception) {
-                logger.error("Track duration watchdog sleep error", exception);
-            }
+        try {
+            Thread.sleep(1000L);
+        } catch (InterruptedException exception) {
+            logger.error("Track duration watchdog sleep error", exception);
         }
     }
 
