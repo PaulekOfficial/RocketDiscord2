@@ -8,7 +8,7 @@ public interface Cache<T, U>{
     /**
      * Initialise cache class
      */
-    void init(IRocketDiscord rocketDiscord, Logger logger);
+    void init();
 
     /**
      * Get a value from cache

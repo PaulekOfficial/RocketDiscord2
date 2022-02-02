@@ -30,10 +30,17 @@ public class CommandManager extends ListenerAdapter {
             return;
         }
 
+        var guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
+
         var channel = (TextChannel) event.getChannel();
+        if (guildConfiguration.isCommandsChannelsWhitelistMode() && !guildConfiguration.getCommandChannels().contains(channel.getId())
+        || !guildConfiguration.isCommandsChannelsWhitelistMode() && guildConfiguration.getCommandChannels().contains(channel.getId())) {
+            event.reply(":man_detective: Nie możesz używać poleceń na tym kanale!").queue();
+            return;
+        }
         var command = commandList.get(event.getName());
         if (command == null) {
-            channel.sendMessage(":alien: Polecenie które wprowadziłeś/aś nie istnieje :(").queue();
+            event.reply(":alien: Polecenie które wprowadziłeś/aś nie istnieje :(").queue();
             return;
         }
 

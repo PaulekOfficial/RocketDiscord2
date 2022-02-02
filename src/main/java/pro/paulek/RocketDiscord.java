@@ -12,14 +12,19 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import pro.paulek.commands.*;
+import pro.paulek.commands.admin.DeleteMessagesCommand;
+import pro.paulek.commands.music.*;
 import pro.paulek.data.Configuration;
+import pro.paulek.data.GuildConfiguration;
 import pro.paulek.data.MusicPlayerCache;
 import pro.paulek.data.api.Cache;
 import pro.paulek.data.api.DataModel;
+import pro.paulek.data.cache.GuildConfigurationCache;
 import pro.paulek.database.Database;
 import pro.paulek.database.MySQL;
 import pro.paulek.database.SQLite;
 import pro.paulek.listeners.LoggingListeners;
+import pro.paulek.listeners.MemesListeners;
 import pro.paulek.listeners.RandomFunctionsListeners;
 import pro.paulek.listeners.SplashCommandListener;
 import pro.paulek.objects.MusicManager;
@@ -31,6 +36,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
@@ -42,6 +49,8 @@ public class RocketDiscord implements IRocketDiscord {
 
     private Database database;
     private DataModel dataModel;
+
+    private GuildConfigurationCache guildConfigurationCache;
 
     private Configuration configuration;
     private CommandManager commandManager;
@@ -72,6 +81,16 @@ public class RocketDiscord implements IRocketDiscord {
         logger.info("Initializing database...");
         this.database = createDatabase();
 
+        //Load all caches
+        guildConfigurationCache = new GuildConfigurationCache(this);
+        guildConfigurationCache.init();
+
+        //TODO remove this only for tests
+        guildConfigurationCache.add("740276300815663105",
+                new GuildConfiguration("740276300815663105", "INF INC. | PaulekLab", true,
+                        Collections.singletonList("938543061192024064"), Collections.singletonList("938540794162335754"), Collections.emptyList(), "938538241953497088",
+                        "938537678008377405", Collections.emptyList(), ""));
+
         //Create jda builder
         logger.info("Initializing discord gateway...");
         jdaBuilder = JDABuilder.createDefault(configuration.getEndpoint());
@@ -86,7 +105,9 @@ public class RocketDiscord implements IRocketDiscord {
         commandManager.addCommand(new PlayCommand(this));
         commandManager.addCommand(new VolumeCommand(this));
         commandManager.addCommand(new StopCommand(this));
-        commandManager.addCommand(new SkipCommand(this));
+        commandManager.addCommand(new LeaveCommand(this));
+        commandManager.addCommand(new JoinCommand(this));
+        commandManager.addCommand(new DeleteMessagesCommand(this));
 
         //Load listeners
         logger.info("Initializing bot listeners...");
@@ -94,6 +115,7 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners());
         jdaBuilder.addEventListeners(new SplashCommandListener(this));
+        jdaBuilder.addEventListeners(new MemesListeners(this));
 
         //Load music manager
         audioPlayerManager = new DefaultAudioPlayerManager();
@@ -109,6 +131,7 @@ public class RocketDiscord implements IRocketDiscord {
     @Override
     public void start() {
         //Starts JDA and connect to discord api
+        logger.info("Starting JDA Websocket");
         try {
             jda = jdaBuilder.build();
         } catch (LoginException exception) {
@@ -217,6 +240,11 @@ public class RocketDiscord implements IRocketDiscord {
     @Override
     public CommandManager getCommandManager() {
         return commandManager;
+    }
+
+    @Override
+    public GuildConfigurationCache getGuildConfigurations() {
+        return guildConfigurationCache;
     }
 
     @Override

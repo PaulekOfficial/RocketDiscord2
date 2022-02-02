@@ -1,4 +1,4 @@
-package pro.paulek.commands;
+package pro.paulek.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
@@ -15,6 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
+import pro.paulek.commands.Command;
 import pro.paulek.objects.MusicManager;
 import pro.paulek.util.TimeUtils;
 
@@ -63,14 +64,26 @@ public class PlayCommand extends Command {
                     guild.getAudioManager().openAudioConnection(audioChannel);
                 }
 
+                var channelName = "ERROR";
+                if (guild.getAudioManager().getConnectedChannel() != null) {
+                    channelName = guild.getAudioManager().getConnectedChannel().getName();
+                }
+
+                var sumTrackTime = musicManagerCopy.getSumTrackTime();
+                var playedIn = "Teraz";
+                if (sumTrackTime > 10) {
+                    playedIn = TimeUtils.millisecondsToMinutesFormat(sumTrackTime);
+                }
+
+
                 if (musicManagerCopy.getQueue().size() <= 0) {
                     musicManagerCopy.queue(audioTrack);
                     var embed = new EmbedBuilder()
                             .setDescription(audioTrack.getInfo().title)
                             .setColor(Color.GREEN)
-                            .addField("Kanał", event.getChannel().getName(), true)
+                            .addField("Kanał", channelName, true)
                             .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(musicManagerCopy.getCurrentTrack().getDuration()), true)
-                            .addField("Przewidywany czas odtworzenia utworu", "Teraz", true)
+                            .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
                             .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
                             .setTimestamp(LocalDateTime.now())
                             .build();
@@ -82,9 +95,9 @@ public class PlayCommand extends Command {
                 var embed = new EmbedBuilder()
                         .setDescription(audioTrack.getInfo().title)
                         .setColor(Color.GREEN)
-                        .addField("Kanał", event.getChannel().getName(), true)
+                        .addField("Kanał", channelName, true)
                         .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
-                        .addField("Przewidywany czas odtworzenia utworu", TimeUtils.millisecondsToMinutesFormat(musicManagerCopy.getSumTrackTime()), true)
+                        .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
                         .addField("Pozycja w kolejne", String.valueOf(musicManagerCopy.getQueue().size()), true)
                         .setAuthor("Dodano do playlisty", audioTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
                         .setTimestamp(LocalDateTime.now())
@@ -94,8 +107,8 @@ public class PlayCommand extends Command {
 
             @Override
             public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                var audioChannel = event.getMember().getVoiceState().getChannel();
-                if (!event.getMember().getVoiceState().inAudioChannel()) {
+                var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
+                if (!Objects.requireNonNull(event.getMember().getVoiceState()).inAudioChannel()) {
                     event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
                     return;
                 }

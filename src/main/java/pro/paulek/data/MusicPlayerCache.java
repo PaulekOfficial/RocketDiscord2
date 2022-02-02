@@ -26,7 +26,7 @@ public class MusicPlayerCache implements Cache<MusicManager, String> {
     }
 
     @Override
-    public void init(IRocketDiscord rocketDiscord, Logger logger) {
+    public void init() {
 
     }
 

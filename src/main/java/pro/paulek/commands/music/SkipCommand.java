@@ -1,4 +1,4 @@
-package pro.paulek.commands;
+package pro.paulek.commands.music;
 
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
+import pro.paulek.commands.Command;
 import pro.paulek.objects.MusicManager;
 import pro.paulek.util.TimeUtils;
 

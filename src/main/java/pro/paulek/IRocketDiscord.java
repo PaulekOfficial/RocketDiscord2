@@ -8,6 +8,7 @@ import pro.paulek.commands.CommandManager;
 import pro.paulek.data.Configuration;
 import pro.paulek.data.api.Cache;
 import pro.paulek.data.api.DataModel;
+import pro.paulek.data.cache.GuildConfigurationCache;
 import pro.paulek.database.Database;
 import pro.paulek.objects.MusicManager;
 
@@ -103,4 +104,10 @@ public interface IRocketDiscord {
      * @return
      */
     AudioPlayerManager getAudioManager();
+
+    /**
+     * Get guild configurations
+     * @return
+     */
+    GuildConfigurationCache getGuildConfigurations();
 }

@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -30,6 +32,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     private final MutableAudioFrame audioFrame;
     private final BlockingQueue<AudioTrack> queue;
 
+    private LocalDateTime lastPlayed;
+    private long lastTrackPosition;
     private AudioTrack currentTrack;
 
     private long sumTrackTime;
@@ -54,25 +58,35 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     @Override
     public void run() {
-//        var currentTrack = audioPlayer.getPlayingTrack();
-//        var duration = currentTrack.getDuration();
-//        var time = 0L;
-//        var v = duration - currentTrack.getPosition();
-//
-//        if (time != v) {
-//            sumTrackTime -= v - time;
-//            time = v;
-//        }
-        if (sumTrackTime <=0) {
-            sumTrackTime = 0;
-        } else {
-            sumTrackTime -= 1000;
-        }
+        while (true) {
+            //Track time
+            if (audioPlayer.getPlayingTrack() != null) {
+                var position = audioPlayer.getPlayingTrack().getPosition();
 
-        try {
-            Thread.sleep(1000L);
-        } catch (InterruptedException exception) {
-            logger.error("Track duration watchdog sleep error", exception);
+                if (lastTrackPosition != position) {
+                    sumTrackTime -= (position - lastTrackPosition);
+                }
+            }
+
+            try {
+                Thread.sleep(500L);
+            } catch (InterruptedException exception) {
+                logger.error("Track duration watchdog sleep error", exception);
+            }
+
+            //Add to time 5 minutes
+            if (lastPlayed == null || audioPlayer.getPlayingTrack() != null) {
+                continue;
+            }
+
+            var modifiedDate = lastPlayed.plus(5, ChronoUnit.MINUTES);
+
+            //Bot leaves channel after 5 min of idle
+            if (LocalDateTime.now().isAfter(modifiedDate) && audioPlayer.getPlayingTrack() == null) {
+                if (guild.getAudioManager().isConnected()) {
+                    guild.getAudioManager().closeAudioConnection();
+                }
+            }
         }
     }
 
@@ -103,6 +117,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
         this.currentTrack = null;
+        this.lastPlayed = LocalDateTime.now();
         if (!endReason.mayStartNext) {
             return;
         }

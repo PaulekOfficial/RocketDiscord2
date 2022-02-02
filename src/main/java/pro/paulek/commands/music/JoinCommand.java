@@ -1,33 +1,32 @@
-package pro.paulek.commands;
+package pro.paulek.commands.music;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
+import pro.paulek.commands.Command;
 import pro.paulek.objects.MusicManager;
 
 import java.util.Objects;
 
-public class VolumeCommand extends Command {
+public class JoinCommand extends Command {
 
-    private final static Logger logger = LoggerFactory.getLogger(VolumeCommand.class);
+    private final static Logger logger = LoggerFactory.getLogger(PlayCommand.class);
 
     private final IRocketDiscord rocketDiscord;
 
-    public VolumeCommand(IRocketDiscord rocketDiscord) {
+    public JoinCommand(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);
 
-        this.setName("volume");
-        this.setDescription("zmienia glosnosc bota");
-        this.setUsage("/volume <glosnosc od 1 do 100>");
-        var commandData = new CommandData("volume", "Changes volume of music bot future");
-        commandData.addOption(OptionType.INTEGER, "volume", "Percent of total volume", true);
+        this.setName("join");
+        this.setDescription("dołącza bota do kanału głosowego, na którym aktualnie się znajdujesz");
+        this.setUsage("/join");
+        var commandData = new CommandData("join", "Joins music bot to voice channel");
         this.setCommandData(commandData);
     }
 
@@ -41,7 +40,17 @@ public class VolumeCommand extends Command {
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
         }
 
-        musicPlayer.getAudioPlayer().setVolume((int) Objects.requireNonNull(event.getOption("volume")).getAsLong());
-        event.reply("Zmieniłem głośność :wink:").queue();
+        var audioChannel = event.getMember().getVoiceState().getChannel();
+        if (!event.getMember().getVoiceState().inAudioChannel()) {
+            event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
+            return;
+        }
+
+        if (!guild.getAudioManager().isConnected()) {
+            guild.getAudioManager().openAudioConnection(audioChannel);
+            event.reply(":cookie: Dołączyłem!").queue();
+        } else {
+            event.reply(":confused: Ale ja już jestem na kanale głosowym").queue();
+        }
     }
 }
