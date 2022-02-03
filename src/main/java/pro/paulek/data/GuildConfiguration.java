@@ -11,24 +11,66 @@ public class GuildConfiguration {
     private List<String> commandChannels;
     private List<String> memesChannels;
     private List<String> autoVoiceChannels;
+
+    private boolean welcomeImageEnable;
+    private boolean leaveImageEnable;
+    private String welcomeImageMessage;
+    private String leaveImageMessage;
     private String welcomeChannel;
+
     private String announcementsChannel;
 
     private List<String> botAdmins;
 
     private String djRole;
 
-    public GuildConfiguration(String guildID, String guildName, boolean commandsChannelsWhitelistMode, List<String> commandChannels, List<String> memesChannels, List<String> autoVoiceChannels, String welcomeChannel, String announcementsChannel, List<String> botAdmins, String djRole) {
+    public GuildConfiguration(String guildID, String guildName, boolean commandsChannelsWhitelistMode, List<String> commandChannels, List<String> memesChannels, List<String> autoVoiceChannels, boolean welcomeImageEnable, boolean leaveImageEnable, String welcomeImageMessage, String leaveImageMessage, String welcomeChannel, String announcementsChannel, List<String> botAdmins, String djRole) {
         this.guildID = guildID;
         this.guildName = guildName;
         this.commandsChannelsWhitelistMode = commandsChannelsWhitelistMode;
         this.commandChannels = commandChannels;
         this.memesChannels = memesChannels;
         this.autoVoiceChannels = autoVoiceChannels;
+        this.welcomeImageEnable = welcomeImageEnable;
+        this.leaveImageEnable = leaveImageEnable;
+        this.welcomeImageMessage = welcomeImageMessage;
+        this.leaveImageMessage = leaveImageMessage;
         this.welcomeChannel = welcomeChannel;
         this.announcementsChannel = announcementsChannel;
         this.botAdmins = botAdmins;
         this.djRole = djRole;
+    }
+
+    public boolean isWelcomeImageEnable() {
+        return welcomeImageEnable;
+    }
+
+    public void setWelcomeImageEnable(boolean welcomeImageEnable) {
+        this.welcomeImageEnable = welcomeImageEnable;
+    }
+
+    public boolean isLeaveImageEnable() {
+        return leaveImageEnable;
+    }
+
+    public void setLeaveImageEnable(boolean leaveImageEnable) {
+        this.leaveImageEnable = leaveImageEnable;
+    }
+
+    public String getLeaveImageMessage() {
+        return leaveImageMessage;
+    }
+
+    public void setLeaveImageMessage(String leaveImageMessage) {
+        this.leaveImageMessage = leaveImageMessage;
+    }
+
+    public String getWelcomeImageMessage() {
+        return welcomeImageMessage;
+    }
+
+    public void setWelcomeImageMessage(String welcomeImageMessage) {
+        this.welcomeImageMessage = welcomeImageMessage;
     }
 
     public String getGuildID() {

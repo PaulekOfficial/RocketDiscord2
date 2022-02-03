@@ -1,5 +1,6 @@
 package pro.paulek.commands;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -33,8 +34,8 @@ public class CommandManager extends ListenerAdapter {
         var guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
 
         var channel = (TextChannel) event.getChannel();
-        if (guildConfiguration.isCommandsChannelsWhitelistMode() && !guildConfiguration.getCommandChannels().contains(channel.getId())
-        || !guildConfiguration.isCommandsChannelsWhitelistMode() && guildConfiguration.getCommandChannels().contains(channel.getId())) {
+        if (!event.getMember().hasPermission(Permission.MANAGE_CHANNEL) && (guildConfiguration.isCommandsChannelsWhitelistMode() && !guildConfiguration.getCommandChannels().contains(channel.getId())
+        || !guildConfiguration.isCommandsChannelsWhitelistMode() && guildConfiguration.getCommandChannels().contains(channel.getId()))) {
             event.reply(":man_detective: Nie możesz używać poleceń na tym kanale!").queue();
             return;
         }

@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -23,10 +24,7 @@ import pro.paulek.data.cache.GuildConfigurationCache;
 import pro.paulek.database.Database;
 import pro.paulek.database.MySQL;
 import pro.paulek.database.SQLite;
-import pro.paulek.listeners.LoggingListeners;
-import pro.paulek.listeners.MemesListeners;
-import pro.paulek.listeners.RandomFunctionsListeners;
-import pro.paulek.listeners.SplashCommandListener;
+import pro.paulek.listeners.*;
 import pro.paulek.objects.MusicManager;
 
 import javax.security.auth.login.LoginException;
@@ -37,7 +35,6 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
@@ -88,12 +85,15 @@ public class RocketDiscord implements IRocketDiscord {
         //TODO remove this only for tests
         guildConfigurationCache.add("740276300815663105",
                 new GuildConfiguration("740276300815663105", "INF INC. | PaulekLab", true,
-                        Collections.singletonList("938543061192024064"), Collections.singletonList("938540794162335754"), Collections.emptyList(), "938538241953497088",
+                        Collections.singletonList("938543061192024064"), Collections.singletonList("938540794162335754"), Collections.emptyList(), true, true, "Witamy na INF INC. | PaulekLab", "Do zobaczenia ponownie!", "938538241953497088",
                         "938537678008377405", Collections.emptyList(), ""));
 
         //Create jda builder
         logger.info("Initializing discord gateway...");
         jdaBuilder = JDABuilder.createDefault(configuration.getEndpoint());
+
+        //Intends
+        jdaBuilder.enableIntents(GatewayIntent.GUILD_MEMBERS);
 
         //Set activity of this bot
         jdaBuilder.setActivity(Activity.streaming(configuration.getStatus(), "https://paulek.pro/rocketdiscord"));
@@ -116,6 +116,7 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder.addEventListeners(new LoggingListeners());
         jdaBuilder.addEventListeners(new SplashCommandListener(this));
         jdaBuilder.addEventListeners(new MemesListeners(this));
+        jdaBuilder.addEventListeners(new WelcomeListener(this));
 
         //Load music manager
         audioPlayerManager = new DefaultAudioPlayerManager();
