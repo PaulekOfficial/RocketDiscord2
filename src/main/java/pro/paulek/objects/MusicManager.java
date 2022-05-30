@@ -33,10 +33,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     private final BlockingQueue<AudioTrack> queue;
 
     private LocalDateTime lastPlayed;
-    private long lastTrackPosition;
     private AudioTrack currentTrack;
-
-    private long sumTrackTime;
 
     public MusicManager(AudioPlayer audioPlayer, Guild guild) {
         this.audioPlayer = Objects.requireNonNull(audioPlayer);
@@ -44,7 +41,6 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         this.byteBuffer = ByteBuffer.allocate(1024);
         this.audioFrame = new MutableAudioFrame();
         this.queue = new LinkedBlockingQueue<>();
-        this.sumTrackTime = 0;
     }
 
     public void init() {
@@ -59,15 +55,6 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     @Override
     public void run() {
         while (true) {
-            //Track time
-            if (audioPlayer.getPlayingTrack() != null) {
-                var position = audioPlayer.getPlayingTrack().getPosition();
-
-                if (lastTrackPosition != position) {
-                    sumTrackTime -= (position - lastTrackPosition);
-                }
-            }
-
             try {
                 Thread.sleep(500L);
             } catch (InterruptedException exception) {
@@ -97,12 +84,10 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     public void queue(AudioTrack audioTrack) {
         if (audioPlayer.startTrack(audioTrack, true)) {
             this.currentTrack = audioTrack;
-            this.sumTrackTime += audioTrack.getDuration();
             return;
         }
 
         this.queue.offer(audioTrack);
-        this.sumTrackTime += audioTrack.getDuration();
     }
 
     public void nextTrack() {
@@ -190,13 +175,5 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     public BlockingQueue<AudioTrack> getQueue() {
         return queue;
-    }
-
-    public long getSumTrackTime() {
-        return sumTrackTime;
-    }
-
-    public void setSumTrackTime(long sumTrackTime) {
-        this.sumTrackTime = sumTrackTime;
     }
 }

@@ -26,7 +26,7 @@ public interface Data<T, U> {
     /**
      * Load all objects from database
      */
-    void load();
+    Collection<T> load();
 
     /**
      * Save collection of object to database including changes

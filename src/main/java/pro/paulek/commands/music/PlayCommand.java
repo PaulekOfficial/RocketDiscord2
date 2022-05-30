@@ -54,7 +54,7 @@ public class PlayCommand extends Command {
         rocketDiscord.getAudioManager().loadItemOrdered(musicPlayer, Objects.requireNonNull(event.getOption("url")).getAsString(), new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
-                var audioChannel = event.getMember().getVoiceState().getChannel();
+                var audioChannel = Objects.requireNonNull(event.getMember()).getVoiceState().getChannel();
                 if (!event.getMember().getVoiceState().inAudioChannel()) {
                     event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
                     return;
@@ -64,24 +64,17 @@ public class PlayCommand extends Command {
                     guild.getAudioManager().openAudioConnection(audioChannel);
                 }
 
-                var channelName = "ERROR";
-                if (guild.getAudioManager().getConnectedChannel() != null) {
-                    channelName = guild.getAudioManager().getConnectedChannel().getName();
-                }
-
-                var sumTrackTime = musicManagerCopy.getSumTrackTime();
                 var playedIn = "Teraz";
-                if (sumTrackTime > 10) {
-                    playedIn = TimeUtils.millisecondsToMinutesFormat(sumTrackTime);
+                if (TimeUtils.playlistTime(musicManagerCopy) >= 30000L) {
+                    playedIn = TimeUtils.calculateTimeToPlayTrack(musicManagerCopy);
                 }
-
 
                 if (musicManagerCopy.getQueue().size() <= 0) {
                     musicManagerCopy.queue(audioTrack);
                     var embed = new EmbedBuilder()
                             .setDescription(audioTrack.getInfo().title)
                             .setColor(Color.GREEN)
-                            .addField("Kanał", channelName, true)
+                            .addField("Kanał", audioChannel.getName(), true)
                             .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(musicManagerCopy.getCurrentTrack().getDuration()), true)
                             .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
                             .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
@@ -95,7 +88,7 @@ public class PlayCommand extends Command {
                 var embed = new EmbedBuilder()
                         .setDescription(audioTrack.getInfo().title)
                         .setColor(Color.GREEN)
-                        .addField("Kanał", channelName, true)
+                        .addField("Kanał", audioChannel.getName(), true)
                         .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
                         .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
                         .addField("Pozycja w kolejne", String.valueOf(musicManagerCopy.getQueue().size()), true)

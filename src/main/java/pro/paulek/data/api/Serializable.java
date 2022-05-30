@@ -1,6 +1,7 @@
 package pro.paulek.data.api;
 
 import java.sql.SQLException;
+import java.util.Collection;
 
 public interface Serializable<T, R> {
 

@@ -3,9 +3,9 @@ package pro.paulek.data.cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
-import pro.paulek.RocketDiscord;
 import pro.paulek.data.GuildConfiguration;
 import pro.paulek.data.api.Cache;
+import pro.paulek.data.cache.mysql.GuildConfigurationMySQLModel;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -18,13 +18,21 @@ public class GuildConfigurationCache implements Cache<GuildConfiguration, String
     private final IRocketDiscord rocketDiscord;
     public Map<String, GuildConfiguration> guildConfigurationMap = new HashMap<>(10);
 
+    private GuildConfigurationMySQLModel mySQLModel;
+
     public GuildConfigurationCache(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);
     }
 
     @Override
     public void init() {
-        //TODO load from database
+        mySQLModel = new GuildConfigurationMySQLModel(rocketDiscord);
+        mySQLModel.createTable();
+
+        var settings = mySQLModel.load();
+        settings.forEach(setting -> {
+            guildConfigurationMap.put(setting.getGuildID(), setting);
+        });
     }
 
     @Override
@@ -39,7 +47,7 @@ public class GuildConfigurationCache implements Cache<GuildConfiguration, String
 
     @Override
     public void delete(String s) {
-        throw new UnsupportedOperationException();
+        this.mySQLModel.delete(s);
     }
 
     @Override
@@ -49,11 +57,12 @@ public class GuildConfigurationCache implements Cache<GuildConfiguration, String
 
     @Override
     public void save(String s, GuildConfiguration guildConfiguration) {
-        throw new UnsupportedOperationException();
+        guildConfigurationMap.put(s, guildConfiguration);
+        this.mySQLModel.save(guildConfiguration);
     }
 
     @Override
     public void save(String s) {
-        throw new UnsupportedOperationException();
+        this.mySQLModel.save(guildConfigurationMap.get(s));
     }
 }

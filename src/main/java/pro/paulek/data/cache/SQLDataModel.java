@@ -5,6 +5,7 @@ import pro.paulek.data.api.Serializable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Collection;
 
 public interface SQLDataModel<T, U> extends Data<T, U>, Serializable<T, ResultSet> {
 

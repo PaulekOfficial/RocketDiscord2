@@ -17,16 +17,16 @@ import pro.paulek.commands.music.PlayCommand;
 
 import java.util.Objects;
 
-public class DeleteMessagesCommand extends Command {
+public class AddCommandsChannelCommand  extends Command {
 
     private final static Logger logger = LoggerFactory.getLogger(PlayCommand.class);
 
     private final IRocketDiscord rocketDiscord;
 
-    public DeleteMessagesCommand(IRocketDiscord rocketDiscord) {
+    public AddCommandsChannelCommand(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);
 
-        this.setName("delete-messages");
+        this.setName("");
         this.setDescription("usuwa n ostatnich wiadomości na kanale");
         this.setUsage("/delete-messages");
         var commandData = new CommandData("delete-messages", "Deletes n last channel messages");
@@ -36,27 +36,6 @@ public class DeleteMessagesCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandEvent event, TextChannel channel, Guild guild, Member member) {
-        if (!member.hasPermission(Permission.MANAGE_CHANNEL)) {
-            event.reply(":game_die: Nie posiadasz wystarczających uprawnień, aby użyć tego polecenia!").queue();
-            return;
-        }
 
-        var n = event.getOption("to-delete").getAsLong();
-        if (n <= 0) {
-            event.reply(":rotating_light: Liczba wiadomości do usunięcia musi być większa od 0!").queue();
-            return;
-        }
-        var messages = channel.getHistory().retrievePast((int) n).complete();
-
-        if (messages == null || messages.isEmpty()) {
-            event.reply("Wystąpił nieznany błąd").queue();
-            return;
-        }
-
-        for (Message message : messages) {
-            message.delete().queue();
-        }
-
-        event.reply(":moyai: Wiadomości usunięto!").queue();
     }
 }

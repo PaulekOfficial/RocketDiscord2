@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import pro.paulek.commands.*;
-import pro.paulek.commands.admin.DeleteMessagesCommand;
 import pro.paulek.commands.music.*;
 import pro.paulek.data.Configuration;
 import pro.paulek.data.GuildConfiguration;
@@ -35,6 +34,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
@@ -85,7 +85,7 @@ public class RocketDiscord implements IRocketDiscord {
         //TODO remove this only for tests
         guildConfigurationCache.add("740276300815663105",
                 new GuildConfiguration("740276300815663105", "INF INC. | PaulekLab", true,
-                        Collections.singletonList("938543061192024064"), Collections.singletonList("938540794162335754"), Collections.emptyList(), true, true, "Witamy na INF INC. | PaulekLab", "Do zobaczenia ponownie!", "938538241953497088",
+                        List.of("938543061192024064", "980518871301775401", "938734875702341713"), Collections.singletonList("938540794162335754"), Collections.emptyList(), true, true, "Witamy na INF INC. | PaulekLab", "Do zobaczenia ponownie!", "938538241953497088",
                         "938537678008377405", Collections.emptyList(), ""));
 
         //Create jda builder
@@ -107,7 +107,7 @@ public class RocketDiscord implements IRocketDiscord {
         commandManager.addCommand(new StopCommand(this));
         commandManager.addCommand(new LeaveCommand(this));
         commandManager.addCommand(new JoinCommand(this));
-        commandManager.addCommand(new DeleteMessagesCommand(this));
+        commandManager.addCommand(new SkipCommand(this));
 
         //Load listeners
         logger.info("Initializing bot listeners...");
@@ -145,8 +145,11 @@ public class RocketDiscord implements IRocketDiscord {
         logger.info("Bot started!");
     }
 
+    //TODO check if command is already registered, remove duplications
     public void registerSplashCommands() {
-        commandManager.getCommandList().values().forEach(command -> jda.upsertCommand(command.getCommandData()).queue());
+        commandManager.getCommandList().values().forEach(command -> {
+            jda.upsertCommand(command.getCommandData()).queue();
+        });
 
         jda.updateCommands().queue();
     }
