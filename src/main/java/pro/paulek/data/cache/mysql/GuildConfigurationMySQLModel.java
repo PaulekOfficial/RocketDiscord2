@@ -99,23 +99,56 @@ public class GuildConfigurationMySQLModel implements SQLDataModel<GuildConfigura
 
     @Override
     public ResultSet serializeData(GuildConfiguration guildConfiguration) {
+        var guidID = guildConfiguration.getGuildID();
+
+        this.saveSetting(guidID, "guildID", guidID, "system");
+        this.saveSetting(guidID, "guildName", guildConfiguration.getGuildName(), "system");
+        this.saveSetting(guidID, "commandsChannelsWhitelistMode", String.valueOf(guildConfiguration.isCommandsChannelsWhitelistMode()), "system");
+        this.saveSetting(guidID, "welcomeImageEnable", String.valueOf(guildConfiguration.isWelcomeImageEnable()), "system");
+        this.saveSetting(guidID, "leaveImageEnable", String.valueOf(guildConfiguration.isLeaveImageEnable()), "system");
+        this.saveSetting(guidID, "welcomeImageMessage", guildConfiguration.getWelcomeImageMessage(), "system");
+        this.saveSetting(guidID, "leaveImageMessage", guildConfiguration.getLeaveImageMessage(), "system");
+        this.saveSetting(guidID, "welcomeChannel", guildConfiguration.getWelcomeChannel(), "system");
+        this.saveSetting(guidID, "announcementsChannel", guildConfiguration.getAnnouncementsChannel(), "system");
+        this.saveSetting(guidID, "djRole", guildConfiguration.getDjRole(), "system");
+
+        guildConfiguration.getCommandChannels().forEach(channel -> {
+            this.saveChannelValues(guidID, channel, "commandChannels", "system");
+        });
+        guildConfiguration.getMemesChannels().forEach(channel -> {
+            this.saveChannelValues(guidID, channel, "memesChannels", "system");
+        });
+        guildConfiguration.getAutoVoiceChannels().forEach(channel -> {
+            this.saveChannelValues(guidID, channel, "autoVoiceChannels", "system");
+        });
+        guildConfiguration.getBotAdmins().forEach(channel -> {
+            this.saveChannelValues(guidID, channel, "botAdmins", "system");
+        });
 
         return null;
     }
 
     @Override
     public GuildConfiguration deserializeData(ResultSet resultSet) throws SQLException {
-        String guildID = resultSet.getString("guildID");
-        String guildName = resultSet.getString("guildName");
 
-        boolean commandsChannelsWhitelistMode = resultSet.getBoolean("commandsChannelsWhitelistMode");
-        boolean welcomeImageEnable = resultSet.getBoolean("welcomeImageEnable");
-        boolean leaveImageEnable = resultSet.getBoolean("leaveImageEnable");
-        String welcomeImageMessage = resultSet.getString("welcomeImageMessage");
-        String leaveImageMessage = resultSet.getString("leaveImageMessage");
-        String welcomeChannel = resultSet.getString("welcomeChannel");
-        String announcementsChannel = resultSet.getString("announcementsChannel");
-        String djRole = resultSet.getString("djRole");
+        Map<String, Object> values = new HashMap<>(resultSet.getFetchSize());
+        while (resultSet.next()) {
+            var name = resultSet.getString("name");
+            var value = resultSet.getObject("vale");
+            values.put(name, value);
+        }
+
+        String guildID = (String) values.get("guildID");
+        String guildName = (String) values.get("guildName");
+
+        boolean commandsChannelsWhitelistMode = values.get("commandsChannelsWhitelistMode") != null && (boolean) values.get("commandsChannelsWhitelistMode");
+        boolean welcomeImageEnable = values.get("welcomeImageEnable") != null && (boolean) values.get("welcomeImageEnable");
+        boolean leaveImageEnable = values.get("leaveImageEnable") != null && (boolean) values.get("leaveImageEnable");
+        String welcomeImageMessage = values.get("welcomeImageMessage") != null ? (String) values.get("welcomeImageMessage") : "";
+        String leaveImageMessage = values.get("leaveImageMessage") != null ? (String) values.get("leaveImageMessage") : "";
+        String welcomeChannel = values.get("welcomeChannel") != null ? (String) values.get("welcomeChannel") : "";
+        String announcementsChannel = values.get("announcementsChannel") != null ? (String) values.get("announcementsChannel") : "";
+        String djRole = values.get("djRole") != null ? (String) values.get("djRole") : "";
 
         List<String> commandChannels = this.getChannelValues(guildID, "commandChannels");
         List<String> memesChannels = this.getChannelValues(guildID, "memesChannels");
@@ -143,22 +176,35 @@ public class GuildConfigurationMySQLModel implements SQLDataModel<GuildConfigura
             ps.setString(2, name);
             ps.setString(3, value);
             ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
-            ps.setString(5, "system");
+            ps.setString(5, editedBy);
             ps.executeQuery();
         } catch (SQLException exception) {
             logger.error("Cannot save setting: ", exception);
         }
     }
 
+    private void saveChannelValues(String guildID, String channelID, String type, String addedBy) {
+        try(Connection connection = rocketDiscord.getDatabaseConnection()) {
+            var ps = connection.prepareStatement("INSERT INTO `channel` (`guild_id`, `channel_id`, `type`, `added_by`) VALUES (?, ?, ?, ?)");
+            ps.setString(1, guildID);
+            ps.setString(2, channelID);
+            ps.setString(3, type);
+            ps.setString(4, addedBy);
+            ps.executeUpdate();
+        } catch (SQLException exception) {
+            logger.error("Cannot save channel values: ", exception);
+        }
+    }
+
     private List<String> getChannelValues(String guildID, String type) {
         List<String> arrayList = new ArrayList<>();
         try(Connection connection = rocketDiscord.getDatabaseConnection()) {
-            var ps = connection.prepareStatement("SELECT `value` FROM `channel` WHERE `guild_id` = ? AND `type` = ?");
+            var ps = connection.prepareStatement("SELECT `channel_id` FROM `channel` WHERE `guild_id` = ? AND `type` = ?");
             ps.setString(1, guildID);
             ps.setString(2, type);
             var values = ps.executeQuery();
             while (values.next()) {
-                arrayList.add(values.getString("value"));
+                arrayList.add(values.getString("channel_id"));
             }
         } catch (SQLException exception) {
             logger.error("Cannot get channel values: ", exception);
