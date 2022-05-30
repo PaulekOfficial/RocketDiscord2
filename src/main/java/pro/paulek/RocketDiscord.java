@@ -82,12 +82,6 @@ public class RocketDiscord implements IRocketDiscord {
         guildConfigurationCache = new GuildConfigurationCache(this);
         guildConfigurationCache.init();
 
-        //TODO remove this only for tests
-        guildConfigurationCache.add("740276300815663105",
-                new GuildConfiguration("740276300815663105", "INF INC. | PaulekLab", true,
-                        List.of("938543061192024064", "980518871301775401", "938734875702341713"), Collections.singletonList("938540794162335754"), Collections.emptyList(), true, true, "Witamy na INF INC. | PaulekLab", "Do zobaczenia ponownie!", "938538241953497088",
-                        "938537678008377405", Collections.emptyList(), ""));
-
         //Create jda builder
         logger.info("Initializing discord gateway...");
         jdaBuilder = JDABuilder.createDefault(configuration.getEndpoint());
