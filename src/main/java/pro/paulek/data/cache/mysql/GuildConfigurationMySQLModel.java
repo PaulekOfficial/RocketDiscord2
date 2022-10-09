@@ -41,10 +41,10 @@ public class GuildConfigurationMySQLModel implements SQLDataModel<GuildConfigura
     @Override
     public void createTable() {
         try(Connection connection = rocketDiscord.getDatabaseConnection()) {
-            var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, `guild_id` text NOT NULL, `channel_id` text NOT NULL, `type` text NOT NULL, `added_by` text NOT NULL)");
+            var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `channel_id` text NOT NULL, `type` text NOT NULL, `added_by` text NOT NULL, PRIMARY KEY (`id`))");
             ps1.executeUpdate();
 
-            var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL)");
+            var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL, PRIMARY KEY (`id`))");
             ps2.executeUpdate();
         } catch (SQLException exception) {
             logger.error("Failed to create database tables: ", exception);

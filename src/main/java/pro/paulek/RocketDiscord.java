@@ -129,7 +129,7 @@ public class RocketDiscord implements IRocketDiscord {
         logger.info("Starting JDA Websocket");
         try {
             jda = jdaBuilder.build();
-        } catch (LoginException exception) {
+        } catch (Exception exception) {
             logger.error("Cannot build JDA application", exception);
             return;
         }

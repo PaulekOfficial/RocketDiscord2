@@ -3,9 +3,8 @@ package pro.paulek.commands;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import org.jetbrains.annotations.NotNull;
@@ -29,7 +28,7 @@ public abstract class Command extends ListenerAdapter {
     private boolean subCommandName;
     private boolean NSFW;
 
-    public abstract void execute(@NotNull SlashCommandEvent event, TextChannel channel, Guild guild, Member member);
+    public abstract void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member);
 
     public String getName() {
         return name;

@@ -7,10 +7,11 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,13 +36,13 @@ public class PlayCommand extends Command {
         this.setName("play");
         this.setDescription("pozwala wlaczyc muzyke na kanale glosowym");
         this.setUsage("/play <link do muzyki>");
-        var commandData = new CommandData("play", "Plays music on voice channels");
+        var commandData = Commands.slash("play", "Plays music on voice channels");
         commandData.addOption(OptionType.STRING, "url", "URL to music source", true);
         this.setCommandData(commandData);
     }
 
     @Override
-    public void execute(@NotNull SlashCommandEvent event, TextChannel channel, Guild guild, Member member) {
+    public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
        var musicPlayer = rocketDiscord.getMusicManager(guild.getId());
 
        if (musicPlayer == null) {

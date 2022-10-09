@@ -2,9 +2,10 @@ package pro.paulek.commands.music;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +27,12 @@ public class LeaveCommand extends Command {
         this.setName("leave");
         this.setDescription("rozkazuje botu wyjście z kanału głosowego i zakończenie muzyki");
         this.setUsage("/leave");
-        var commandData = new CommandData("leave", "Orders bot to leave voice channel");
+        var commandData = Commands.slash("leave", "Orders bot to leave voice channel");
         this.setCommandData(commandData);
     }
 
     @Override
-    public void execute(@NotNull SlashCommandEvent event, TextChannel channel, Guild guild, Member member) {
+    public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
         var musicPlayer = rocketDiscord.getMusicManager(guild.getId());
 
         if (musicPlayer == null) {

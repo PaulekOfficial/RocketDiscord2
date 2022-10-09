@@ -3,6 +3,7 @@ package pro.paulek.listeners;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +34,7 @@ public class WelcomeListener extends ListenerAdapter {
 
         var image = imageGenerator.generateWelcomeImage(event.getUser(), guildConfiguration.getWelcomeImageMessage());
 
-        event.getGuild().getTextChannelById(guildConfiguration.getWelcomeChannel()).sendFile(image).queue();
+        Objects.requireNonNull(event.getGuild().getTextChannelById(guildConfiguration.getWelcomeChannel())).sendFiles(FileUpload.fromData(image)).queue();
     }
 
     @Override
@@ -46,6 +47,6 @@ public class WelcomeListener extends ListenerAdapter {
 
         var image = imageGenerator.generateLeaveImage(event.getUser(), guildConfiguration.getLeaveImageMessage());
 
-        event.getGuild().getTextChannelById(guildConfiguration.getWelcomeChannel()).sendFile(image).queue();
+        Objects.requireNonNull(event.getGuild().getTextChannelById(guildConfiguration.getWelcomeChannel())).sendFiles(FileUpload.fromData(image)).queue();
     }
 }

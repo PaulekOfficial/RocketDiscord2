@@ -1,7 +1,7 @@
 package pro.paulek.listeners;
 
-import net.dv8tion.jda.api.entities.Emote;
 import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.message.MessageEmbedEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -35,8 +35,8 @@ public class MemesListeners extends ListenerAdapter {
                 continue;
             }
 
-            event.getMessage().addReaction("U+1F44C").queue();
-            event.getMessage().addReaction("U+1F602").queue();
+            event.getMessage().addReaction(Emoji.fromUnicode("U+1F44C")).queue();
+            event.getMessage().addReaction(Emoji.fromUnicode("U+1F602")).queue();
         }
     }
 }

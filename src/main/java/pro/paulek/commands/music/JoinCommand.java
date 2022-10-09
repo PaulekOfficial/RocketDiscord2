@@ -2,9 +2,9 @@ package pro.paulek.commands.music;
 
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.TextChannel;
-import net.dv8tion.jda.api.events.interaction.SlashCommandEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,12 +26,12 @@ public class JoinCommand extends Command {
         this.setName("join");
         this.setDescription("dołącza bota do kanału głosowego, na którym aktualnie się znajdujesz");
         this.setUsage("/join");
-        var commandData = new CommandData("join", "Joins music bot to voice channel");
+        var commandData = Commands.slash("join", "Joins music bot to voice channel");
         this.setCommandData(commandData);
     }
 
     @Override
-    public void execute(@NotNull SlashCommandEvent event, TextChannel channel, Guild guild, Member member) {
+    public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
         var musicPlayer = rocketDiscord.getMusicManager(guild.getId());
 
         if (musicPlayer == null) {

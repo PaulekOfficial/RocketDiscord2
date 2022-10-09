@@ -1,6 +1,8 @@
 package pro.paulek.objects;
 
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.sticker.StickerItem;
+import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 
 import java.util.List;
 
@@ -15,7 +17,7 @@ public class CachedMessage {
     private boolean tts;
     private List<MessageEmbed> embeds;
     private MessageReference messageReference;
-    private List<MessageSticker> stickerIDs;
+    private List<StickerItem> stickerIDs;
     private List<Message.Attachment> attachments;
 
     public CachedMessage(Message message) {
@@ -30,7 +32,7 @@ public class CachedMessage {
         this.attachments = message.getAttachments();
     }
 
-    public CachedMessage(String authorName, String authorID, String messageID, String content, boolean tts, List<MessageEmbed> embeds, MessageReference messageReference, List<MessageSticker> stickerIDs, List<Message.Attachment> attachments) {
+    public CachedMessage(String authorName, String authorID, String messageID, String content, boolean tts, List<MessageEmbed> embeds, MessageReference messageReference, List<StickerItem> stickerIDs, List<Message.Attachment> attachments) {
         this.authorName = authorName;
         this.authorID = authorID;
         this.messageID = messageID;
@@ -98,11 +100,11 @@ public class CachedMessage {
         this.messageReference = messageReference;
     }
 
-    public List<MessageSticker> getStickerIDs() {
+    public List<StickerItem> getStickerIDs() {
         return stickerIDs;
     }
 
-    public void setStickerIDs(List<MessageSticker> stickerIDs) {
+    public void setStickerIDs(List<StickerItem> stickerIDs) {
         this.stickerIDs = stickerIDs;
     }
 
