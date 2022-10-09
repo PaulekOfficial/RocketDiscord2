@@ -41,7 +41,12 @@ public class LeaveCommand extends Command {
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
         }
 
-        var audioChannel = event.getMember().getVoiceState().getChannel();
+        var memberAudioChannel = event.getMember().getVoiceState().getChannel();
+        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getPlayingChannel().getId())) {
+            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
+            return;
+        }
+
         if (!guild.getAudioManager().isConnected()) {
             event.reply(":confused: Ale ja przecież nie jestem połączony z chatem głosowym").queue();
             return;

@@ -49,6 +49,7 @@ public class JoinCommand extends Command {
         if (!guild.getAudioManager().isConnected()) {
             guild.getAudioManager().openAudioConnection(audioChannel);
             event.reply(":cookie: Dołączyłem!").queue();
+            musicPlayer.setAudioChannel(audioChannel);
         } else {
             event.reply(":confused: Ale ja już jestem na kanale głosowym").queue();
         }

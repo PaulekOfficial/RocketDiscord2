@@ -4,7 +4,6 @@ import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
-import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
@@ -38,6 +37,12 @@ public class StopCommand  extends Command {
             musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
             musicPlayer.init();
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        }
+
+        var memberAudioChannel = event.getMember().getVoiceState().getChannel();
+        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getPlayingChannel().getId())) {
+            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
+            return;
         }
 
         musicPlayer.removeAllTracks();

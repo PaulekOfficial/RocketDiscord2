@@ -52,6 +52,7 @@ public class PlayCommand extends Command {
        }
 
         var musicManagerCopy = musicPlayer;
+        MusicManager finalMusicPlayer = musicPlayer;
         rocketDiscord.getAudioManager().loadItemOrdered(musicPlayer, Objects.requireNonNull(event.getOption("url")).getAsString(), new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
@@ -63,6 +64,7 @@ public class PlayCommand extends Command {
 
                 if (!guild.getAudioManager().isConnected()) {
                     guild.getAudioManager().openAudioConnection(audioChannel);
+                    finalMusicPlayer.setAudioChannel(audioChannel);
                 }
 
                 var playedIn = "Teraz";

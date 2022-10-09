@@ -8,6 +8,7 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +28,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     private Thread watchdogThread;
 
     private final Guild guild;
+    private AudioChannel playingChannel;
     private final AudioPlayer audioPlayer;
     private final ByteBuffer byteBuffer;
     private final MutableAudioFrame audioFrame;
@@ -72,6 +74,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
             if (LocalDateTime.now().isAfter(modifiedDate) && audioPlayer.getPlayingTrack() == null) {
                 if (guild.getAudioManager().isConnected()) {
                     guild.getAudioManager().closeAudioConnection();
+                    playingChannel = null;
                 }
             }
         }
@@ -157,6 +160,10 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         return currentTrack;
     }
 
+    public void setAudioChannel(AudioChannel channel) {
+        this.playingChannel = channel;
+    }
+
     public void setCurrentTrack(AudioTrack currentTrack) {
         this.currentTrack = currentTrack;
     }
@@ -175,5 +182,9 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     public BlockingQueue<AudioTrack> getQueue() {
         return queue;
+    }
+
+    public AudioChannel getPlayingChannel() {
+        return playingChannel;
     }
 }

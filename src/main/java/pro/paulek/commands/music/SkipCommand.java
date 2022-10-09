@@ -43,6 +43,12 @@ public class SkipCommand extends Command {
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
         }
 
+        var memberAudioChannel = event.getMember().getVoiceState().getChannel();
+        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getPlayingChannel().getId())) {
+            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
+            return;
+        }
+
         musicPlayer.getAudioPlayer().stopTrack();
         musicPlayer.nextTrack();
 
