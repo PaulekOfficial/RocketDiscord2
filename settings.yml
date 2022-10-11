@@ -1,0 +1,15 @@
+endpoint: ""
+status: "Ready to lift off!"
+
+storageType: "MySQL"
+mysql:
+  "jdbcUrl": "jdbc:mysql://{host}:{port}/{database-name}"
+  "host": "127.0.0.1"
+  "port": "3306"
+  "user": "rocketDiscordUser"
+  "password": "foo-bar"
+  "database-name": "RocketDiscord"
+  "pool-size": 2
+
+adminIds:
+  - "419203785190014987"

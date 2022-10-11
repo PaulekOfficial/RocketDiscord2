@@ -3,12 +3,8 @@ package pro.paulek.objects;
 import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import pro.paulek.IRocketDiscord;
 
 import java.time.LocalDateTime;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class CachedUser {
 

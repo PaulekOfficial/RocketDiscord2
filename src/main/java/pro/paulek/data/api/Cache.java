@@ -1,8 +1,5 @@
 package pro.paulek.data.api;
 
-import org.slf4j.Logger;
-import pro.paulek.IRocketDiscord;
-
 public interface Cache<T, U>{
 
     /**

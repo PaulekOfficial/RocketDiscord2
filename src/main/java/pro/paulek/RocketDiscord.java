@@ -12,10 +12,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
-import pro.paulek.commands.*;
+import pro.paulek.commands.CommandManager;
+import pro.paulek.commands.HelpCommand;
+import pro.paulek.commands.admin.DeleteMessagesCommand;
 import pro.paulek.commands.music.*;
 import pro.paulek.data.Configuration;
-import pro.paulek.data.GuildConfiguration;
 import pro.paulek.data.MusicPlayerCache;
 import pro.paulek.data.api.Cache;
 import pro.paulek.data.api.DataModel;
@@ -26,15 +27,12 @@ import pro.paulek.database.SQLite;
 import pro.paulek.listeners.*;
 import pro.paulek.objects.MusicManager;
 
-import javax.security.auth.login.LoginException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
@@ -102,6 +100,7 @@ public class RocketDiscord implements IRocketDiscord {
         commandManager.addCommand(new LeaveCommand(this));
         commandManager.addCommand(new JoinCommand(this));
         commandManager.addCommand(new SkipCommand(this));
+        commandManager.addCommand(new DeleteMessagesCommand(this));
 
         //Load listeners
         logger.info("Initializing bot listeners...");
@@ -139,12 +138,11 @@ public class RocketDiscord implements IRocketDiscord {
         logger.info("Bot started!");
     }
 
-    //TODO check if command is already registered, remove duplications
     public void registerSplashCommands() {
-        commandManager.getCommandList().values().forEach(command -> {
+        var commands = jda.retrieveCommands().complete();
+        commandManager.getCommandList().values().stream().filter(commands::contains).forEach(command -> {
             jda.upsertCommand(command.getCommandData()).queue();
         });
-
         jda.updateCommands().queue();
     }
 

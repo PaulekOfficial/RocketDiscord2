@@ -2,7 +2,6 @@ package pro.paulek;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.User;
 import pro.paulek.commands.CommandManager;
 import pro.paulek.data.Configuration;

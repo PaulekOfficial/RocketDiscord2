@@ -1,8 +1,9 @@
 package pro.paulek.objects;
 
-import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.MessageReference;
 import net.dv8tion.jda.api.entities.sticker.StickerItem;
-import net.dv8tion.jda.api.entities.sticker.StickerSnowflake;
 
 import java.util.List;
 

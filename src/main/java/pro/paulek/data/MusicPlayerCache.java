@@ -1,8 +1,5 @@
 package pro.paulek.data;
 
-import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
