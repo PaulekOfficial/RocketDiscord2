@@ -85,7 +85,19 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder = JDABuilder.createDefault(configuration.getEndpoint());
 
         //Intends
-        jdaBuilder.enableIntents(GatewayIntent.GUILD_MEMBERS);
+        jdaBuilder.enableIntents(
+                GatewayIntent.GUILD_MEMBERS,
+                GatewayIntent.GUILD_BANS,
+                GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
+                GatewayIntent.GUILD_VOICE_STATES,
+                GatewayIntent.GUILD_PRESENCES,
+                GatewayIntent.GUILD_MESSAGES,
+                GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                GatewayIntent.GUILD_MESSAGE_TYPING,
+                GatewayIntent.DIRECT_MESSAGES,
+                GatewayIntent.DIRECT_MESSAGE_REACTIONS,
+                GatewayIntent.DIRECT_MESSAGE_TYPING,
+                GatewayIntent.MESSAGE_CONTENT);
 
         //Set activity of this bot
         jdaBuilder.setActivity(Activity.streaming(configuration.getStatus(), "https://paulek.pro/rocketdiscord"));
@@ -101,6 +113,7 @@ public class RocketDiscord implements IRocketDiscord {
         commandManager.addCommand(new JoinCommand(this));
         commandManager.addCommand(new SkipCommand(this));
         commandManager.addCommand(new DeleteMessagesCommand(this));
+        commandManager.addCommand(new QueueCommand(this));
 
         //Load listeners
         logger.info("Initializing bot listeners...");
@@ -139,8 +152,14 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     public void registerSplashCommands() {
+
+        // For debug only
+        jda.retrieveCommands().complete().forEach(cmd -> {
+            jda.deleteCommandById(cmd.getId()).complete();
+        });
+
         var commands = jda.retrieveCommands().complete();
-        commandManager.getCommandList().values().stream().filter(commands::contains).forEach(command -> {
+        commandManager.getCommandList().values().forEach(command -> {
             jda.upsertCommand(command.getCommandData()).queue();
         });
         jda.updateCommands().queue();

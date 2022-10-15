@@ -1,5 +1,6 @@
 package pro.paulek.commands.admin;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -7,14 +8,19 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
+import pro.paulek.commands.music.QueueCommand;
 
 import java.util.Objects;
 
 public class DeleteMessagesCommand extends Command {
 
     private final IRocketDiscord rocketDiscord;
+
+    private final static Logger logger = LoggerFactory.getLogger(DeleteMessagesCommand.class);
 
     public DeleteMessagesCommand(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);
@@ -30,7 +36,8 @@ public class DeleteMessagesCommand extends Command {
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
         // Check member permissions
-        if (!member.isOwner()) {
+        if (!member.hasPermission(Permission.MANAGE_CHANNEL)) {
+            event.reply(":cloud_lightning: Heh. Nie masz uprawnień do wykonania tego polecenia").queue();
             return;
         }
 
@@ -48,13 +55,18 @@ public class DeleteMessagesCommand extends Command {
             return;
         }
 
-        // Remove chat history
-        channel.getHistoryAfter(latestMessage, messagesToDelete - 1).submit().thenAccept(history -> {
-            var messageList = history.getRetrievedHistory();
-            channel.deleteMessages(messageList).queue();
-            channel.deleteMessageById(latestMessage).queue();
+        event.reply(":saluting_face: Jasne już usuwam!").queue();
 
-            event.reply(String.format(":wink: Usunięto %d widomości", messageList.size() + 1)).queue();
+        // Remove chat history
+        channel.getHistoryBefore(latestMessage, messagesToDelete - 1).submit().thenAccept(history -> {
+            var messageList = history.getRetrievedHistory();
+            messageList.forEach(message -> {
+                logger.info(String.format("Deleting message %s on channel %s", message.getId(), message.getChannel().getId()));
+                message.delete().queue();
+            });
+            logger.info(String.format("Deleting latest message %s on channel %s", latestMessage, channel.getId()));
+            channel.deleteMessageById(latestMessage).queue();
+            channel.sendMessage(String.format(":tools: Usunięto %d widomości", messageList.size() + 1)).queue();
         });
     }
 }

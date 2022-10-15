@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
 import pro.paulek.objects.MusicManager;
+import pro.paulek.util.PlaylistUtils;
 import pro.paulek.util.TimeUtils;
 
 import java.awt.*;
@@ -79,7 +80,7 @@ public class PlayCommand extends Command {
                             .addField("Kanał", audioChannel.getName(), true)
                             .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(musicManagerCopy.getCurrentTrack().getDuration()), true)
                             .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
-                            .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
+                            .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://paulek.pro/img/butelka.png")
                             .setTimestamp(LocalDateTime.now())
                             .build();
                     event.replyEmbeds(embed).queue();
@@ -94,7 +95,7 @@ public class PlayCommand extends Command {
                         .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
                         .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
                         .addField("Pozycja w kolejne", String.valueOf(musicManagerCopy.getQueue().size()), true)
-                        .setAuthor("Dodano do playlisty", audioTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
+                        .setAuthor("Dodano do playlisty", audioTrack.getInfo().uri, "https://paulek.pro/img/butelka.png")
                         .setTimestamp(LocalDateTime.now())
                         .build();
                 event.replyEmbeds(embed).queue();
@@ -111,40 +112,9 @@ public class PlayCommand extends Command {
                     guild.getAudioManager().openAudioConnection(audioChannel);
                 }
 
-                StringBuilder stringBuilder = new StringBuilder();
+                audioPlaylist.getTracks().forEach(musicManagerCopy::queue);
 
-                stringBuilder.append(":arrow_lower_left: Dodaje do playlisty :arrow_lower_right:");
-                stringBuilder.append(System.getProperty("line.separator"));
-
-                int queueSize = musicManagerCopy.getQueue().size();
-                int i = 1 + queueSize;
-
-                for (AudioTrack audioTrack : audioPlaylist.getTracks()) {
-                    if (i <= 10 + queueSize) {
-                        stringBuilder.append("`");
-                        stringBuilder.append(i);
-                        stringBuilder.append(".` ");
-                        stringBuilder.append(audioTrack.getInfo().title);
-                        stringBuilder.append(" | ");
-                        stringBuilder.append(TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()));
-                        stringBuilder.append(System.getProperty("line.separator"));
-                        stringBuilder.append(System.getProperty("line.separator"));
-                    }
-
-                    musicManagerCopy.queue(audioTrack);
-                    i++;
-                }
-                stringBuilder.append(System.getProperty("line.separator"));
-                stringBuilder.append("Liczba utworów w playliście: ");
-                stringBuilder.append(String.valueOf(musicManagerCopy.getQueue().size()));
-
-                var embed = new EmbedBuilder()
-                        .setDescription(stringBuilder.toString())
-                        .setColor(Color.GREEN)
-                        .setAuthor("Dodano do playlisty", "https://paulek.pro/", "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
-                        .setTimestamp(LocalDateTime.now())
-                        .build();
-                event.replyEmbeds(embed).queue();
+                event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicManagerCopy, ":arrow_lower_left: Dodaję do playlisty :arrow_lower_right:").build()).queue();
             }
 
             @Override
