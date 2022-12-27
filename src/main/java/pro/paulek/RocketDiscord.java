@@ -7,6 +7,7 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.yaml.snakeyaml.constructor.Constructor;
 import pro.paulek.commands.CommandManager;
 import pro.paulek.commands.HelpCommand;
 import pro.paulek.commands.admin.DeleteMessagesCommand;
+import pro.paulek.commands.fun.Rule34Command;
 import pro.paulek.commands.music.*;
 import pro.paulek.data.Configuration;
 import pro.paulek.data.MusicPlayerCache;
@@ -114,6 +116,8 @@ public class RocketDiscord implements IRocketDiscord {
         commandManager.addCommand(new SkipCommand(this));
         commandManager.addCommand(new DeleteMessagesCommand(this));
         commandManager.addCommand(new QueueCommand(this));
+        commandManager.addCommand(new RepeatCommand(this));
+        commandManager.addCommand(new Rule34Command(this));
 
         //Load listeners
         logger.info("Initializing bot listeners...");
@@ -154,13 +158,21 @@ public class RocketDiscord implements IRocketDiscord {
     public void registerSplashCommands() {
 
         // For debug only
-        jda.retrieveCommands().complete().forEach(cmd -> {
-            jda.deleteCommandById(cmd.getId()).complete();
-        });
+//        jda.retrieveCommands().complete().forEach(cmd -> {
+//            jda.deleteCommandById(cmd.getId()).complete();
+//        });
 
         var commands = jda.retrieveCommands().complete();
         commandManager.getCommandList().values().forEach(command -> {
-            jda.upsertCommand(command.getCommandData()).queue();
+            boolean match = false;
+            for (Command cmd : commands) {
+                if (cmd.getName().equalsIgnoreCase(command.getName())) {
+                    match = true;
+                    return;
+                }
+            }
+
+            if (!match) jda.upsertCommand(command.getCommandData()).queue();
         });
         jda.updateCommands().queue();
     }

@@ -5,6 +5,7 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
+import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
@@ -33,6 +34,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     private final ByteBuffer byteBuffer;
     private final MutableAudioFrame audioFrame;
     private final BlockingQueue<AudioTrack> queue;
+
+    private boolean repeat = false;
 
     private LocalDateTime lastPlayed;
     private AudioTrack currentTrack;
@@ -94,6 +97,12 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     }
 
     public void nextTrack() {
+        if (repeat) {
+            this.currentTrack = currentTrack.makeClone();
+            audioPlayer.startTrack(currentTrack, false);
+            return;
+        }
+
         this.currentTrack = queue.poll();
         audioPlayer.startTrack(currentTrack, false);
     }
@@ -104,7 +113,6 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     @Override
     public void onTrackEnd(AudioPlayer player, AudioTrack track, AudioTrackEndReason endReason) {
-        this.currentTrack = null;
         this.lastPlayed = LocalDateTime.now();
         if (!endReason.mayStartNext) {
             return;
@@ -148,7 +156,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     @Override
     public void onTrackException(AudioPlayer player, AudioTrack track, FriendlyException exception) {
         logger.error("Cannot play track in guild " + guild.getName(), exception);
-        this.currentTrack = null;
+        //this.currentTrack = null;
     }
 
     @Override
@@ -186,5 +194,13 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     public AudioChannel getPlayingChannel() {
         return playingChannel;
+    }
+
+    public boolean isRepeat() {
+        return repeat;
+    }
+
+    public void setRepeat(boolean repeat) {
+        this.repeat = repeat;
     }
 }

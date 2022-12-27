@@ -30,11 +30,6 @@ public class SplashCommandListener extends ListenerAdapter {
         }
         logger.info(String.format("Updating splash commands on %s command used by %s", event.getGuild().getName(), event.getMember().getNickname()));
 
-        rocketDiscord.getJda().retrieveCommands().complete().forEach(cmd -> {
-            event.getGuild().deleteCommandById(cmd.getId()).queue();
-        });
-        event.getGuild().updateCommands().queue();
-
         rocketDiscord.getCommandManager().getCommandList().values().forEach(command -> {
             event.getGuild().upsertCommand(command.getCommandData()).queue();
             logger.debug("Added " + command.getName() + " command to guild " + event.getGuild().getName());
