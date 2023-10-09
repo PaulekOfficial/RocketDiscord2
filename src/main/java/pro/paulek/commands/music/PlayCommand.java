@@ -56,7 +56,7 @@ public class PlayCommand extends Command {
         rocketDiscord.getAudioManager().loadItemOrdered(musicPlayer, Objects.requireNonNull(event.getOption("url")).getAsString(), new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
-                var audioChannel = Objects.requireNonNull(event.getMember()).getVoiceState().getChannel();
+                var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
                 if (!event.getMember().getVoiceState().inAudioChannel()) {
                     event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
                     return;
@@ -72,30 +72,16 @@ public class PlayCommand extends Command {
                     playedIn = TimeUtils.calculateTimeToPlayTrack(musicManagerCopy);
                 }
 
-                if (musicManagerCopy.getQueue().size() <= 0) {
-                    musicManagerCopy.queue(audioTrack);
-                    var embed = new EmbedBuilder()
-                            .setDescription(audioTrack.getInfo().title)
-                            .setColor(Color.GREEN)
-                            .addField("Kanał", audioChannel.getName(), true)
-                            .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(musicManagerCopy.getCurrentTrack().getDuration()), true)
-                            .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
-                            .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://paulek.pro/img/butelka.png")
-                            .setTimestamp(LocalDateTime.now())
-                            .build();
-                    event.replyEmbeds(embed).queue();
-                    return;
-                }
-
                 musicManagerCopy.queue(audioTrack);
                 var embed = new EmbedBuilder()
                         .setDescription(audioTrack.getInfo().title)
+                        .setThumbnail("https://img.youtube.com/vi/" + audioTrack.getIdentifier() + "/0.jpg")
                         .setColor(Color.GREEN)
                         .addField("Kanał", audioChannel.getName(), true)
                         .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
                         .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
                         .addField("Pozycja w kolejne", String.valueOf(musicManagerCopy.getQueue().size()), true)
-                        .setAuthor("Dodano do playlisty", audioTrack.getInfo().uri, "https://paulek.pro/img/butelka.png")
+                        .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
                         .setTimestamp(LocalDateTime.now())
                         .build();
                 event.replyEmbeds(embed).queue();

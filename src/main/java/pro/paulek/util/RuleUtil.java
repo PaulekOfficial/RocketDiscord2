@@ -5,7 +5,7 @@ import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Unmarshaller;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import pro.paulek.objects.Rule34Posts;
+import pro.paulek.objects.react.Rule34Posts;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.BufferedReader;

@@ -1,37 +1,34 @@
-package pro.paulek.objects;
+package pro.paulek.objects.user;
 
-import net.dv8tion.jda.api.entities.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-public class CachedUser {
-
+public class User {
     private int id;
     private String discordID;
     private String username;
     private String avatarUrl;
-
     private boolean bot;
     private boolean system;
     private boolean mfaEnabled;
-    private boolean verificated;
-
+    private boolean verification;
     private String bannerUrl;
     private int accentColor;
-
     private String locale;
     private String email;
     private int flags;
     private int premiumType;
     private int publicFlags;
-
     private LocalDateTime timestamp;
 
-    private final static Logger logger = LoggerFactory.getLogger(CachedUser.class);
+    private int experience;
 
-    public CachedUser(int id, String discordID, String username, String avatarUrl, boolean bot, boolean system, boolean mfaEnabled, String bannerUrl, int accentColor, String locale, String email, int flags, int premiumType, int publicFlags, LocalDateTime timestamp) {
+    private final static Logger logger = LoggerFactory.getLogger(User.class);
+
+    public User(int id, String discordID, String username, String avatarUrl, boolean bot, boolean system, boolean mfaEnabled, boolean verification, String bannerUrl, int accentColor, String locale, String email, int flags, int premiumType, int publicFlags, LocalDateTime timestamp) {
         this.id = id;
         this.discordID = discordID;
         this.username = username;
@@ -39,6 +36,7 @@ public class CachedUser {
         this.bot = bot;
         this.system = system;
         this.mfaEnabled = mfaEnabled;
+        this.verification = verification;
         this.bannerUrl = bannerUrl;
         this.accentColor = accentColor;
         this.locale = locale;
@@ -47,15 +45,6 @@ public class CachedUser {
         this.premiumType = premiumType;
         this.publicFlags = publicFlags;
         this.timestamp = timestamp;
-    }
-
-    /**
-     * Creates #CachedUser form jda user
-     * -1 or "" values are not implemented yet.
-     * @param user
-     */
-    public CachedUser(User user, User.Profile profile) {
-        this(-1, user.getId(), user.getName(), user.getAvatarUrl(), user.isBot(), user.isSystem(), false, profile.getBannerUrl(), profile.getAccentColorRaw(), "", "", user.getFlagsRaw(), -1, -1, LocalDateTime.now());
     }
 
     public int getId() {
@@ -114,20 +103,20 @@ public class CachedUser {
         this.mfaEnabled = mfaEnabled;
     }
 
+    public boolean isVerification() {
+        return verification;
+    }
+
+    public void setVerification(boolean verification) {
+        this.verification = verification;
+    }
+
     public String getBannerUrl() {
         return bannerUrl;
     }
 
     public void setBannerUrl(String bannerUrl) {
         this.bannerUrl = bannerUrl;
-    }
-
-    public boolean isVerificated() {
-        return verificated;
-    }
-
-    public void setVerificated(boolean verificated) {
-        this.verificated = verificated;
     }
 
     public int getAccentColor() {
@@ -184,5 +173,17 @@ public class CachedUser {
 
     public void setTimestamp(LocalDateTime timestamp) {
         this.timestamp = timestamp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User user)) return false;
+        return getId() == user.getId() && isBot() == user.isBot() && isSystem() == user.isSystem() && isMfaEnabled() == user.isMfaEnabled() && isVerification() == user.isVerification() && getAccentColor() == user.getAccentColor() && getFlags() == user.getFlags() && getPremiumType() == user.getPremiumType() && getPublicFlags() == user.getPublicFlags() && Objects.equals(getDiscordID(), user.getDiscordID()) && Objects.equals(getUsername(), user.getUsername()) && Objects.equals(getAvatarUrl(), user.getAvatarUrl()) && Objects.equals(getBannerUrl(), user.getBannerUrl()) && Objects.equals(getLocale(), user.getLocale()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getTimestamp(), user.getTimestamp());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getDiscordID(), getUsername(), getAvatarUrl(), isBot(), isSystem(), isMfaEnabled(), isVerification(), getBannerUrl(), getAccentColor(), getLocale(), getEmail(), getFlags(), getPremiumType(), getPublicFlags(), getTimestamp());
     }
 }

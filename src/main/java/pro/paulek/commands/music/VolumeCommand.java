@@ -1,5 +1,6 @@
 package pro.paulek.commands.music;
 
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -42,13 +43,20 @@ public class VolumeCommand extends Command {
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
         }
 
-        var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getPlayingChannel().getId())) {
+        var memberAudioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
+        if ((!event.getMember().getVoiceState().inAudioChannel() ||  !Objects.requireNonNull(memberAudioChannel).getId().equals(musicPlayer.getPlayingChannel().getId())) &&
+                !event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
             event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
             return;
         }
 
-        musicPlayer.getAudioPlayer().setVolume((int) Objects.requireNonNull(event.getOption("volume")).getAsLong());
+        int volume = Objects.requireNonNull(event.getOption("volume")).getAsInt();
+        if (volume > 200) {
+            event.reply(":speaker: Przekroczono dopuszczalny poziom dzwięku, maksymalny to 200%!").queue();
+            return;
+        }
+
+        musicPlayer.getAudioPlayer().setVolume(volume);
         event.reply("Zmieniłem głośność :wink:").queue();
     }
 }

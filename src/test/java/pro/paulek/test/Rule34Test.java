@@ -3,7 +3,7 @@ package pro.paulek.test;
 import jakarta.xml.bind.JAXBException;
 import org.junit.Test;
 import org.xml.sax.SAXException;
-import pro.paulek.objects.Rule34Posts;
+import pro.paulek.objects.react.Rule34Posts;
 import pro.paulek.util.RuleUtil;
 
 import javax.xml.parsers.ParserConfigurationException;

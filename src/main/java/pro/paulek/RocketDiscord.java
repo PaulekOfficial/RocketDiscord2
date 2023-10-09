@@ -11,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import pro.paulek.commands.CommandManager;
@@ -27,6 +28,10 @@ import pro.paulek.database.Database;
 import pro.paulek.database.MySQL;
 import pro.paulek.database.SQLite;
 import pro.paulek.listeners.*;
+import pro.paulek.listeners.commands.SplashCommandListener;
+import pro.paulek.listeners.fun.MemesListeners;
+import pro.paulek.listeners.fun.RandomFunctionsListeners;
+import pro.paulek.listeners.modlog.LoggingListeners;
 import pro.paulek.objects.MusicManager;
 
 import java.io.File;
@@ -68,10 +73,10 @@ public class RocketDiscord implements IRocketDiscord {
         try {
             var inputStream = new FileInputStream(new File("settings.yml"));
 
-            var yaml = new Yaml(new Constructor(Configuration.class));
-            configuration = yaml.load(inputStream);
+            var yaml = new Yaml(new Constructor(new LoaderOptions()));
+            configuration = yaml.loadAs(inputStream, Configuration.class);
         } catch (FileNotFoundException exception) {
-            logger.error("Cannot load settingsw.yml", exception);
+            logger.error("Cannot load settings.yml", exception);
         }
 
         //Load database configuration and connect to it
@@ -89,7 +94,7 @@ public class RocketDiscord implements IRocketDiscord {
         //Intends
         jdaBuilder.enableIntents(
                 GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.GUILD_BANS,
+                GatewayIntent.GUILD_MODERATION,
                 GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                 GatewayIntent.GUILD_VOICE_STATES,
                 GatewayIntent.GUILD_PRESENCES,

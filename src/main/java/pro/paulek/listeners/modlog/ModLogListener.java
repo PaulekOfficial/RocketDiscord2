@@ -1,4 +1,4 @@
-package pro.paulek.listeners;
+package pro.paulek.listeners.modlog;
 
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;

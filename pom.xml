@@ -10,8 +10,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <maven.compiler.source>20</maven.compiler.source>
+        <maven.compiler.target>20</maven.compiler.target>
         <maven.build.timestamp.format>yyyy-MM-dd HH.mm</maven.build.timestamp.format>
         <authors>[PaulekOfficial &lt;pawel.krzysztof.fortuna@outlook.com&gt;]</authors>
         <prettyVersion>${maven.build.timestamp} by ${user.name}</prettyVersion>
@@ -30,7 +30,7 @@
         <dependency>
             <groupId>net.dv8tion</groupId>
             <artifactId>JDA</artifactId>
-            <version>5.0.0-alpha.20</version>
+            <version>5.0.0-beta.12</version>
         </dependency>
 
         <dependency>
@@ -47,7 +47,7 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.30</version>
+            <version>8.0.33</version>
         </dependency>
 
         <!-- Logging dependencies -->
@@ -81,7 +81,7 @@
         <dependency>
             <groupId>org.yaml</groupId>
             <artifactId>snakeyaml</artifactId>
-            <version>1.33</version>
+            <version>2.0</version>
         </dependency>
         <!-- JAXB API only -->
         <dependency>

@@ -1,4 +1,4 @@
-package pro.paulek.objects;
+package pro.paulek.objects.react;
 
 import jakarta.xml.bind.annotation.*;
 

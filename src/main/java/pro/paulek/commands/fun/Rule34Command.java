@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
 import pro.paulek.commands.music.PlayCommand;
-import pro.paulek.objects.Rule34Posts;
+import pro.paulek.objects.react.Rule34Posts;
 import pro.paulek.util.RuleUtil;
 
 import java.time.Duration;

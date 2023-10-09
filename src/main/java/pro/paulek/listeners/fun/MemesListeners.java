@@ -1,4 +1,4 @@
-package pro.paulek.listeners;
+package pro.paulek.listeners.fun;
 
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
