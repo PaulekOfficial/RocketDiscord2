@@ -7,85 +7,65 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameE
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdatePendingEvent;
 import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import pro.paulek.IRocketDiscord;
+import pro.paulek.objects.guild.DiscordMessage;
+
+import java.time.Instant;
+import java.util.Objects;
 
 public class LoggingListeners extends ListenerAdapter {
 
-    public LoggingListeners() {
-        super();
+    private final IRocketDiscord rocketDiscord;
+
+    public LoggingListeners(IRocketDiscord rocketDiscord) {
+        this.rocketDiscord = Objects.requireNonNull(rocketDiscord, "rocketDiscord");
     }
 
     @Override
-    public void onUserUpdateAvatar(@NotNull UserUpdateAvatarEvent event) {
-        super.onUserUpdateAvatar(event);
-    }
+    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
+        var message = new DiscordMessage(
+                event.getAuthor().getName(),
+                event.getAuthor().getId(),
+                event.getMessage().getId(),
+                event.getMessage().getContentRaw(),
+                DiscordMessage.MessageAction.NEW,
+                event.getMessage().getTimeCreated().toInstant()
+        );
 
-    @Override
-    public void onUserUpdateOnlineStatus(@NotNull UserUpdateOnlineStatusEvent event) {
-        super.onUserUpdateOnlineStatus(event);
+        this.rocketDiscord.getDiscordMessages().save(event.getMessage().getIdLong(), message);
     }
 
     @Override
     public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
+        var message = new DiscordMessage(
+                event.getAuthor().getName(),
+                event.getAuthor().getId(),
+                event.getMessage().getId(),
+                event.getMessage().getContentRaw(),
+                DiscordMessage.MessageAction.EDITED,
+                event.getMessage().getTimeCreated().toInstant()
+        );
 
+        this.rocketDiscord.getDiscordMessages().save(event.getMessage().getIdLong(), message);
     }
 
     @Override
     public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-        super.onMessageDelete(event);
-    }
+        var message = new DiscordMessage(
+                null,
+                null,
+                event.getMessageId(),
+                null,
+                DiscordMessage.MessageAction.DELETED,
+                Instant.now()
+        );
 
-    @Override
-    public void onMessageBulkDelete(@NotNull MessageBulkDeleteEvent event) {
-        super.onMessageBulkDelete(event);
-    }
-
-    @Override
-    public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
-        super.onGuildMemberJoin(event);
-    }
-
-    @Override
-    public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
-        super.onGuildMemberRemove(event);
-    }
-
-    @Override
-    public void onGuildMemberRoleAdd(@NotNull GuildMemberRoleAddEvent event) {
-        super.onGuildMemberRoleAdd(event);
-    }
-
-    @Override
-    public void onGuildMemberRoleRemove(@NotNull GuildMemberRoleRemoveEvent event) {
-        super.onGuildMemberRoleRemove(event);
-    }
-
-    @Override
-    public void onGuildMemberUpdate(@NotNull GuildMemberUpdateEvent event) {
-        super.onGuildMemberUpdate(event);
-    }
-
-    @Override
-    public void onGuildMemberUpdateNickname(@NotNull GuildMemberUpdateNicknameEvent event) {
-        super.onGuildMemberUpdateNickname(event);
-    }
-
-    @Override
-    public void onGuildMemberUpdateAvatar(@NotNull GuildMemberUpdateAvatarEvent event) {
-        super.onGuildMemberUpdateAvatar(event);
-    }
-
-    @Override
-    public void onGuildMemberUpdateBoostTime(@NotNull GuildMemberUpdateBoostTimeEvent event) {
-        super.onGuildMemberUpdateBoostTime(event);
-    }
-
-    @Override
-    public void onGuildMemberUpdatePending(@NotNull GuildMemberUpdatePendingEvent event) {
-        super.onGuildMemberUpdatePending(event);
+        this.rocketDiscord.getDiscordMessages().save(event.getMessageIdLong(), message);
     }
 }

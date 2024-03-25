@@ -1,4 +1,4 @@
-package pro.paulek.data;
+package pro.paulek.objects;
 
 import java.util.List;
 

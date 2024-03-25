@@ -1,8 +1,9 @@
-package pro.paulek.data.api;
+package pro.paulek.data;
 
 import java.util.Collection;
 
-public interface Data<T, U> {
+//TODO add optionals, nullable
+public interface IData<T, U> {
 
     /**
      * Load an object from database by param u
@@ -33,7 +34,7 @@ public interface Data<T, U> {
      * @param collection
      * @param ignoreNotChanged
      */
-    void save(Collection<T> collection, boolean ignoreNotChanged);
+    void saveAll(Collection<T> collection, boolean ignoreNotChanged);
 
     /**
      * Save object to database

@@ -1,8 +1,8 @@
-package pro.paulek.data.api;
+package pro.paulek.data;
 
 import java.sql.SQLException;
 
-public interface Serializable<T, R> {
+public interface ISerializable<T, R> {
 
     /**
      * Used to serialize data

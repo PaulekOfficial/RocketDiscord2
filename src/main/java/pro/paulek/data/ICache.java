@@ -1,6 +1,7 @@
-package pro.paulek.data.api;
+package pro.paulek.data;
 
-public interface Cache<T, U>{
+//TODO add optionals, nullable
+public interface ICache<T, U>{
 
     /**
      * Initialise cache class
@@ -25,13 +26,13 @@ public interface Cache<T, U>{
      * Permanency deletes object by key
      * @param u
      */
-    void delete(U u);
+    void deleteFromDatabase(U u);
 
     /**
      * Removes object from cache but can be still loaded from database
      * @param u
      */
-    void remove(U u);
+    void delete(U u);
 
     /**
      * Saves object by key to cache, and to database sometimes

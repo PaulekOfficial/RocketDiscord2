@@ -3,24 +3,25 @@ package pro.paulek.data.cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
-import pro.paulek.data.GuildConfiguration;
-import pro.paulek.data.api.Cache;
+import pro.paulek.objects.GuildConfiguration;
+import pro.paulek.data.ICache;
+import pro.paulek.data.ISQLDataModel;
 import pro.paulek.data.cache.mysql.GuildConfigurationMySQLModel;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class GuildConfigurationCache implements Cache<GuildConfiguration, String> {
+public class GuildConfigurationICache implements ICache<GuildConfiguration, String> {
 
-    private final static Logger logger = LoggerFactory.getLogger(GuildConfigurationCache.class);
+    private final static Logger logger = LoggerFactory.getLogger(GuildConfigurationICache.class);
 
     private final IRocketDiscord rocketDiscord;
     public Map<String, GuildConfiguration> guildConfigurationMap = new HashMap<>(10);
 
-    private GuildConfigurationMySQLModel mySQLModel;
+    private ISQLDataModel<GuildConfiguration, String> mySQLModel;
 
-    public GuildConfigurationCache(IRocketDiscord rocketDiscord) {
+    public GuildConfigurationICache(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);
     }
 
@@ -46,12 +47,12 @@ public class GuildConfigurationCache implements Cache<GuildConfiguration, String
     }
 
     @Override
-    public void delete(String s) {
+    public void deleteFromDatabase(String s) {
         this.mySQLModel.delete(s);
     }
 
     @Override
-    public void remove(String s) {
+    public void delete(String s) {
         guildConfigurationMap.remove(s);
     }
 

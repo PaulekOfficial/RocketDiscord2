@@ -19,11 +19,12 @@ import pro.paulek.commands.HelpCommand;
 import pro.paulek.commands.admin.DeleteMessagesCommand;
 import pro.paulek.commands.fun.Rule34Command;
 import pro.paulek.commands.music.*;
-import pro.paulek.data.Configuration;
-import pro.paulek.data.MusicPlayerCache;
-import pro.paulek.data.api.Cache;
-import pro.paulek.data.api.DataModel;
-import pro.paulek.data.cache.GuildConfigurationCache;
+import pro.paulek.data.cache.DiscordMessageCache;
+import pro.paulek.objects.Configuration;
+import pro.paulek.data.cache.MusicPlayerCache;
+import pro.paulek.data.ICache;
+import pro.paulek.data.DataModel;
+import pro.paulek.data.cache.GuildConfigurationICache;
 import pro.paulek.database.Database;
 import pro.paulek.database.MySQL;
 import pro.paulek.database.SQLite;
@@ -33,6 +34,7 @@ import pro.paulek.listeners.fun.MemesListeners;
 import pro.paulek.listeners.fun.RandomFunctionsListeners;
 import pro.paulek.listeners.modlog.LoggingListeners;
 import pro.paulek.objects.MusicManager;
+import pro.paulek.objects.guild.DiscordMessage;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -51,14 +53,15 @@ public class RocketDiscord implements IRocketDiscord {
     private Database database;
     private DataModel dataModel;
 
-    private GuildConfigurationCache guildConfigurationCache;
+    private GuildConfigurationICache guildConfigurationCache;
 
     private Configuration configuration;
     private CommandManager commandManager;
 
     private AudioPlayerManager audioPlayerManager;
 
-    private Cache<MusicManager, String> musicManager;
+    private ICache<MusicManager, String> musicManager;
+    private ICache<DiscordMessage, String> discordMessageCache;
 
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -83,8 +86,11 @@ public class RocketDiscord implements IRocketDiscord {
         this.database = createDatabase();
 
         //Load all caches
-        guildConfigurationCache = new GuildConfigurationCache(this);
+        guildConfigurationCache = new GuildConfigurationICache(this);
         guildConfigurationCache.init();
+
+        discordMessageCache = new DiscordMessageCache(this);
+        discordMessageCache.init();
 
         //Create jda builder
         logger.info("Initializing discord gateway...");
@@ -126,7 +132,7 @@ public class RocketDiscord implements IRocketDiscord {
         logger.info("Initializing bot listeners...");
         jdaBuilder.addEventListeners(commandManager);
         jdaBuilder.addEventListeners(new RandomFunctionsListeners());
-        jdaBuilder.addEventListeners(new LoggingListeners());
+        jdaBuilder.addEventListeners(new LoggingListeners(this));
         jdaBuilder.addEventListeners(new SplashCommandListener(this));
         jdaBuilder.addEventListeners(new MemesListeners(this));
         jdaBuilder.addEventListeners(new WelcomeListener(this));
@@ -238,12 +244,22 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     @Override
+    public ICache<DiscordMessage, String> getDiscordMessages() {
+        return this.discordMessageCache;
+    }
+
+    @Override
+    public DiscordMessage getDiscordMessage(String id) {
+        return this.discordMessageCache.get(id);
+    }
+
+    @Override
     public AudioPlayerManager getAudioManager() {
         return audioPlayerManager;
     }
 
     @Override
-    public Cache<MusicManager, String> getMusicManagers() {
+    public ICache<MusicManager, String> getMusicManagers() {
         return musicManager;
     }
 
@@ -273,7 +289,7 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     @Override
-    public GuildConfigurationCache getGuildConfigurations() {
+    public GuildConfigurationICache getGuildConfigurations() {
         return guildConfigurationCache;
     }
 

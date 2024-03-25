@@ -3,9 +3,9 @@ package pro.paulek.data.cache.mysql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
-import pro.paulek.data.GuildConfiguration;
-import pro.paulek.data.cache.GuildConfigurationCache;
-import pro.paulek.data.cache.SQLDataModel;
+import pro.paulek.objects.GuildConfiguration;
+import pro.paulek.data.cache.GuildConfigurationICache;
+import pro.paulek.data.ISQLDataModel;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,9 +14,9 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class GuildConfigurationMySQLModel implements SQLDataModel<GuildConfiguration, String> {
+public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfiguration, String> {
 
-    private final static Logger logger = LoggerFactory.getLogger(GuildConfigurationCache.class);
+    private final static Logger logger = LoggerFactory.getLogger(GuildConfigurationICache.class);
 
     private final IRocketDiscord rocketDiscord;
 
@@ -83,8 +83,8 @@ public class GuildConfigurationMySQLModel implements SQLDataModel<GuildConfigura
     }
 
     @Override
-    public void save(Collection<GuildConfiguration> collection, boolean ignoreNotChanged) {
-        collection.forEach(this::serializeData);
+    public void saveAll(Collection<GuildConfiguration> collection, boolean ignoreNotChanged) {
+        collection.forEach(this::save);
     }
 
     @Override

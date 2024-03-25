@@ -1,30 +1,34 @@
 package pro.paulek.objects.guild;
 
+import java.time.Instant;
 import java.util.Objects;
 
-public class Message {
+public class DiscordMessage {
     private int id;
     private String authorName;
     private String authorID;
     private String messageID;
     private String content;
     private MessageAction action;
+    private Instant createdAt;
 
-    public Message(String authorName, String authorID, String messageID, String content, MessageAction action) {
+    public DiscordMessage(String authorName, String authorID, String messageID, String content, MessageAction action, Instant createdAt) {
         this.authorName = authorName;
         this.authorID = authorID;
         this.messageID = messageID;
         this.content = content;
         this.action = action;
+        this.createdAt = createdAt;
     }
 
-    public Message(int id, String authorName, String authorID, String messageID, String content, MessageAction action) {
+    public DiscordMessage(int id, String authorName, String authorID, String messageID, String content, MessageAction action, Instant createdAt) {
         this.id = id;
         this.authorName = authorName;
         this.authorID = authorID;
         this.messageID = messageID;
         this.content = content;
         this.action = action;
+        this.createdAt = createdAt;
     }
 
     public int getId() {
@@ -75,12 +79,20 @@ public class Message {
         this.action = action;
     }
 
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Message message = (Message) o;
-        return id == message.id && Objects.equals(authorName, message.authorName) && Objects.equals(authorID, message.authorID) && Objects.equals(messageID, message.messageID) && Objects.equals(content, message.content) && action == message.action;
+        DiscordMessage discordMessage = (DiscordMessage) o;
+        return id == discordMessage.id && Objects.equals(authorName, discordMessage.authorName) && Objects.equals(authorID, discordMessage.authorID) && Objects.equals(messageID, discordMessage.messageID) && Objects.equals(content, discordMessage.content) && action == discordMessage.action;
     }
 
     @Override

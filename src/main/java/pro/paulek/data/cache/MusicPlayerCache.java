@@ -1,16 +1,16 @@
-package pro.paulek.data;
+package pro.paulek.data.cache;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
-import pro.paulek.data.api.Cache;
+import pro.paulek.data.ICache;
 import pro.paulek.objects.MusicManager;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public class MusicPlayerCache implements Cache<MusicManager, String> {
+public class MusicPlayerCache implements ICache<MusicManager, String> {
 
     private final static Logger logger = LoggerFactory.getLogger(MusicPlayerCache.class);
 
@@ -38,12 +38,12 @@ public class MusicPlayerCache implements Cache<MusicManager, String> {
     }
 
     @Override
-    public void delete(String s) {
+    public void deleteFromDatabase(String s) {
         this.musicManagers.remove(s);
     }
 
     @Override
-    public void remove(String s) {
+    public void delete(String s) {
         throw new UnsupportedOperationException();
     }
 

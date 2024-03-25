@@ -1,12 +1,12 @@
-package pro.paulek.data.cache;
+package pro.paulek.data;
 
-import pro.paulek.data.api.Data;
-import pro.paulek.data.api.Serializable;
+import pro.paulek.data.IData;
+import pro.paulek.data.ISerializable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public interface SQLDataModel<T, U> extends Data<T, U>, Serializable<T, ResultSet> {
+public interface ISQLDataModel<T, U> extends IData<T, U>, ISerializable<T, ResultSet> {
 
     /**
      * Serializes object to database, inserts values to database

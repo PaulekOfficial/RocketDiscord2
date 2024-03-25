@@ -1,4 +1,4 @@
-package pro.paulek.data.api;
+package pro.paulek.data;
 
 import org.jetbrains.annotations.NotNull;
 
