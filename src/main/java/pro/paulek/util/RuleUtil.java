@@ -18,7 +18,7 @@ import java.util.Random;
 
 public class RuleUtil {
 
-    private static final String RULE34_URL = "http://rule34.paheal.net/api/danbooru/find_posts/index.xml";
+    private static final String RULE34_URL = "https://rule34.paheal.net/api/danbooru/find_posts/index.xml";
 
     private static final Random randomizer = new Random();
 

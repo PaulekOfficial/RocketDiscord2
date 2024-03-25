@@ -43,7 +43,6 @@ import java.sql.SQLException;
 import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
-
     private final static Logger logger = LoggerFactory.getLogger(RocketDiscord.class);
 
     private JDA jda;
@@ -94,7 +93,6 @@ public class RocketDiscord implements IRocketDiscord {
         //Intends
         jdaBuilder.enableIntents(
                 GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.GUILD_MODERATION,
                 GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                 GatewayIntent.GUILD_VOICE_STATES,
                 GatewayIntent.GUILD_PRESENCES,
