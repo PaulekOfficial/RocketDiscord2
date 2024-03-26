@@ -1,5 +1,8 @@
 package pro.paulek.data;
 
+import java.util.Optional;
+import java.util.concurrent.Future;
+
 //TODO add optionals, nullable
 public interface ICache<T, U>{
 
@@ -13,38 +16,31 @@ public interface ICache<T, U>{
      * @param u
      * @return
      */
-    T get(U u);
+    Optional<T> get(U u);
 
     /**
-     * Add a object by key
+     * Adds object to cache
      * @param u
      * @param t
      */
-    void add(U u,T t);
+    boolean add(U u,T t);
 
     /**
      * Permanency deletes object by key
      * @param u
      */
-    void deleteFromDatabase(U u);
+    Future<Boolean> deleteFromDatabase(U u);
 
     /**
      * Removes object from cache but can be still loaded from database
      * @param u
      */
-    void delete(U u);
-
-    /**
-     * Saves object by key to cache, and to database sometimes
-     * @param u
-     * @param t
-     */
-    void save(U u, T t);
+    boolean delete(U u);
 
     /**
      * Saves object to database if not null by keu U
      * @param u
      */
-    void save(U u);
+    Future<Boolean> save(U u);
 
 }

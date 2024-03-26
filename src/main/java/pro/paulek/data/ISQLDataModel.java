@@ -1,23 +1,21 @@
 package pro.paulek.data;
 
-import pro.paulek.data.IData;
-import pro.paulek.data.ISerializable;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public interface ISQLDataModel<T, U> extends IData<T, U>, ISerializable<T, ResultSet> {
 
-    /**
-     * Serializes object to database, inserts values to database
-     * @param t
-     * @return
-     */
-    @Override
-    ResultSet serializeData(T t);
+//    /**
+//     * Serializes object to database, inserts values to database
+//     * @param t
+//     * @return
+//     */
+//    @Override
+//    ResultSet serializeData(T t);
 
     /**
      * Deserializes data from database to an object
+     *
      * @param resultSet
      * @return
      * @throws SQLException
@@ -30,5 +28,4 @@ public interface ISQLDataModel<T, U> extends IData<T, U>, ISerializable<T, Resul
      * @return
      */
     int count();
-
 }

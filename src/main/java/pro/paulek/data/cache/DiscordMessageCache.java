@@ -7,6 +7,8 @@ import pro.paulek.data.cache.mysql.DiscordMessageMySQLModel;
 import pro.paulek.objects.guild.DiscordMessage;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Future;
 
 public class DiscordMessageCache implements ICache<DiscordMessage, String> {
     private final IRocketDiscord rocketDiscord;
@@ -26,43 +28,33 @@ public class DiscordMessageCache implements ICache<DiscordMessage, String> {
     }
 
     @Override
-    public DiscordMessage get(String id) {
+    public Optional<DiscordMessage> get(String id) {
 //        if (messages.containsKey(id)) {
 //            return messages.get(id);
 //        }
-
-        var loadedFromDatabase = mySQLModel.load(id);
-        if (loadedFromDatabase == null) {
-            return null;
-        }
+        return mySQLModel.load(id);
 //        messages.put(id, loadedFromDatabase);
-        return loadedFromDatabase;
     }
 
     @Override
-    public void add(String id, DiscordMessage discordMessage) {
+    public boolean add(String id, DiscordMessage discordMessage) {
 //        this.messages.put(id, discordMessage);
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public void deleteFromDatabase(String id) {
-        mySQLModel.delete(id);
+    public Future<Boolean> deleteFromDatabase(String id) {
+        return mySQLModel.delete(id);
     }
 
     @Override
-    public void delete(String id) {
+    public boolean delete(String id) {
 //        this.messages.remove(id);
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
     @Override
-    public void save(String id, DiscordMessage discordMessage) {
-        mySQLModel.save(discordMessage);
-    }
-
-    @Override
-    public void save(String id) {
+    public Future<Boolean> save(String id) {
 //        var discordMessage = messages.get(id);
 //        if (discordMessage != null) {
 //            mySQLModel.save(discordMessage);

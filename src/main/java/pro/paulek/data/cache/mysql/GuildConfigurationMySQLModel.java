@@ -13,10 +13,14 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfiguration, String> {
 
     private final static Logger logger = LoggerFactory.getLogger(GuildConfigurationICache.class);
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private final IRocketDiscord rocketDiscord;
 
@@ -25,39 +29,48 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     }
 
     @Override
-    public GuildConfiguration load(String s) {
+    public Optional<GuildConfiguration> load(String s) {
         try(Connection connection = rocketDiscord.getDatabaseConnection()) {
             var ps = connection.prepareStatement("SELECT * FROM `setting` WHERE `guild_id` = ?");
             ps.setString(1, s);
             var resultSet = ps.executeQuery();
 
-            return this.deserializeData(resultSet);
+            var data = this.deserializeData(resultSet);
+            if (data == null) {
+                return Optional.empty();
+            }
+
+            return Optional.of(data);
         } catch (SQLException exception) {
             logger.error("Cannot load guild configuration: ", exception);
         }
-        return null;
+
+        return Optional.empty();
     }
 
     @Override
-    public void createTable() {
-        try(Connection connection = rocketDiscord.getDatabaseConnection()) {
-            var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `channel_id` text NOT NULL, `type` text NOT NULL, `added_by` text NOT NULL, PRIMARY KEY (`id`))");
-            ps1.executeUpdate();
+    public Future<Boolean> createTable() {
+        return executorService.submit(() -> {
+            try(Connection connection = rocketDiscord.getDatabaseConnection()) {
+                var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `channel_id` text NOT NULL, `type` text NOT NULL, `added_by` text NOT NULL, PRIMARY KEY (`id`))");
+                var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL, PRIMARY KEY (`id`))");
 
-            var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL, PRIMARY KEY (`id`))");
-            ps2.executeUpdate();
-        } catch (SQLException exception) {
-            logger.error("Failed to create database tables: ", exception);
-        }
+                return  ps1.executeUpdate() > 0 && ps2.executeUpdate() > 0;
+            } catch (SQLException exception) {
+                logger.error("Failed to create database tables: ", exception);
+            }
+
+            return false;
+        });
     }
 
     @Override
-    public GuildConfiguration load(int id) {
-        throw new UnsupportedOperationException();
+    public Optional<GuildConfiguration> load(int id) {
+        return Optional.empty();
     }
 
     @Override
-    public Collection<GuildConfiguration> load() {
+    public Optional<Collection<GuildConfiguration>> load() {
         List<String> guilds = new ArrayList<>();
         try(Connection connection = rocketDiscord.getDatabaseConnection()) {
             var ps = connection.prepareStatement("SELECT DISTINCT `guild_id` FROM `setting`");
@@ -74,77 +87,89 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
         List<GuildConfiguration> guildConfigurations = new ArrayList<>();
          guilds.forEach(guild -> {
              var settings = this.load(guild);
-             if (settings != null) {
-                 guildConfigurations.add(settings);
-             }
+             settings.ifPresent(guildConfigurations::add);
          });
 
-        return guildConfigurations;
+        return Optional.of(guildConfigurations);
     }
 
     @Override
-    public void saveAll(Collection<GuildConfiguration> collection, boolean ignoreNotChanged) {
-        collection.forEach(this::save);
+    public Future<Boolean> saveAll(Collection<GuildConfiguration> collection, boolean ignoreNotChanged) {
+        return executorService.submit(() -> {
+            for (GuildConfiguration guildConfiguration : collection) {
+                var success = this.save(guildConfiguration);
+
+                if (success.isDone() && !success.get()) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+    }
+
+    //TODO rework guild settings saving
+    @Override
+    public Future<Boolean> save(GuildConfiguration guildConfiguration) {
+        return executorService.submit(() -> {
+            var guidID = guildConfiguration.getGuildID();
+
+            try (Connection connection = this.rocketDiscord.getDatabaseConnection()){
+                this.saveSetting(connection, guidID, "guildID", guidID, "system");
+                this.saveSetting(connection, guidID, "guildName", guildConfiguration.getGuildName(), "system");
+                this.saveSetting(connection, guidID, "commandsChannelsWhitelistMode", String.valueOf(guildConfiguration.isCommandsChannelsWhitelistMode()), "system");
+                this.saveSetting(connection, guidID, "welcomeImageEnable", String.valueOf(guildConfiguration.isWelcomeImageEnable()), "system");
+                this.saveSetting(connection, guidID, "leaveImageEnable", String.valueOf(guildConfiguration.isLeaveImageEnable()), "system");
+                this.saveSetting(connection, guidID, "welcomeImageMessage", guildConfiguration.getWelcomeImageMessage(), "system");
+                this.saveSetting(connection, guidID, "leaveImageMessage", guildConfiguration.getLeaveImageMessage(), "system");
+                this.saveSetting(connection, guidID, "welcomeChannel", guildConfiguration.getWelcomeChannel(), "system");
+                this.saveSetting(connection, guidID, "announcementsChannel", guildConfiguration.getAnnouncementsChannel(), "system");
+                this.saveSetting(connection, guidID, "djRole", guildConfiguration.getDjRole(), "system");
+
+                guildConfiguration.getCommandChannels().forEach(channel -> {
+                    this.saveChannelValues(connection, guidID, channel, "commandChannels", "system");
+                });
+                guildConfiguration.getMemesChannels().forEach(channel -> {
+                    this.saveChannelValues(connection, guidID, channel, "memesChannels", "system");
+                });
+                guildConfiguration.getAutoVoiceChannels().forEach(channel -> {
+                    this.saveChannelValues(connection, guidID, channel, "autoVoiceChannels", "system");
+                });
+                guildConfiguration.getBotAdmins().forEach(channel -> {
+                    this.saveChannelValues(connection, guidID, channel, "botAdmins", "system");
+                });
+
+                return true;
+            } catch (SQLException exception) {
+                logger.error("Cannot save guild settings: ", exception);
+            }
+
+            return false;
+        });
     }
 
     @Override
-    public void save(GuildConfiguration guildConfiguration) {
-        this.serializeData(guildConfiguration);
+    public Future<Boolean> delete(String s) {
+        return executorService.submit(() -> {
+            try(Connection connection = rocketDiscord.getDatabaseConnection()) {
+                var ps = connection.prepareStatement("DELETE * FROM `setting` WHERE `guild_id` = ?");
+                ps.setString(1, s);
+
+                var ps2 = connection.prepareStatement("DELETE * FROM `channel` WHERE `guild_id` = ?");
+                ps2.setString(1, s);
+
+                return ps.executeUpdate() > 0 && ps2.executeUpdate() > 0;
+            } catch (SQLException exception) {
+                logger.error("Cannot count guilds: ", exception);
+            }
+
+            return false;
+        });
     }
 
     @Override
-    public void delete(String s) {
-        try(Connection connection = rocketDiscord.getDatabaseConnection()) {
-            var ps = connection.prepareStatement("DELETE * FROM `setting` WHERE `guild_id` = ?");
-            ps.setString(1, s);
-            ps.executeUpdate();
-
-            var ps2 = connection.prepareStatement("DELETE * FROM `channel` WHERE `guild_id` = ?");
-            ps2.setString(1, s);
-            ps2.executeUpdate();
-        } catch (SQLException exception) {
-            logger.error("Cannot count guilds: ", exception);
-        }
-    }
-
-    @Override
-    public void delete(int id) {
+    public Future<Boolean> delete(int id) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public ResultSet serializeData(GuildConfiguration guildConfiguration) {
-        var guidID = guildConfiguration.getGuildID();
-
-        try (Connection connection = this.rocketDiscord.getDatabaseConnection()){
-            this.saveSetting(connection, guidID, "guildID", guidID, "system");
-            this.saveSetting(connection, guidID, "guildName", guildConfiguration.getGuildName(), "system");
-            this.saveSetting(connection, guidID, "commandsChannelsWhitelistMode", String.valueOf(guildConfiguration.isCommandsChannelsWhitelistMode()), "system");
-            this.saveSetting(connection, guidID, "welcomeImageEnable", String.valueOf(guildConfiguration.isWelcomeImageEnable()), "system");
-            this.saveSetting(connection, guidID, "leaveImageEnable", String.valueOf(guildConfiguration.isLeaveImageEnable()), "system");
-            this.saveSetting(connection, guidID, "welcomeImageMessage", guildConfiguration.getWelcomeImageMessage(), "system");
-            this.saveSetting(connection, guidID, "leaveImageMessage", guildConfiguration.getLeaveImageMessage(), "system");
-            this.saveSetting(connection, guidID, "welcomeChannel", guildConfiguration.getWelcomeChannel(), "system");
-            this.saveSetting(connection, guidID, "announcementsChannel", guildConfiguration.getAnnouncementsChannel(), "system");
-            this.saveSetting(connection, guidID, "djRole", guildConfiguration.getDjRole(), "system");
-
-            guildConfiguration.getCommandChannels().forEach(channel -> {
-                this.saveChannelValues(connection, guidID, channel, "commandChannels", "system");
-            });
-            guildConfiguration.getMemesChannels().forEach(channel -> {
-                this.saveChannelValues(connection, guidID, channel, "memesChannels", "system");
-            });
-            guildConfiguration.getAutoVoiceChannels().forEach(channel -> {
-                this.saveChannelValues(connection, guidID, channel, "autoVoiceChannels", "system");
-            });
-            guildConfiguration.getBotAdmins().forEach(channel -> {
-                this.saveChannelValues(connection, guidID, channel, "botAdmins", "system");
-            });
-        } catch (SQLException exception) {
-            logger.error("Cannot save guild settings: ", exception);
-        }
-
-        return null;
     }
 
     @Override

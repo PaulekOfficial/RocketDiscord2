@@ -1,6 +1,8 @@
 package pro.paulek.data;
 
 import java.util.Collection;
+import java.util.Optional;
+import java.util.concurrent.Future;
 
 //TODO add optionals, nullable
 public interface IData<T, U> {
@@ -10,56 +12,54 @@ public interface IData<T, U> {
      * @param u
      * @return
      */
-    T load(U u);
-
-    /**
-     * Initialize table in database
-     */
-    void createTable();
+    Optional<T> load(U u);
 
     /**
      * Load an object from database by id
      * @param id
      * @return
      */
-    T load(int id);
+    Optional<T> load(int id);
+
+    /**
+     * Initialize table in database
+     */
+    Future<Boolean> createTable();
 
     /**
      * Load all objects from database
      */
-    Collection<T> load();
+    Optional<Collection<T>> load();
 
     /**
      * Save collection of object to database including changes
      * @param collection
      * @param ignoreNotChanged
      */
-    void saveAll(Collection<T> collection, boolean ignoreNotChanged);
+    Future<Boolean> saveAll(Collection<T> collection, boolean ignoreNotChanged);
 
     /**
      * Save object to database
      * @param t
      */
-    void save(T t);
+    Future<Boolean> save(T t);
 
     /**
      * Delete record by U
      * @param u
      */
-    void delete(U u);
+    Future<Boolean> delete(U u);
 
     /**
      * Delete record by id
      * @param id
      */
-    void delete(int id);
+    Future<Boolean> delete(int id);
 
+    //TODO maybe this should be also an future, but it's not necessary the think is that counting all records in database can take a while
     /**
      * Count records or files stored in a database
      * @return
      */
     int count();
-
-    //void validateLoadedData();
-
 }

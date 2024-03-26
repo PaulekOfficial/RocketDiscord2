@@ -9,6 +9,8 @@ import pro.paulek.objects.MusicManager;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Future;
 
 public class MusicPlayerCache implements ICache<MusicManager, String> {
 
@@ -28,32 +30,31 @@ public class MusicPlayerCache implements ICache<MusicManager, String> {
     }
 
     @Override
-    public MusicManager get(String s) {
-        return musicManagers.get(s);
+    public Optional<MusicManager> get(String s) {
+        if (!musicManagers.containsKey(s)) return Optional.of(musicManagers.get(s));
+
+        return Optional.empty();
     }
 
     @Override
-    public void add(String s, MusicManager musicManager) {
+    public boolean add(String s, MusicManager musicManager) {
         this.musicManagers.put(s, musicManager);
+        return false;
     }
 
     @Override
-    public void deleteFromDatabase(String s) {
+    public Future<Boolean> deleteFromDatabase(String s) {
         this.musicManagers.remove(s);
+        return null;
     }
 
     @Override
-    public void delete(String s) {
+    public boolean delete(String s) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public void save(String s, MusicManager musicManager) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void save(String s) {
+    public Future<Boolean> save(String s) {
         throw new UnsupportedOperationException();
     }
 }

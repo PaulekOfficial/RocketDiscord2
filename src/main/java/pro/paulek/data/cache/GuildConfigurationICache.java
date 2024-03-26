@@ -11,6 +11,8 @@ import pro.paulek.data.cache.mysql.GuildConfigurationMySQLModel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.Future;
 
 public class GuildConfigurationICache implements ICache<GuildConfiguration, String> {
 
@@ -31,39 +33,45 @@ public class GuildConfigurationICache implements ICache<GuildConfiguration, Stri
         mySQLModel.createTable();
 
         var settings = mySQLModel.load();
-        settings.forEach(setting -> {
+        if (settings.isEmpty()) {
+            return;
+        }
+
+        settings.get().forEach(setting -> {
             guildConfigurationMap.put(setting.getGuildID(), setting);
         });
     }
 
     @Override
-    public GuildConfiguration get(String s) {
-        return guildConfigurationMap.get(s);
+    public Optional<GuildConfiguration> get(String s) {
+        if (guildConfigurationMap.containsKey(s)) {
+            return Optional.of(guildConfigurationMap.get(s));
+        }
+
+        return Optional.empty();
     }
 
     @Override
-    public void add(String s, GuildConfiguration guildConfiguration) {
+    public boolean add(String s, GuildConfiguration guildConfiguration) {
         guildConfigurationMap.put(s, guildConfiguration);
+
+        return guildConfigurationMap.containsKey(s);
     }
 
     @Override
-    public void deleteFromDatabase(String s) {
-        this.mySQLModel.delete(s);
+    public Future<Boolean> deleteFromDatabase(String s) {
+        return this.mySQLModel.delete(s);
     }
 
     @Override
-    public void delete(String s) {
+    public boolean delete(String s) {
         guildConfigurationMap.remove(s);
+
+        return !guildConfigurationMap.containsKey(s);
     }
 
     @Override
-    public void save(String s, GuildConfiguration guildConfiguration) {
-        guildConfigurationMap.put(s, guildConfiguration);
-        this.mySQLModel.save(guildConfiguration);
-    }
-
-    @Override
-    public void save(String s) {
-        this.mySQLModel.save(guildConfigurationMap.get(s));
+    public Future<Boolean> save(String s) {
+        return this.mySQLModel.save(guildConfigurationMap.get(s));
     }
 }
