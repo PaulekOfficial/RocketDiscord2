@@ -26,12 +26,12 @@ public class MusicPlayerCache implements ICache<MusicManager, String> {
 
     @Override
     public void init() {
-
+        
     }
 
     @Override
     public Optional<MusicManager> get(String s) {
-        if (!musicManagers.containsKey(s)) return Optional.of(musicManagers.get(s));
+        if (musicManagers.containsKey(s)) return Optional.of(musicManagers.get(s));
 
         return Optional.empty();
     }

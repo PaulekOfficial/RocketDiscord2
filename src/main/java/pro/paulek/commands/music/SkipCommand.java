@@ -59,21 +59,23 @@ public class SkipCommand extends Command {
         musicPlayer.nextTrack();
 
 
-        if (musicPlayer.getCurrentTrack() == null) {
+        if (musicPlayer.getCurrentTrack().isEmpty()) {
             event.reply(":face_with_monocle: Ale co ja mam pominąć, skoro nic nie leci").queue();
             return;
         }
         event.reply(":rewind: Pominięto utwór").queue();
 
+        var currentTrack = musicPlayer.getCurrentTrack().get();
+
         var embed = new EmbedBuilder()
                 .setTitle("Następnie grane")
-                .setDescription(musicPlayer.getCurrentTrack().getInfo().title)
+                .setDescription(currentTrack.getInfo().title)
                 .setColor(Color.GREEN)
                 .addField("Kanał", event.getChannel().getName(), true)
-                .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(musicPlayer.getCurrentTrack().getDuration()), true)
+                .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(currentTrack.getDuration()), true)
                 .addField("Przewidywany czas odtworzenia utworu", "Teraz", true)
                 .addField("Pozycja w kolejne", "Teraz", true)
-                .setAuthor(musicPlayer.getCurrentTrack().getInfo().author, musicPlayer.getCurrentTrack().getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
+                .setAuthor(currentTrack.getInfo().author, currentTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
                 .setTimestamp(LocalDateTime.now())
                 .build();
         event.getChannel().sendMessageEmbeds(embed).queue();

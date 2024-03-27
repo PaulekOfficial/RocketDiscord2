@@ -18,12 +18,14 @@ public class PlaylistUtils {
 
         int queueSize = manager.getQueue().size();
 
-        if (manager.getCurrentTrack() != null) {
+        if (manager.getCurrentTrack().isPresent()) {
+            var currentTrack = manager.getCurrentTrack().get();
+
             stringBuilder.append(System.getProperty("line.separator"));
             stringBuilder.append(":banjo: Aktualnie gram ");
-            stringBuilder.append(manager.getCurrentTrack().getInfo().title);
+            stringBuilder.append(currentTrack.getInfo().title);
             stringBuilder.append(" | :clock1: ");
-            stringBuilder.append(TimeUtils.millisecondsToMinutesFormat(manager.getCurrentTrack().getDuration()));
+            stringBuilder.append(TimeUtils.millisecondsToMinutesFormat(currentTrack.getDuration()));
             stringBuilder.append(System.getProperty("line.separator"));
             stringBuilder.append(System.getProperty("line.separator"));
         }
@@ -64,8 +66,8 @@ public class PlaylistUtils {
                 .setTimestamp(LocalDateTime.now())
                 ;
 
-        if (manager.getCurrentTrack() != null) {
-            embed.setThumbnail("https://img.youtube.com/vi/" + manager.getCurrentTrack().getIdentifier() + "/0.jpg");
+        if (manager.getCurrentTrack().isPresent()) {
+            embed.setThumbnail("https://img.youtube.com/vi/" + manager.getCurrentTrack().get().getIdentifier() + "/0.jpg");
         }
 
         return embed;

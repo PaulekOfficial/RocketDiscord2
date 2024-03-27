@@ -9,6 +9,7 @@ import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         this.byteBuffer = ByteBuffer.allocate(1024);
         this.audioFrame = new MutableAudioFrame();
         this.queue = new LinkedBlockingQueue<>();
+        this.currentTrack = Optional.empty();
     }
 
     public void init() {
@@ -89,7 +91,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     public void queue(AudioTrack audioTrack) {
         if (audioPlayer.startTrack(audioTrack, true)) {
-            this.currentTrack = audioTrack;
+            this.currentTrack = Optional.of(audioTrack);
             return;
         }
 
@@ -98,13 +100,21 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     public void nextTrack() {
         if (repeat) {
-            this.currentTrack = currentTrack.makeClone();
-            audioPlayer.startTrack(currentTrack, false);
+            if (currentTrack.isEmpty()) {
+                return;
+            }
+
+            this.currentTrack = Optional.of(currentTrack.get().makeClone());
+            audioPlayer.startTrack(currentTrack.get(), false);
             return;
         }
 
-        this.currentTrack = queue.poll();
-        audioPlayer.startTrack(currentTrack, false);
+        this.currentTrack = Optional.ofNullable(queue.poll());
+        if (currentTrack.isEmpty()) {
+            return;
+        }
+
+        audioPlayer.startTrack(currentTrack.get(), false);
     }
 
     public void killWatchdog() {
@@ -164,7 +174,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         logger.warn("Music player stuck at " + thresholdMs + " on " + guild.getName());
     }
 
-    public AudioTrack getCurrentTrack() {
+    public Optional<AudioTrack> getCurrentTrack() {
         return currentTrack;
     }
 
@@ -172,8 +182,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         this.playingChannel = channel;
     }
 
-    public void setCurrentTrack(AudioTrack currentTrack) {
-        this.currentTrack = currentTrack;
+    public void setCurrentTrack(@NotNull AudioTrack currentTrack) {
+        this.currentTrack = Optional.of(currentTrack);
     }
 
     public Thread getWatchdogThread() {

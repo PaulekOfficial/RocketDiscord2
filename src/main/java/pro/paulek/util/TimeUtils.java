@@ -30,7 +30,7 @@ public class TimeUtils {
 
     public static long playlistTime(MusicManager musicManager) {
         long queueTrackTime = musicManager.getQueue().stream().mapToLong(AudioTrack::getDuration).sum();
-        queueTrackTime += musicManager.getCurrentTrack() != null ? musicManager.getCurrentTrack().getDuration() - musicManager.getCurrentTrack().getPosition() : 0;
+        queueTrackTime += musicManager.getCurrentTrack().isPresent() ? musicManager.getCurrentTrack().get().getDuration() - musicManager.getCurrentTrack().get().getPosition() : 0;
 
         return queueTrackTime;
     }
