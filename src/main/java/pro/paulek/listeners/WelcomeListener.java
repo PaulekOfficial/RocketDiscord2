@@ -27,26 +27,34 @@ public class WelcomeListener extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
         var guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
-
-        if (!guildConfiguration.isWelcomeImageEnable()) {
+        if (guildConfiguration.isEmpty()) {
             return;
         }
 
-        var image = imageGenerator.generateWelcomeImage(event.getUser(), guildConfiguration.getWelcomeImageMessage());
+        var gc = guildConfiguration.get();
+        if (!gc.isWelcomeImageEnable()) {
+            return;
+        }
 
-        Objects.requireNonNull(event.getGuild().getTextChannelById(guildConfiguration.getWelcomeChannel())).sendFiles(FileUpload.fromData(image)).queue();
+        var image = imageGenerator.generateWelcomeImage(event.getUser(), gc.getWelcomeImageMessage());
+
+        Objects.requireNonNull(event.getGuild().getTextChannelById(gc.getWelcomeChannel())).sendFiles(FileUpload.fromData(image)).queue();
     }
 
     @Override
     public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
         var guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
-
-        if (!guildConfiguration.isLeaveImageEnable()) {
+        if (guildConfiguration.isEmpty()) {
             return;
         }
 
-        var image = imageGenerator.generateLeaveImage(event.getUser(), guildConfiguration.getLeaveImageMessage());
+        var gc = guildConfiguration.get();
+        if (!gc.isLeaveImageEnable()) {
+            return;
+        }
 
-        Objects.requireNonNull(event.getGuild().getTextChannelById(guildConfiguration.getWelcomeChannel())).sendFiles(FileUpload.fromData(image)).queue();
+        var image = imageGenerator.generateLeaveImage(event.getUser(), gc.getLeaveImageMessage());
+
+        Objects.requireNonNull(event.getGuild().getTextChannelById(gc.getWelcomeChannel())).sendFiles(FileUpload.fromData(image)).queue();
     }
 }

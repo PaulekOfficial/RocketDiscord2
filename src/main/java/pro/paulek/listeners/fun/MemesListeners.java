@@ -24,7 +24,11 @@ public class MemesListeners extends ListenerAdapter {
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         var guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
-        if (!guildConfiguration.getMemesChannels().contains(event.getChannel().getId())) {
+        if (guildConfiguration.isEmpty()) {
+            return;
+        }
+
+        if (!guildConfiguration.get().getMemesChannels().contains(event.getChannel().getId())) {
             return;
         }
 

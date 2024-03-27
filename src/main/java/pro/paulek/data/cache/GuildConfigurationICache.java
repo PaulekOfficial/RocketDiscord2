@@ -3,10 +3,10 @@ package pro.paulek.data.cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
-import pro.paulek.objects.GuildConfiguration;
 import pro.paulek.data.ICache;
 import pro.paulek.data.ISQLDataModel;
 import pro.paulek.data.cache.mysql.GuildConfigurationMySQLModel;
+import pro.paulek.objects.GuildConfiguration;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -71,7 +71,7 @@ public class GuildConfigurationICache implements ICache<GuildConfiguration, Stri
     }
 
     @Override
-    public Future<Boolean> save(String s) {
-        return this.mySQLModel.save(guildConfigurationMap.get(s));
+    public Future<Boolean> save(GuildConfiguration configuration) {
+        return this.mySQLModel.save(configuration);
     }
 }

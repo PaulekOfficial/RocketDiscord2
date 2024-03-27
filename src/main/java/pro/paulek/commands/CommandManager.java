@@ -32,10 +32,15 @@ public class CommandManager extends ListenerAdapter {
         }
 
         var guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
+        if (guildConfiguration.isEmpty()) {
+            logger.error("Guild configuration not found for guild: " + event.getGuild().getId());
+            return;
+        }
 
+        var gc = guildConfiguration.get();
         var channel = (TextChannel) event.getChannel();
-        if (!event.getMember().hasPermission(Permission.MANAGE_CHANNEL) && (guildConfiguration.isCommandsChannelsWhitelistMode() && !guildConfiguration.getCommandChannels().contains(channel.getId())
-        || !guildConfiguration.isCommandsChannelsWhitelistMode() && guildConfiguration.getCommandChannels().contains(channel.getId()))) {
+        if (!event.getMember().hasPermission(Permission.MANAGE_CHANNEL) && (gc.isCommandsChannelsWhitelistMode() && !gc.getCommandChannels().contains(channel.getId())
+        || !gc.isCommandsChannelsWhitelistMode() && gc.getCommandChannels().contains(channel.getId()))) {
             event.reply(":man_detective: Nie możesz używać poleceń na tym kanale!").queue();
             return;
         }

@@ -1,16 +1,8 @@
 package pro.paulek.listeners.modlog;
 
-import net.dv8tion.jda.api.events.guild.member.*;
-import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateAvatarEvent;
-import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
-import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
-import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdatePendingEvent;
-import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.message.MessageUpdateEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
-import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
 import pro.paulek.IRocketDiscord;
@@ -38,7 +30,7 @@ public class LoggingListeners extends ListenerAdapter {
                 event.getMessage().getTimeCreated().toInstant()
         );
 
-        this.rocketDiscord.getDiscordMessages().save(event.getMessage().getIdLong(), message);
+        this.rocketDiscord.getDiscordMessages().save(message);
     }
 
     @Override
@@ -52,7 +44,7 @@ public class LoggingListeners extends ListenerAdapter {
                 event.getMessage().getTimeCreated().toInstant()
         );
 
-        this.rocketDiscord.getDiscordMessages().save(event.getMessage().getIdLong(), message);
+        this.rocketDiscord.getDiscordMessages().save(message);
     }
 
     @Override
@@ -66,6 +58,6 @@ public class LoggingListeners extends ListenerAdapter {
                 Instant.now()
         );
 
-        this.rocketDiscord.getDiscordMessages().save(event.getMessageIdLong(), message);
+        this.rocketDiscord.getDiscordMessages().save(message);
     }
 }

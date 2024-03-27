@@ -54,7 +54,7 @@ public class MusicPlayerCache implements ICache<MusicManager, String> {
     }
 
     @Override
-    public Future<Boolean> save(String s) {
+    public Future<Boolean> save(MusicManager musicManager) {
         throw new UnsupportedOperationException();
     }
 }

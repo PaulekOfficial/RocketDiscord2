@@ -1,6 +1,5 @@
 package pro.paulek.commands.music;
 
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
@@ -12,10 +11,8 @@ import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
 import pro.paulek.objects.MusicManager;
-import pro.paulek.util.TimeUtils;
+import pro.paulek.util.PlaylistUtils;
 
-import java.awt.*;
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class RepeatCommand extends Command {
@@ -35,12 +32,18 @@ public class RepeatCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        var musicPlayer = rocketDiscord.getMusicManager(guild.getId());
+        MusicManager musicPlayer = null;
 
-        if (musicPlayer == null) {
+        var manager = rocketDiscord.getMusicManager(guild.getId());
+        if (manager.isEmpty()) {
+            logger.warn("Music manager is empty for guild {}", guild.getId());
             musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
             musicPlayer.init();
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        }
+
+        if (manager.isPresent()) {
+            musicPlayer = manager.get();
         }
 
         var memberAudioChannel = event.getMember().getVoiceState().getChannel();

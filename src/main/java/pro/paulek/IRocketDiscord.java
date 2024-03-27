@@ -4,16 +4,17 @@ import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.User;
 import pro.paulek.commands.CommandManager;
-import pro.paulek.objects.Configuration;
-import pro.paulek.data.ICache;
 import pro.paulek.data.DataModel;
+import pro.paulek.data.ICache;
 import pro.paulek.data.cache.GuildConfigurationICache;
 import pro.paulek.database.Database;
+import pro.paulek.objects.Configuration;
 import pro.paulek.objects.MusicManager;
 import pro.paulek.objects.guild.DiscordMessage;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.Future;
 
 public interface IRocketDiscord {
@@ -71,7 +72,7 @@ public interface IRocketDiscord {
      * @param discordID
      * @return
      */
-    User getJDAUser(String discordID);
+    Optional<User> getJDAUser(String discordID);
 
     /**
      * Gets user profile from discord id
@@ -105,13 +106,13 @@ public interface IRocketDiscord {
      * @param id
      * @return
      */
-    DiscordMessage getDiscordMessage(String id);
+    Optional<DiscordMessage> getDiscordMessage(String id);
 
     /**
      * Gets music manager for guild
      * @return
      */
-    MusicManager getMusicManager(String guildID);
+    Optional<MusicManager> getMusicManager(String guildID);
 
     /**
      * Get audio manager

@@ -33,14 +33,21 @@ public class QueueCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        var musicPlayer = rocketDiscord.getMusicManager(guild.getId());
+        MusicManager musicPlayer;
 
-        if (musicPlayer == null) {
+        var manager = rocketDiscord.getMusicManager(guild.getId());
+        if (manager.isEmpty()) {
+            logger.warn("Music manager is empty for guild {}", guild.getId());
             musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
             musicPlayer.init();
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+
+            event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicPlayer, ":arrow_lower_left: Co gram :arrow_lower_right:").build()).queue();
+            return;
         }
 
+
+        musicPlayer = manager.get();
         event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicPlayer, ":arrow_lower_left: Co gram :arrow_lower_right:").build()).queue();
     }
 }

@@ -6,7 +6,6 @@ import java.util.concurrent.Future;
 
 //TODO add optionals, nullable
 public interface IData<T, U> {
-
     /**
      * Load an object from database by param u
      * @param u

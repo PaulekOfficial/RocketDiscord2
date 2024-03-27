@@ -5,7 +5,6 @@ import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
-import com.sedmelluq.discord.lavaplayer.track.TrackMarker;
 import com.sedmelluq.discord.lavaplayer.track.playback.MutableAudioFrame;
 import net.dv8tion.jda.api.audio.AudioSendHandler;
 import net.dv8tion.jda.api.entities.Guild;
@@ -19,6 +18,7 @@ import java.nio.ByteBuffer;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -37,8 +37,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     private boolean repeat = false;
 
+    private Optional<AudioTrack> currentTrack;
     private LocalDateTime lastPlayed;
-    private AudioTrack currentTrack;
 
     public MusicManager(AudioPlayer audioPlayer, Guild guild) {
         this.audioPlayer = Objects.requireNonNull(audioPlayer);

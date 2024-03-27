@@ -19,20 +19,20 @@ import pro.paulek.commands.HelpCommand;
 import pro.paulek.commands.admin.DeleteMessagesCommand;
 import pro.paulek.commands.fun.Rule34Command;
 import pro.paulek.commands.music.*;
-import pro.paulek.data.cache.DiscordMessageCache;
-import pro.paulek.objects.Configuration;
-import pro.paulek.data.cache.MusicPlayerCache;
-import pro.paulek.data.ICache;
 import pro.paulek.data.DataModel;
+import pro.paulek.data.ICache;
+import pro.paulek.data.cache.DiscordMessageCache;
 import pro.paulek.data.cache.GuildConfigurationICache;
+import pro.paulek.data.cache.MusicPlayerCache;
 import pro.paulek.database.Database;
 import pro.paulek.database.MySQL;
 import pro.paulek.database.SQLite;
-import pro.paulek.listeners.*;
+import pro.paulek.listeners.WelcomeListener;
 import pro.paulek.listeners.commands.SplashCommandListener;
 import pro.paulek.listeners.fun.MemesListeners;
 import pro.paulek.listeners.fun.RandomFunctionsListeners;
 import pro.paulek.listeners.modlog.LoggingListeners;
+import pro.paulek.objects.Configuration;
 import pro.paulek.objects.MusicManager;
 import pro.paulek.objects.guild.DiscordMessage;
 
@@ -42,6 +42,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Optional;
 import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
@@ -209,8 +210,13 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     @Override
-    public User getJDAUser(String discordID) {
-        return jda.getUserById(discordID);
+    public Optional<User> getJDAUser(String discordID) {
+        var user = jda.getUserById(discordID);
+        if(user != null) {
+            return Optional.of(user);
+        }
+
+        return Optional.empty();
     }
 
     @Override
@@ -219,11 +225,13 @@ public class RocketDiscord implements IRocketDiscord {
 
         executorService.submit(() -> {
             var user = this.getJDAUser(discordID);
-            if(user == null) {
+            if(user.isEmpty()) {
                 return;
             }
-            var restProfile = user.retrieveProfile();
+
+            var restProfile = user.get().retrieveProfile();
             restProfile.timeout(5, TimeUnit.SECONDS);
+
             completableFuture.complete(restProfile.complete());
         });
 
@@ -249,7 +257,7 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     @Override
-    public DiscordMessage getDiscordMessage(String id) {
+    public Optional<DiscordMessage> getDiscordMessage(String id) {
         return this.discordMessageCache.get(id);
     }
 
@@ -264,7 +272,7 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     @Override
-    public MusicManager getMusicManager(String guildID) {
+    public Optional<MusicManager> getMusicManager(String guildID) {
         return musicManager.get(guildID);
     }
 

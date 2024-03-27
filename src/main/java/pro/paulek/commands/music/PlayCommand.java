@@ -43,13 +43,19 @@ public class PlayCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-       var musicPlayer = rocketDiscord.getMusicManager(guild.getId());
+        MusicManager musicPlayer = null;
 
-       if (musicPlayer == null) {
-           musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
-           musicPlayer.init();
-           rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
-       }
+        var manager = rocketDiscord.getMusicManager(guild.getId());
+        if (manager.isEmpty()) {
+            logger.warn("Music manager is empty for guild {}", guild.getId());
+            musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+            musicPlayer.init();
+            rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        }
+
+        if (manager.isPresent()) {
+            musicPlayer = manager.get();
+        }
 
         var musicManagerCopy = musicPlayer;
         MusicManager finalMusicPlayer = musicPlayer;

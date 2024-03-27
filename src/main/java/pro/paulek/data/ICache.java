@@ -3,9 +3,7 @@ package pro.paulek.data;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
-//TODO add optionals, nullable
 public interface ICache<T, U>{
-
     /**
      * Initialise cache class
      */
@@ -23,7 +21,7 @@ public interface ICache<T, U>{
      * @param u
      * @param t
      */
-    boolean add(U u,T t);
+    boolean add(U u, T t);
 
     /**
      * Permanency deletes object by key
@@ -41,6 +39,5 @@ public interface ICache<T, U>{
      * Saves object to database if not null by keu U
      * @param u
      */
-    Future<Boolean> save(U u);
-
+    Future<Boolean> save(T t);
 }

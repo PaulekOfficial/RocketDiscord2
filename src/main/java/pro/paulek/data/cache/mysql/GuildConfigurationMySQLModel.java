@@ -3,9 +3,9 @@ package pro.paulek.data.cache.mysql;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
-import pro.paulek.objects.GuildConfiguration;
-import pro.paulek.data.cache.GuildConfigurationICache;
 import pro.paulek.data.ISQLDataModel;
+import pro.paulek.data.cache.GuildConfigurationICache;
+import pro.paulek.objects.GuildConfiguration;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -30,8 +30,8 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
 
     @Override
     public Optional<GuildConfiguration> load(String s) {
-        try(Connection connection = rocketDiscord.getDatabaseConnection()) {
-            var ps = connection.prepareStatement("SELECT * FROM `setting` WHERE `guild_id` = ?");
+        try(Connection connection = rocketDiscord.getDatabaseConnection();
+            var ps = connection.prepareStatement("SELECT * FROM `setting` WHERE `guild_id` = ?")) {
             ps.setString(1, s);
             var resultSet = ps.executeQuery();
 
@@ -51,9 +51,9 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     @Override
     public Future<Boolean> createTable() {
         return executorService.submit(() -> {
-            try(Connection connection = rocketDiscord.getDatabaseConnection()) {
+            try(Connection connection = rocketDiscord.getDatabaseConnection();
                 var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `channel_id` text NOT NULL, `type` text NOT NULL, `added_by` text NOT NULL, PRIMARY KEY (`id`))");
-                var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL, PRIMARY KEY (`id`))");
+                var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL, PRIMARY KEY (`id`))")) {
 
                 return  ps1.executeUpdate() > 0 && ps2.executeUpdate() > 0;
             } catch (SQLException exception) {
@@ -72,8 +72,8 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     @Override
     public Optional<Collection<GuildConfiguration>> load() {
         List<String> guilds = new ArrayList<>();
-        try(Connection connection = rocketDiscord.getDatabaseConnection()) {
-            var ps = connection.prepareStatement("SELECT DISTINCT `guild_id` FROM `setting`");
+        try(Connection connection = rocketDiscord.getDatabaseConnection();
+            var ps = connection.prepareStatement("SELECT DISTINCT `guild_id` FROM `setting`")) {
             var rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -151,11 +151,10 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     @Override
     public Future<Boolean> delete(String s) {
         return executorService.submit(() -> {
-            try(Connection connection = rocketDiscord.getDatabaseConnection()) {
+            try(Connection connection = rocketDiscord.getDatabaseConnection();
                 var ps = connection.prepareStatement("DELETE * FROM `setting` WHERE `guild_id` = ?");
+                var ps2 = connection.prepareStatement("DELETE * FROM `channel` WHERE `guild_id` = ?")) {
                 ps.setString(1, s);
-
-                var ps2 = connection.prepareStatement("DELETE * FROM `channel` WHERE `guild_id` = ?");
                 ps2.setString(1, s);
 
                 return ps.executeUpdate() > 0 && ps2.executeUpdate() > 0;
@@ -209,8 +208,8 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
 
     @Override
     public int count() {
-        try(Connection connection = rocketDiscord.getDatabaseConnection()) {
-            var ps = connection.prepareStatement("SELECT COUNT(DISTINCT `guild_id`) as `guildCount` FROM `setting`");
+        try(Connection connection = rocketDiscord.getDatabaseConnection();
+            var ps = connection.prepareStatement("SELECT COUNT(DISTINCT `guild_id`) as `guildCount` FROM `setting`")) {
             var rs = ps.executeQuery();
             rs.next();
             return  rs.getInt("guildCount");
@@ -221,8 +220,7 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     }
 
     private void saveSetting(Connection connection, String guildID, String name, String value, String editedBy) {
-        try {
-            var ps = connection.prepareStatement("INSERT INTO `setting` (`guild_id`, `name`, `value`, `timestamp`, `added_by`) VALUES (?, ?, ?, ?, ?)");
+        try (var ps = connection.prepareStatement("INSERT INTO `setting` (`guild_id`, `name`, `value`, `timestamp`, `added_by`) VALUES (?, ?, ?, ?, ?)")) {
             ps.setString(1, guildID);
             ps.setString(2, name);
             ps.setString(3, value);
@@ -235,8 +233,7 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     }
 
     private void saveChannelValues(Connection connection, String guildID, String channelID, String type, String addedBy) {
-        try {
-            var ps = connection.prepareStatement("INSERT INTO `channel` (`guild_id`, `channel_id`, `type`, `added_by`) VALUES (?, ?, ?, ?)");
+        try (var ps = connection.prepareStatement("INSERT INTO `channel` (`guild_id`, `channel_id`, `type`, `added_by`) VALUES (?, ?, ?, ?)")) {
             ps.setString(1, guildID);
             ps.setString(2, channelID);
             ps.setString(3, type);
@@ -249,8 +246,7 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
 
     private List<String> getChannelValues(Connection connection, String guildID, String type) {
         List<String> arrayList = new ArrayList<>();
-        try {
-            var ps = connection.prepareStatement("SELECT `channel_id` FROM `channel` WHERE `guild_id` = ? AND `type` = ?");
+        try (var ps = connection.prepareStatement("SELECT `channel_id` FROM `channel` WHERE `guild_id` = ? AND `type` = ?")) {
             ps.setString(1, guildID);
             ps.setString(2, type);
             var values = ps.executeQuery();
