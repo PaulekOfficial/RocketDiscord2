@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.Objects;
 
 public class CommandManager extends ListenerAdapter {
-
     private final static Logger logger = LoggerFactory.getLogger(CommandManager.class);
 
     private final IRocketDiscord rocketDiscord;
@@ -27,6 +26,7 @@ public class CommandManager extends ListenerAdapter {
 
     @Override
     public void onSlashCommandInteraction(@Nullable SlashCommandInteractionEvent event) {
+        assert event != null;
         if (Objects.requireNonNull(event.getMember()).getUser().isBot()) {
             return;
         }

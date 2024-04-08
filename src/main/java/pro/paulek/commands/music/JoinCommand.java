@@ -15,7 +15,6 @@ import pro.paulek.objects.MusicManager;
 import java.util.Objects;
 
 public class JoinCommand extends Command {
-
     private final static Logger logger = LoggerFactory.getLogger(PlayCommand.class);
 
     private final IRocketDiscord rocketDiscord;

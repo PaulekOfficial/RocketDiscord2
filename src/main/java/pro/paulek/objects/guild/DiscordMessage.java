@@ -1,9 +1,16 @@
 package pro.paulek.objects.guild;
 
+import pro.paulek.data.sql.annotation.*;
+
 import java.time.Instant;
 import java.util.Objects;
 
+@Entity
+@Table(name = "discord_message")
 public class DiscordMessage {
+
+    @Id
+    @GeneratedValue
     private int id;
     private String authorName;
     private String authorID;
@@ -11,6 +18,9 @@ public class DiscordMessage {
     private String content;
     private MessageAction action;
     private Instant createdAt;
+
+    public DiscordMessage() {
+    }
 
     public DiscordMessage(String authorName, String authorID, String messageID, String content, MessageAction action, Instant createdAt) {
         this.authorName = authorName;
@@ -98,6 +108,19 @@ public class DiscordMessage {
     @Override
     public int hashCode() {
         return Objects.hash(id, authorName, authorID, messageID, content, action);
+    }
+
+    @Override
+    public String toString() {
+        return "DiscordMessage{" +
+                "id=" + id +
+                ", authorName='" + authorName + '\'' +
+                ", authorID='" + authorID + '\'' +
+                ", messageID='" + messageID + '\'' +
+                ", content='" + content + '\'' +
+                ", action=" + action +
+                ", createdAt=" + createdAt +
+                '}';
     }
 
     public enum MessageAction {

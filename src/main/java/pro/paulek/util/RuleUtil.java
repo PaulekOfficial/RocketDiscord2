@@ -35,7 +35,7 @@ public class RuleUtil {
 
         if(random) {
             url.append("?id=");
-            url.append(String.valueOf(randomizer.nextInt(1, 5410582)));
+            //url.append(String.valueOf(randomizer.nextInt(1, 5410582)));
         }
         url.append("&limit=");
         url.append(String.valueOf(limit));

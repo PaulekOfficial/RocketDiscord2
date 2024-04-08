@@ -2,6 +2,7 @@ package pro.paulek.data;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
 //TODO add optionals, nullable

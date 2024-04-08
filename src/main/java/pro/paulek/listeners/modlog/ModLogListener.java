@@ -1,5 +1,7 @@
 package pro.paulek.listeners.modlog;
 
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.events.guild.GuildBanEvent;
 import net.dv8tion.jda.api.events.guild.GuildUnbanEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
@@ -7,6 +9,7 @@ import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateAvatarEve
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateBoostTimeEvent;
 import net.dv8tion.jda.api.events.guild.member.update.GuildMemberUpdateNicknameEvent;
 import net.dv8tion.jda.api.events.guild.update.GuildUpdateOwnerEvent;
+import net.dv8tion.jda.api.events.guild.voice.GuildVoiceUpdateEvent;
 import net.dv8tion.jda.api.events.message.MessageBulkDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageDeleteEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -15,87 +18,102 @@ import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveAllEvent;
 import net.dv8tion.jda.api.events.message.react.MessageReactionRemoveEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateAvatarEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateOnlineStatusEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
+import pro.paulek.IRocketDiscord;
+
+import java.awt.*;
+import java.time.ZonedDateTime;
+import java.util.Objects;
 
 public class ModLogListener extends ListenerAdapter {
+    private final IRocketDiscord rocketDiscord;
 
-    public ModLogListener() {
-        super();
-    }
-
-    @Override
-    public void onUserUpdateName(@NotNull UserUpdateNameEvent event) {
-        super.onUserUpdateName(event);
+    public ModLogListener(IRocketDiscord rocketDiscord) {
+        this.rocketDiscord = Objects.requireNonNull(rocketDiscord, "rocketDiscord");
     }
 
     @Override
     public void onUserUpdateAvatar(@NotNull UserUpdateAvatarEvent event) {
-        super.onUserUpdateAvatar(event);
+        var updateEmbed = new EmbedBuilder()
+                .setTitle("Zaktualizowano avatar użytkownika")
+                .setAuthor(event.getUser().getName(), null, event.getUser().getAvatarUrl())
+                .setThumbnail(event.getUser().getAvatarUrl())
+                .addField("Użytkownik", event.getUser().getAsMention(), true)
+                .setFooter(String.format("ID: %s", event.getUser().getId()))
+                .setColor(Color.CYAN)
+                .setTimestamp(ZonedDateTime.now())
+                .build();
+
+        rocketDiscord.getJda().getGuildById("740276300815663105").getTextChannelById("1221222594997653594").sendMessageEmbeds(updateEmbed).queue();
     }
 
     @Override
-    public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        super.onMessageReceived(event);
+    public void onUserUpdateOnlineStatus(@NotNull UserUpdateOnlineStatusEvent event) {
+        super.onUserUpdateOnlineStatus(event);
+    }
+
+    @Override
+    public void onGuildVoiceUpdate(GuildVoiceUpdateEvent event) {
+        MessageEmbed updateEmbed;
+        if (event.getChannelLeft() == null) {
+            updateEmbed = new EmbedBuilder()
+                    .setTitle("Użytkownik dołączył do kanału głosowego")
+                    .setAuthor(event.getMember().getUser().getName(), null, event.getMember().getUser().getAvatarUrl())
+                    .addField("Użytkownik", event.getMember().getAsMention(), true)
+                    .addField("Kanał", event.getChannelJoined().getAsMention(), true)
+                    .setFooter(String.format("ID: %s", event.getMember().getId()))
+                    .setColor(Color.GREEN)
+                    .setTimestamp(ZonedDateTime.now())
+                    .build();
+
+            rocketDiscord.getJda().getGuildById("740276300815663105").getTextChannelById("1221222594997653594").sendMessageEmbeds(updateEmbed).queue();
+            return;
+        }
+
+        updateEmbed = new EmbedBuilder()
+                .setTitle("Użytkownik opuścił kanał głosowy")
+                .setAuthor(event.getMember().getUser().getName(), null, event.getMember().getUser().getAvatarUrl())
+                .addField("Użytkownik", event.getMember().getAsMention(), true)
+                .addField("Kanał", event.getChannelLeft().getAsMention(), true)
+                .setFooter(String.format("ID: %s", event.getMember().getId()))
+                .setColor(Color.pink)
+                .setTimestamp(ZonedDateTime.now())
+                .build();
+
+        rocketDiscord.getJda().getGuildById("740276300815663105").getTextChannelById("1221222594997653594").sendMessageEmbeds(updateEmbed).queue();
     }
 
     @Override
     public void onMessageUpdate(@NotNull MessageUpdateEvent event) {
-        super.onMessageUpdate(event);
+        var updateEmbed = new EmbedBuilder()
+                .setTitle("Wiadomość została edytowana przez użytkownika")
+                .setAuthor(event.getAuthor().getName(), null, event.getAuthor().getAvatarUrl())
+                .addField("Autor", event.getAuthor().getAsMention(), true)
+                .addField("Kanał", event.getChannel().getAsMention(), true)
+                .addField("Stara wiadomość", "**missing data context**", false)
+                .addField("Nowa wiadomość", event.getMessage().getContentRaw(), true)
+                .setFooter(String.format("ID: %s", event.getMessageId()))
+                .setColor(Color.YELLOW)
+                .setTimestamp(ZonedDateTime.now())
+                .build();
+
+        rocketDiscord.getJda().getGuildById("740276300815663105").getTextChannelById("1221222594997653594").sendMessageEmbeds(updateEmbed).queue();
     }
 
     @Override
     public void onMessageDelete(@NotNull MessageDeleteEvent event) {
-        super.onMessageDelete(event);
-    }
+        var deleteEmbed = new EmbedBuilder()
+                .setTitle("Wiadomość została usunięta przez użytkownika")
+                .addField("Autor", "**missing data context**", true)
+                .addField("Kanał", event.getChannel().getAsMention(), true)
+                .addField("Wiadomość", "**missing data context**", false)
+                .setFooter(String.format("ID: %s", event.getMessageId()))
+                .setColor(Color.RED)
+                .setTimestamp(ZonedDateTime.now())
+                .build();
 
-    @Override
-    public void onMessageBulkDelete(@NotNull MessageBulkDeleteEvent event) {
-        super.onMessageBulkDelete(event);
-    }
-
-    @Override
-    public void onMessageReactionRemove(@NotNull MessageReactionRemoveEvent event) {
-        super.onMessageReactionRemove(event);
-    }
-
-    @Override
-    public void onMessageReactionRemoveAll(@NotNull MessageReactionRemoveAllEvent event) {
-        super.onMessageReactionRemoveAll(event);
-    }
-
-    @Override
-    public void onGuildBan(@NotNull GuildBanEvent event) {
-        super.onGuildBan(event);
-    }
-
-    @Override
-    public void onGuildUnban(@NotNull GuildUnbanEvent event) {
-        super.onGuildUnban(event);
-    }
-
-    @Override
-    public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent event) {
-        super.onGuildMemberRemove(event);
-    }
-
-    @Override
-    public void onGuildUpdateOwner(@NotNull GuildUpdateOwnerEvent event) {
-        super.onGuildUpdateOwner(event);
-    }
-
-    @Override
-    public void onGuildMemberUpdateNickname(@NotNull GuildMemberUpdateNicknameEvent event) {
-        super.onGuildMemberUpdateNickname(event);
-    }
-
-    @Override
-    public void onGuildMemberUpdateAvatar(@NotNull GuildMemberUpdateAvatarEvent event) {
-        super.onGuildMemberUpdateAvatar(event);
-    }
-
-    @Override
-    public void onGuildMemberUpdateBoostTime(@NotNull GuildMemberUpdateBoostTimeEvent event) {
-        super.onGuildMemberUpdateBoostTime(event);
+        rocketDiscord.getJda().getGuildById("740276300815663105").getTextChannelById("1221222594997653594").sendMessageEmbeds(deleteEmbed).queue();
     }
 }

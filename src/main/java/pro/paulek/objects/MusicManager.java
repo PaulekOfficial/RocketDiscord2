@@ -92,6 +92,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     public void queue(AudioTrack audioTrack) {
         if (audioPlayer.startTrack(audioTrack, true)) {
             this.currentTrack = Optional.of(audioTrack);
+
             return;
         }
 
