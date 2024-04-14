@@ -2,6 +2,8 @@ package pro.paulek.objects;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayer;
 import com.sedmelluq.discord.lavaplayer.player.event.AudioEventAdapter;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeAudioSourceManager;
+import com.sedmelluq.discord.lavaplayer.source.youtube.YoutubeConstants;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason;
@@ -38,7 +40,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     private boolean repeat = false;
 
-    private Optional<AudioTrack> currentTrack;
+    private AudioTrack currentTrack;
     private LocalDateTime lastPlayed;
 
     public MusicManager(AudioPlayer audioPlayer, Guild guild) {
@@ -47,7 +49,6 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         this.byteBuffer = ByteBuffer.allocate(1024);
         this.audioFrame = new MutableAudioFrame();
         this.queue = new LinkedBlockingQueue<>();
-        this.currentTrack = Optional.empty();
     }
 
     public void init() {
@@ -91,7 +92,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     public void queue(AudioTrack audioTrack) {
         if (audioPlayer.startTrack(audioTrack, true)) {
-            this.currentTrack = Optional.of(audioTrack);
+            this.currentTrack = audioTrack;
 
             return;
         }
@@ -101,21 +102,21 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     public void nextTrack() {
         if (repeat) {
-            if (currentTrack.isEmpty()) {
+            if (currentTrack == null) {
                 return;
             }
 
-            this.currentTrack = Optional.of(currentTrack.get().makeClone());
-            audioPlayer.startTrack(currentTrack.get(), false);
+            this.currentTrack = currentTrack.makeClone();
+            audioPlayer.startTrack(currentTrack, false);
             return;
         }
 
-        this.currentTrack = Optional.ofNullable(queue.poll());
-        if (currentTrack.isEmpty()) {
+        this.currentTrack = queue.poll();
+        if (currentTrack == null) {
             return;
         }
 
-        audioPlayer.startTrack(currentTrack.get(), false);
+        audioPlayer.startTrack(currentTrack, false);
     }
 
     public void killWatchdog() {
@@ -176,7 +177,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     }
 
     public Optional<AudioTrack> getCurrentTrack() {
-        return currentTrack;
+        return Optional.ofNullable(currentTrack);
     }
 
     public void setAudioChannel(AudioChannel channel) {
@@ -184,7 +185,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     }
 
     public void setCurrentTrack(@NotNull AudioTrack currentTrack) {
-        this.currentTrack = Optional.of(currentTrack);
+        this.currentTrack = currentTrack;
     }
 
     public Thread getWatchdogThread() {

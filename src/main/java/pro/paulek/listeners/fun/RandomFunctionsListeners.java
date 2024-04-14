@@ -12,10 +12,10 @@ public class RandomFunctionsListeners extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
-        twoPlusTwo(event);
-        placeArticle(event);
-        sixAndNine(event);
-        xdReaction(event);
+        //twoPlusTwo(event);
+        //placeArticle(event);
+        //sixAndNine(event);
+        //xdReaction(event);
     }
 
     private void sixAndNine(MessageReceivedEvent event) {

@@ -1,6 +1,7 @@
 package pro.paulek.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
+import com.sedmelluq.discord.lavaplayer.source.youtube.DefaultYoutubePlaylistLoader;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -27,6 +28,7 @@ import java.util.Objects;
 public class PlayCommand extends Command {
 
     private final static Logger logger = LoggerFactory.getLogger(PlayCommand.class);
+    private final static String SEARCH_PREFIX = "ytsearch:";
 
     private final IRocketDiscord rocketDiscord;
 
@@ -37,7 +39,8 @@ public class PlayCommand extends Command {
         this.setDescription("pozwala wlaczyc muzyke na kanale glosowym");
         this.setUsage("/play <link do muzyki>");
         var commandData = Commands.slash("play", "Plays music on voice channels");
-        commandData.addOption(OptionType.STRING, "url", "URL to music source", true);
+        commandData.addOption(OptionType.STRING, "url", "URL to music source", false);
+        commandData.addOption(OptionType.STRING, "tags", "Youtube tags to music source", false);
         this.setCommandData(commandData);
     }
 
@@ -57,9 +60,26 @@ public class PlayCommand extends Command {
             musicPlayer = manager.get();
         }
 
+        var searchStr = "";
+        if (event.getOption("tags") != null) {
+            searchStr = SEARCH_PREFIX + Objects.requireNonNull(event.getOption("tags")).getAsString();
+        }
+
+        if (event.getOption("url") != null) {
+            searchStr = Objects.requireNonNull(event.getOption("url")).getAsString();
+        }
+
+        if (searchStr.isBlank()) {
+            event.reply(":satellite: Musisz podać link do utworu lub tagi, aby wyszukać muzykę").queue();
+            return;
+        }
+
         var musicManagerCopy = musicPlayer;
         MusicManager finalMusicPlayer = musicPlayer;
-        rocketDiscord.getAudioManager().loadItemOrdered(musicPlayer, Objects.requireNonNull(event.getOption("url")).getAsString(), new AudioLoadResultHandler() {
+        rocketDiscord.getAudioManager().loadItemOrdered(
+                event.getGuild(),
+                searchStr,
+                new AudioLoadResultHandler() {
             @Override
             public void trackLoaded(AudioTrack audioTrack) {
                 var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
@@ -116,6 +136,7 @@ public class PlayCommand extends Command {
 
             @Override
             public void loadFailed(FriendlyException e) {
+                logger.warn("Error while loading music", e);
                 event.reply(":screwdriver: Wystąpił nieznany błąd podczas wyszukiwania muzyki").queue();
             }
         });

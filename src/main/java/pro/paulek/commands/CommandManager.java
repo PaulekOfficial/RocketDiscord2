@@ -8,7 +8,9 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
+import pro.paulek.objects.GuildConfiguration;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -34,6 +36,26 @@ public class CommandManager extends ListenerAdapter {
         var guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
         if (guildConfiguration.isEmpty()) {
             logger.error("Guild configuration not found for guild: " + event.getGuild().getId());
+            event.reply(":no_entry: Konfiguracja serwera nie została znaleziona! Tworzę ją teraz...").queue();
+
+            var configuration = new GuildConfiguration(
+                    event.getGuild().getId(),
+                    event.getGuild().getName(),
+                    false,
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    new ArrayList<>(),
+                    false,
+                    false,
+                    "",
+                    "",
+                    "",
+                    "",
+                    new ArrayList<>(),
+                    ""
+            );
+            rocketDiscord.getGuildConfigurations().add(event.getGuild().getId(), configuration);
+
             return;
         }
 

@@ -28,12 +28,12 @@ import pro.paulek.database.Database;
 import pro.paulek.database.MySQL;
 import pro.paulek.database.SQLite;
 import pro.paulek.listeners.WelcomeListener;
-import pro.paulek.listeners.commands.SplashCommandListener;
+import pro.paulek.listeners.commands.SlashCommandListener;
 import pro.paulek.listeners.fun.MemesListeners;
-import pro.paulek.listeners.fun.RandomFunctionsListeners;
 import pro.paulek.listeners.modlog.LoggingListeners;
 import pro.paulek.objects.Configuration;
 import pro.paulek.objects.MusicManager;
+import pro.paulek.objects.PlayManager;
 import pro.paulek.objects.guild.DiscordMessage;
 
 import java.io.File;
@@ -42,6 +42,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
@@ -59,7 +60,7 @@ public class RocketDiscord implements IRocketDiscord {
     private Configuration configuration;
     private CommandManager commandManager;
 
-    private AudioPlayerManager audioPlayerManager;
+    private PlayManager audioPlayerManager;
 
     private ICache<MusicManager, String> musicManager;
     private ICache<DiscordMessage, String> discordMessageCache;
@@ -92,6 +93,10 @@ public class RocketDiscord implements IRocketDiscord {
 
         discordMessageCache = new DiscordMessageCache(this);
         discordMessageCache.init();
+
+        //Initialize play manager
+        audioPlayerManager = new PlayManager(this);
+        audioPlayerManager.initialize();
 
         //Create jda builder
         logger.info("Initializing discord gateway...");
@@ -132,16 +137,11 @@ public class RocketDiscord implements IRocketDiscord {
         //Load listeners
         logger.info("Initializing bot listeners...");
         jdaBuilder.addEventListeners(commandManager);
-        jdaBuilder.addEventListeners(new RandomFunctionsListeners());
+        //jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners(this));
-        jdaBuilder.addEventListeners(new SplashCommandListener(this));
+        jdaBuilder.addEventListeners(new SlashCommandListener(this));
         jdaBuilder.addEventListeners(new MemesListeners(this));
         jdaBuilder.addEventListeners(new WelcomeListener(this));
-
-        //Load music manager
-        audioPlayerManager = new DefaultAudioPlayerManager();
-        AudioSourceManagers.registerLocalSource(audioPlayerManager);
-        AudioSourceManagers.registerRemoteSources(audioPlayerManager);
 
         //Load cache
         musicManager = new MusicPlayerCache(this);
@@ -166,24 +166,31 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     public void registerSplashCommands() {
+        List<Command> existingCommands = jda.retrieveCommands().complete();
 
-        // For debug only
-//        jda.retrieveCommands().complete().forEach(cmd -> {
-//            jda.deleteCommandById(cmd.getId()).complete();
-//        });
-
-        var commands = jda.retrieveCommands().complete();
         commandManager.getCommandList().values().forEach(command -> {
-            boolean match = false;
-            for (Command cmd : commands) {
-                if (cmd.getName().equalsIgnoreCase(command.getName())) {
-                    match = true;
+            List<Command> matchingCommands = existingCommands.stream()
+                    .filter(existingCommand -> existingCommand.getName().equalsIgnoreCase(command.getName()))
+                    .toList();
+
+            if (matchingCommands.size() > 1) {
+                matchingCommands.forEach(matchingCommand -> jda.deleteCommandById(matchingCommand.getId()).queue());
+                jda.upsertCommand(command.getCommandData()).queue();
+                return;
+            }
+
+            if (!matchingCommands.isEmpty()) {
+                Command matchingCommand = matchingCommands.get(0);
+                if (!matchingCommand.getOptions().equals(command.getCommandData().getOptions()) || !matchingCommand.getDescription().equals(command.getCommandData().getDescription())) {
+                    jda.deleteCommandById(matchingCommand.getId()).queue();
+                    jda.upsertCommand(command.getCommandData()).queue();
                     return;
                 }
             }
 
-            if (!match) jda.upsertCommand(command.getCommandData()).queue();
+            jda.upsertCommand(command.getCommandData()).queue();
         });
+
         jda.updateCommands().queue();
     }
 
