@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +111,20 @@ public class PlayCommand extends Command {
                         .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
                         .setTimestamp(LocalDateTime.now())
                         .build();
-                event.replyEmbeds(embed).queue();
+
+                Button pauseButton = Button.primary("rocket-player-pause", "⏯");
+                Button previousButton = Button.secondary("rocket-player-previous", "⏪");
+                Button nextButton = Button.secondary("rocket-player-next", "⏩");
+                Button repeatButton = Button.secondary("rocket-player-repeat", "\uD83D\uDD01");
+                Button stopButton = Button.danger("rocket-player-stop", "⏹");
+
+                event.replyEmbeds(embed)
+                        .addActionRow(pauseButton,
+                                previousButton,
+                                nextButton,
+                                repeatButton,
+                                stopButton)
+                        .queue();
             }
 
             @Override
