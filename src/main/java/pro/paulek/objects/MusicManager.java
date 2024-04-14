@@ -23,11 +23,15 @@ import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class MusicManager extends AudioEventAdapter implements Runnable, AudioSendHandler {
 
     private final static Logger logger = LoggerFactory.getLogger(MusicManager.class);
+
+    private final ExecutorService executorService;
 
     private Thread watchdogThread;
 
@@ -49,6 +53,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         this.byteBuffer = ByteBuffer.allocate(1024);
         this.audioFrame = new MutableAudioFrame();
         this.queue = new LinkedBlockingQueue<>();
+
+        this.executorService = Executors.newSingleThreadExecutor();
     }
 
     public void init() {
@@ -56,8 +62,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         this.guild.getAudioManager().setSendingHandler(this);
         this.audioFrame.setBuffer(byteBuffer);
 
-        this.watchdogThread = new Thread(this);
-        this.watchdogThread.start();
+        this.executorService.submit(this);
     }
 
     @Override
@@ -146,8 +151,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     @Nullable
     @Override
     public ByteBuffer provide20MsAudio() {
-        ((Buffer) byteBuffer).flip();
-        return byteBuffer;
+        byteBuffer.clear();
+        return audioPlayer.provide(audioFrame) ? byteBuffer.flip() : null;
     }
 
     @Override

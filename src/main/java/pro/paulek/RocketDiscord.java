@@ -28,6 +28,7 @@ import pro.paulek.database.Database;
 import pro.paulek.database.MySQL;
 import pro.paulek.database.SQLite;
 import pro.paulek.listeners.WelcomeListener;
+import pro.paulek.listeners.commands.MusicButtonListener;
 import pro.paulek.listeners.commands.SlashCommandListener;
 import pro.paulek.listeners.fun.MemesListeners;
 import pro.paulek.listeners.modlog.LoggingListeners;
@@ -142,6 +143,7 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder.addEventListeners(new SlashCommandListener(this));
         jdaBuilder.addEventListeners(new MemesListeners(this));
         jdaBuilder.addEventListeners(new WelcomeListener(this));
+        jdaBuilder.addEventListeners(new MusicButtonListener(this));
 
         //Load cache
         musicManager = new MusicPlayerCache(this);
