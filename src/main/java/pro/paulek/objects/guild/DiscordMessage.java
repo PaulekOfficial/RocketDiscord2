@@ -1,16 +1,9 @@
 package pro.paulek.objects.guild;
 
-import pro.paulek.data.sql.annotation.*;
-
 import java.time.Instant;
 import java.util.Objects;
 
-@Entity
-@Table(name = "discord_message")
 public class DiscordMessage {
-
-    @Id
-    @GeneratedValue
     private int id;
     private String authorName;
     private String authorID;

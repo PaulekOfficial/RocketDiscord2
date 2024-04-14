@@ -33,112 +33,52 @@ public class MusicButtonListener extends ListenerAdapter {
             return;
         }
 
+        var manager = rocketDiscord.getMusicManager(event.getGuild().getId());
+        if (manager.isEmpty()) {
+            event.reply(":x: Bot nie jest podłączony do kanału głosowego").queue();
+            return;
+        }
+        var musicPlayer = manager.get();
+
         switch (event.getButton().getId()) {
             case "rocket-player-pause":
-                this.handlePauseButton(event.getGuild(), event.getMessageChannel(), event.getButton(), event.getMember());
+                event.reply(":rocket: >>> ! Funkcja nie dostępna ! <<< :rocket:").queue();
                 break;
             case "rocket-player-previous":
-                this.handlePreviousButton(event.getGuild(), event.getMessageChannel(), event.getButton(), event.getMember());
+                event.reply(":rocket: >>> ! Funkcja nie dostępna ! <<< :rocket:").queue();
                 break;
             case "rocket-player-next":
-                this.handleNextButton(event.getGuild(), event.getMessageChannel(), event.getButton(), event.getMember());
-                break;
+                musicPlayer.nextTrack();
+                if (musicPlayer.getCurrentTrack().isEmpty()) {
+                    event.reply(":x: Brak utworów w kolejce").queue();
+                    return;
+                }
+
+                var currentTrack = musicPlayer.getCurrentTrack().get();
+
+                var embed = new EmbedBuilder()
+                        .setTitle("Następnie grane")
+                        .setDescription(currentTrack.getInfo().title)
+                        .setColor(Color.GREEN)
+                        .addField("Kanał", event.getChannel().getName(), true)
+                        .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(currentTrack.getDuration()), true)
+                        .addField("Przewidywany czas odtworzenia utworu", "Teraz", true)
+                        .addField("Pozycja w kolejne", "Teraz", true)
+                        .setAuthor(currentTrack.getInfo().author, currentTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
+                        .setTimestamp(LocalDateTime.now())
+                        .build();
+
+                event.replyEmbeds(embed).queue();
             case "rocket-player-repeat":
-                this.handeRepeatButton(event.getGuild(), event.getMessageChannel(), event.getButton(), event.getMember());
+                musicPlayer.setRepeat(!musicPlayer.isRepeat());
+                event.reply(":repeat: Powtarzanie utworu: " + (musicPlayer.isRepeat() ? "wlaczone" : "wylaczone")).queue();
                 break;
             case "rocket-player-stop":
-                this.handleStopButton(event.getGuild(), event.getMessageChannel(), event.getButton(), event.getMember());
+                musicPlayer.removeAllTracks();
+                musicPlayer.getAudioPlayer().stopTrack();
+
+                event.reply(":o: Zatrzymano odtwarzanie muzyki").queue();
                 break;
         }
-    }
-
-    private Optional<MusicManager> getMusicManagerForUser(Guild guild, MessageChannel channel, Member member) {
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            return Optional.empty();
-        }
-
-        var musicPlayer = manager.get();
-        var memberAudioChannel = member.getVoiceState().getChannel();
-        if (!member.getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getPlayingChannel().getId())) {
-            channel.sendMessage(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
-            return Optional.empty();
-        }
-
-        return Optional.of(musicPlayer);
-    }
-
-    private void handlePreviousButton(Guild guild, MessageChannel channel, Button button, Member member) {
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            return;
-        }
-        var musicPlayer = manager.get();
-
-        channel.sendMessage(">>> ! Funkcja nie dostępna ! <<<").queue();
-    }
-
-    private void handleNextButton(Guild guild, MessageChannel channel, Button button, Member member) {
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            return;
-        }
-        var musicPlayer = manager.get();
-
-        musicPlayer.nextTrack();
-        if (musicPlayer.getCurrentTrack().isEmpty()) {
-            channel.sendMessage(":x: Brak utworów w kolejce").queue();
-            return;
-        }
-
-        var currentTrack = musicPlayer.getCurrentTrack().get();
-
-        var embed = new EmbedBuilder()
-                .setTitle("Następnie grane")
-                .setDescription(currentTrack.getInfo().title)
-                .setColor(Color.GREEN)
-                .addField("Kanał", channel.getName(), true)
-                .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(currentTrack.getDuration()), true)
-                .addField("Przewidywany czas odtworzenia utworu", "Teraz", true)
-                .addField("Pozycja w kolejne", "Teraz", true)
-                .setAuthor(currentTrack.getInfo().author, currentTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
-                .setTimestamp(LocalDateTime.now())
-                .build();
-
-        channel.sendMessageEmbeds(embed).queue();
-    }
-
-    private void handlePauseButton(Guild guild, MessageChannel channel, Button button, Member member) {
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            return;
-        }
-        var musicPlayer = manager.get();
-
-        channel.sendMessage(">>> ! Funkcja nie dostępna ! <<<").queue();
-    }
-
-    private void handeRepeatButton(Guild guild, MessageChannel channel, Button button, Member member) {
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            return;
-        }
-        var musicPlayer = manager.get();
-
-        musicPlayer.setRepeat(!musicPlayer.isRepeat());
-        channel.sendMessage(":repeat: Powtarzanie utworu: " + (musicPlayer.isRepeat() ? "wlaczone" : "wylaczone")).queue();
-    }
-
-    private void handleStopButton(Guild guild, MessageChannel channel, Button button, Member member) {
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            return;
-        }
-        var musicPlayer = manager.get();
-
-        musicPlayer.removeAllTracks();
-        musicPlayer.getAudioPlayer().stopTrack();
-
-        channel.sendMessage(":o: Zatrzymano odtwarzanie muzyki").queue();
     }
 }

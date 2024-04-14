@@ -151,8 +151,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     @Nullable
     @Override
     public ByteBuffer provide20MsAudio() {
-        byteBuffer.clear();
-        return audioPlayer.provide(audioFrame) ? byteBuffer.flip() : null;
+        byteBuffer.flip();
+        return byteBuffer;
     }
 
     @Override

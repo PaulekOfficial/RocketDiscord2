@@ -36,7 +36,6 @@ public class CommandManager extends ListenerAdapter {
         var guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
         if (guildConfiguration.isEmpty()) {
             logger.error("Guild configuration not found for guild: " + event.getGuild().getId());
-            event.reply(":no_entry: Konfiguracja serwera nie została znaleziona! Tworzę ją teraz...").queue();
 
             var configuration = new GuildConfiguration(
                     event.getGuild().getId(),
@@ -55,8 +54,6 @@ public class CommandManager extends ListenerAdapter {
                     ""
             );
             rocketDiscord.getGuildConfigurations().add(event.getGuild().getId(), configuration);
-
-            return;
         }
 
         var gc = guildConfiguration.get();
