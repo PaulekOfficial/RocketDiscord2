@@ -1,7 +1,6 @@
 package pro.paulek.commands.music;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioLoadResultHandler;
-import com.sedmelluq.discord.lavaplayer.source.youtube.DefaultYoutubePlaylistLoader;
 import com.sedmelluq.discord.lavaplayer.tools.FriendlyException;
 import com.sedmelluq.discord.lavaplayer.track.AudioPlaylist;
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
@@ -18,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
-import pro.paulek.objects.MusicManager;
+import pro.paulek.managers.MusicManager;
 import pro.paulek.util.PlaylistUtils;
 import pro.paulek.util.TimeUtils;
 
@@ -47,27 +46,30 @@ public class PlayCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        MusicManager musicPlayer = null;
-
         var manager = rocketDiscord.getMusicManager(guild.getId());
         if (manager.isEmpty()) {
             logger.warn("Music manager is empty for guild {}", guild.getId());
-            musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+
+            var musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
             musicPlayer.init();
+
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+            manager = rocketDiscord.getMusicManager(guild.getId());
         }
 
-        if (manager.isPresent()) {
-            musicPlayer = manager.get();
+        if (manager.isEmpty()) {
+            event.reply(":screwdriver: Wystąpił nieznany błąd podczas inicjalizacji odtwarzacza").queue();
+            return;
         }
 
+        var musicPlayer = manager.get();
         var searchStr = "";
         if (event.getOption("tags") != null) {
-            searchStr = SEARCH_PREFIX + Objects.requireNonNull(event.getOption("tags")).getAsString();
+            searchStr = SEARCH_PREFIX + event.getOption("tags").getAsString();
         }
 
         if (event.getOption("url") != null) {
-            searchStr = Objects.requireNonNull(event.getOption("url")).getAsString();
+            searchStr = event.getOption("url").getAsString();
         }
 
         if (searchStr.isBlank()) {
@@ -75,8 +77,6 @@ public class PlayCommand extends Command {
             return;
         }
 
-        var musicManagerCopy = musicPlayer;
-        MusicManager finalMusicPlayer = musicPlayer;
         rocketDiscord.getAudioManager().loadItemOrdered(
                 event.getGuild(),
                 searchStr,
@@ -91,15 +91,15 @@ public class PlayCommand extends Command {
 
                 if (!guild.getAudioManager().isConnected()) {
                     guild.getAudioManager().openAudioConnection(audioChannel);
-                    finalMusicPlayer.setAudioChannel(audioChannel);
+                    musicPlayer.setAudioChannel(audioChannel);
                 }
 
                 var playedIn = "Teraz";
-                if (TimeUtils.playlistTime(musicManagerCopy) >= 30000L) {
-                    playedIn = TimeUtils.calculateTimeToPlayTrack(musicManagerCopy);
+                if (TimeUtils.playlistTime(musicPlayer) >= 30000L) {
+                    playedIn = TimeUtils.calculateTimeToPlayTrack(musicPlayer);
                 }
 
-                musicManagerCopy.queue(audioTrack);
+                musicPlayer.queue(audioTrack);
                 var embed = new EmbedBuilder()
                         .setDescription(audioTrack.getInfo().title)
                         .setThumbnail("https://img.youtube.com/vi/" + audioTrack.getIdentifier() + "/0.jpg")
@@ -107,7 +107,7 @@ public class PlayCommand extends Command {
                         .addField("Kanał", audioChannel.getName(), true)
                         .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
                         .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
-                        .addField("Pozycja w kolejne", String.valueOf(musicManagerCopy.getQueue().size()), true)
+                        .addField("Pozycja w kolejne", String.valueOf(musicPlayer.getPlaylist().size()), true)
                         .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
                         .setTimestamp(LocalDateTime.now())
                         .build();
@@ -138,9 +138,9 @@ public class PlayCommand extends Command {
                     guild.getAudioManager().openAudioConnection(audioChannel);
                 }
 
-                audioPlaylist.getTracks().forEach(musicManagerCopy::queue);
+                audioPlaylist.getTracks().forEach(musicPlayer::queue);
 
-                event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicManagerCopy, ":arrow_lower_left: Dodaję do playlisty :arrow_lower_right:").build()).queue();
+                event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicPlayer, ":arrow_lower_left: Dodaję do playlisty :arrow_lower_right:").build()).queue();
             }
 
             @Override

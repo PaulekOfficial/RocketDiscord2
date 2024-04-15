@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
-import pro.paulek.objects.MusicManager;
+import pro.paulek.managers.MusicManager;
 
 import java.util.Objects;
 
@@ -32,22 +32,24 @@ public class LeaveCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        MusicManager musicPlayer = null;
-
         var manager = rocketDiscord.getMusicManager(guild.getId());
         if (manager.isEmpty()) {
             logger.warn("Music manager is empty for guild {}", guild.getId());
-            musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+            var musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
             musicPlayer.init();
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+
+            manager = rocketDiscord.getMusicManager(guild.getId());
         }
 
-        if (manager.isPresent()) {
-            musicPlayer = manager.get();
+        if (manager.isEmpty()) {
+            event.reply(":confused: Coś poszło nie tak, spróbuj ponownie").queue();
+            return;
         }
+        var musicPlayer = manager.get();
 
         var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getPlayingChannel().getId())) {
+        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
             event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
             return;
         }
@@ -58,7 +60,7 @@ public class LeaveCommand extends Command {
         }
 
         musicPlayer.removeAllTracks();
-        musicPlayer.getAudioPlayer().stopTrack();
+        musicPlayer.getPlayer().stopTrack();
         guild.getAudioManager().closeAudioConnection();
         event.reply(":boomerang: Wyszedłem z kanału").queue();
     }

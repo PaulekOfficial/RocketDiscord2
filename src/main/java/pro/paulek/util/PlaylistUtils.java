@@ -2,7 +2,7 @@ package pro.paulek.util;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
-import pro.paulek.objects.MusicManager;
+import pro.paulek.managers.MusicManager;
 
 import java.awt.*;
 import java.time.LocalDateTime;
@@ -16,10 +16,10 @@ public class PlaylistUtils {
         stringBuilder.append(title);
         stringBuilder.append(System.getProperty("line.separator"));
 
-        int queueSize = manager.getQueue().size();
+        int queueSize = manager.getPlaylist().size();
 
-        if (manager.getCurrentTrack().isPresent()) {
-            var currentTrack = manager.getCurrentTrack().get();
+        if (manager.getNowPlayingTrack().isPresent()) {
+            var currentTrack = manager.getNowPlayingTrack().get();
 
             stringBuilder.append(System.getProperty("line.separator"));
             stringBuilder.append(":banjo: Aktualnie gram ");
@@ -39,7 +39,7 @@ public class PlaylistUtils {
 
         int i = 1 + queueSize;
 
-        for (AudioTrack audioTrack : manager.getQueue()) {
+        for (AudioTrack audioTrack : manager.getPlaylist()) {
             if (i <= 10 + queueSize) {
                 stringBuilder.append(":notes:");
                 stringBuilder.append(i);
@@ -56,18 +56,18 @@ public class PlaylistUtils {
         }
         stringBuilder.append(System.getProperty("line.separator"));
         stringBuilder.append("Liczba utworów w playliście: ");
-        stringBuilder.append(String.valueOf(manager.getQueue().size()));
+        stringBuilder.append(String.valueOf(manager.getPlaylist().size()));
 
         var embed = new EmbedBuilder()
                 .setDescription(stringBuilder.toString())
                 .setColor(Color.GREEN)
-                .setThumbnail("https://img.youtube.com/vi/" + manager.getQueue().element().getIdentifier() + "/0.jpg")
+                .setThumbnail("https://img.youtube.com/vi/" + manager.getPlaylist().element().getIdentifier() + "/0.jpg")
                 .setAuthor("Dodano do playlisty", "https://paulek.pro/", "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
                 .setTimestamp(LocalDateTime.now())
                 ;
 
-        if (manager.getCurrentTrack().isPresent()) {
-            embed.setThumbnail("https://img.youtube.com/vi/" + manager.getCurrentTrack().get().getIdentifier() + "/0.jpg");
+        if (manager.getNowPlayingTrack().isPresent()) {
+            embed.setThumbnail("https://img.youtube.com/vi/" + manager.getNowPlayingTrack().get().getIdentifier() + "/0.jpg");
         }
 
         return embed;

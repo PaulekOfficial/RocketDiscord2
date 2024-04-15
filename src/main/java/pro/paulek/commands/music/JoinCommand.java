@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
-import pro.paulek.objects.MusicManager;
+import pro.paulek.managers.MusicManager;
 
 import java.util.Objects;
 

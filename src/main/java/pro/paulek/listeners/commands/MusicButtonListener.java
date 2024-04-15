@@ -1,20 +1,14 @@
 package pro.paulek.listeners.commands;
 
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.Member;
-import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
 import pro.paulek.IRocketDiscord;
-import pro.paulek.objects.MusicManager;
 import pro.paulek.util.TimeUtils;
 
 import java.awt.*;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 public class MusicButtonListener extends ListenerAdapter {
     private final IRocketDiscord rocketDiscord;
@@ -49,12 +43,12 @@ public class MusicButtonListener extends ListenerAdapter {
                 break;
             case "rocket-player-next":
                 musicPlayer.nextTrack();
-                if (musicPlayer.getCurrentTrack().isEmpty()) {
+                if (musicPlayer.getNowPlayingTrack().isEmpty()) {
                     event.reply(":x: Brak utworów w kolejce").queue();
                     return;
                 }
 
-                var currentTrack = musicPlayer.getCurrentTrack().get();
+                var currentTrack = musicPlayer.getNowPlayingTrack().get();
 
                 var embed = new EmbedBuilder()
                         .setTitle("Następnie grane")
@@ -75,7 +69,7 @@ public class MusicButtonListener extends ListenerAdapter {
                 break;
             case "rocket-player-stop":
                 musicPlayer.removeAllTracks();
-                musicPlayer.getAudioPlayer().stopTrack();
+                musicPlayer.getPlayer().stopTrack();
 
                 event.reply(":o: Zatrzymano odtwarzanie muzyki").queue();
                 break;

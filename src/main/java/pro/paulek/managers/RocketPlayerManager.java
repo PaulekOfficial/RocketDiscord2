@@ -1,4 +1,4 @@
-package pro.paulek.objects;
+package pro.paulek.managers;
 
 import com.dunctebot.sourcemanagers.DuncteBotSources;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
@@ -8,11 +8,11 @@ import pro.paulek.IRocketDiscord;
 
 import java.util.Objects;
 
-public class PlayManager extends DefaultAudioPlayerManager {
+public class RocketPlayerManager extends DefaultAudioPlayerManager {
 
     private final IRocketDiscord rocketDiscord;
 
-    public PlayManager(IRocketDiscord rocketDiscord) {
+    public RocketPlayerManager(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);
     }
 

@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.Future;
 
+//TODO complete rework of guild configuration system
 public class GuildConfigurationICache implements ICache<GuildConfiguration, String> {
 
     private final static Logger logger = LoggerFactory.getLogger(GuildConfigurationICache.class);

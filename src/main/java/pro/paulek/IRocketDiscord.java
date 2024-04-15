@@ -9,8 +9,7 @@ import pro.paulek.data.ICache;
 import pro.paulek.data.cache.GuildConfigurationICache;
 import pro.paulek.database.Database;
 import pro.paulek.objects.Configuration;
-import pro.paulek.objects.MusicManager;
-import pro.paulek.objects.PlayManager;
+import pro.paulek.managers.MusicManager;
 import pro.paulek.objects.guild.DiscordMessage;
 
 import java.sql.Connection;

@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
-import pro.paulek.objects.MusicManager;
+import pro.paulek.managers.MusicManager;
 
 import java.util.Objects;
 
@@ -50,7 +50,7 @@ public class VolumeCommand extends Command {
         }
 
         var memberAudioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-        if ((!event.getMember().getVoiceState().inAudioChannel() ||  !Objects.requireNonNull(memberAudioChannel).getId().equals(musicPlayer.getPlayingChannel().getId())) &&
+        if ((!event.getMember().getVoiceState().inAudioChannel() ||  !Objects.requireNonNull(memberAudioChannel).getId().equals(musicPlayer.getAudioChannel().getId())) &&
                 !event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
             event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
             return;
@@ -62,7 +62,7 @@ public class VolumeCommand extends Command {
             return;
         }
 
-        musicPlayer.getAudioPlayer().setVolume(volume);
+        musicPlayer.getPlayer().setVolume(volume);
         event.reply("Zmieniłem głośność :wink:").queue();
     }
 }

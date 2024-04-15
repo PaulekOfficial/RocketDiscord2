@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
-import pro.paulek.objects.MusicManager;
+import pro.paulek.managers.MusicManager;
 import pro.paulek.util.PlaylistUtils;
 
 import java.util.Objects;
@@ -33,12 +33,10 @@ public class QueueCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        MusicManager musicPlayer;
-
         var manager = rocketDiscord.getMusicManager(guild.getId());
         if (manager.isEmpty()) {
             logger.warn("Music manager is empty for guild {}", guild.getId());
-            musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+            var musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
             musicPlayer.init();
             rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
 
@@ -47,7 +45,7 @@ public class QueueCommand extends Command {
         }
 
 
-        musicPlayer = manager.get();
+        var musicPlayer = manager.get();
         event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicPlayer, ":arrow_lower_left: Co gram :arrow_lower_right:").build()).queue();
     }
 }

@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.entities.Role;
 
 import java.util.List;
 
-public class LevelUserReward {
+public class LevelReward {
     private int level;
     private int economyGive;
     private int economyTake;

@@ -1,8 +1,6 @@
 package pro.paulek;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
-import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -33,8 +31,8 @@ import pro.paulek.listeners.commands.SlashCommandListener;
 import pro.paulek.listeners.fun.MemesListeners;
 import pro.paulek.listeners.modlog.LoggingListeners;
 import pro.paulek.objects.Configuration;
-import pro.paulek.objects.MusicManager;
-import pro.paulek.objects.PlayManager;
+import pro.paulek.managers.MusicManager;
+import pro.paulek.managers.RocketPlayerManager;
 import pro.paulek.objects.guild.DiscordMessage;
 
 import java.io.File;
@@ -61,7 +59,7 @@ public class RocketDiscord implements IRocketDiscord {
     private Configuration configuration;
     private CommandManager commandManager;
 
-    private PlayManager audioPlayerManager;
+    private RocketPlayerManager audioPlayerManager;
 
     private ICache<MusicManager, String> musicManager;
     private ICache<DiscordMessage, String> discordMessageCache;
@@ -96,7 +94,7 @@ public class RocketDiscord implements IRocketDiscord {
         discordMessageCache.init();
 
         //Initialize play manager
-        audioPlayerManager = new PlayManager(this);
+        audioPlayerManager = new RocketPlayerManager(this);
         audioPlayerManager.initialize();
 
         //Create jda builder

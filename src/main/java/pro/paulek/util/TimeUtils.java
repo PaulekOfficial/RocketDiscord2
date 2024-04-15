@@ -1,7 +1,7 @@
 package pro.paulek.util;
 
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
-import pro.paulek.objects.MusicManager;
+import pro.paulek.managers.MusicManager;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,8 +29,8 @@ public class TimeUtils {
     }
 
     public static long playlistTime(MusicManager musicManager) {
-        long queueTrackTime = musicManager.getQueue().stream().mapToLong(AudioTrack::getDuration).sum();
-        queueTrackTime += musicManager.getCurrentTrack().isPresent() ? musicManager.getCurrentTrack().get().getDuration() - musicManager.getCurrentTrack().get().getPosition() : 0;
+        long queueTrackTime = musicManager.getPlaylist().stream().mapToLong(AudioTrack::getDuration).sum();
+        queueTrackTime += musicManager.getNowPlayingTrack().isPresent() ? musicManager.getNowPlayingTrack().get().getDuration() - musicManager.getNowPlayingTrack().get().getPosition() : 0;
 
         return queueTrackTime;
     }

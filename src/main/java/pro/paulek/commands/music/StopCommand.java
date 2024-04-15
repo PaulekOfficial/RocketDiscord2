@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
-import pro.paulek.objects.MusicManager;
+import pro.paulek.managers.MusicManager;
 
 import java.util.Objects;
 
@@ -46,13 +46,13 @@ public class StopCommand  extends Command {
         }
 
         var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getPlayingChannel().getId())) {
+        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
             event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
             return;
         }
 
         musicPlayer.removeAllTracks();
-        musicPlayer.getAudioPlayer().stopTrack();
+        musicPlayer.getPlayer().stopTrack();
         event.reply(":o: Zatrzymano odtwarzenie muzyki").queue();
     }
 }

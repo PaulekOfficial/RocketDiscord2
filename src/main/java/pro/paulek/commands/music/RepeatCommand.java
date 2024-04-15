@@ -10,8 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
-import pro.paulek.objects.MusicManager;
-import pro.paulek.util.PlaylistUtils;
+import pro.paulek.managers.MusicManager;
 
 import java.util.Objects;
 
@@ -47,12 +46,12 @@ public class RepeatCommand extends Command {
         }
 
         var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getPlayingChannel().getId())) {
+        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
             event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
             return;
         };
 
-        if (musicPlayer.getCurrentTrack() == null) {
+        if (musicPlayer.getNowPlayingTrack() == null) {
             event.reply(":snake: Ale żadna muzyka nie jest włączona").queue();
             return;
         }
