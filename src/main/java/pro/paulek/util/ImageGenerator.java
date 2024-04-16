@@ -18,7 +18,8 @@ public class ImageGenerator {
     //private final static int AVATAR_SIZE = 256;
     private final static int AVATAR_SIZE = 275;
 
-    public ImageGenerator() {}
+    public ImageGenerator() {
+    }
 
     public File generateWelcomeImage(User user, String welcome) {
         var image = this.generateWelcomeImage(user.getName(), user.getAsTag().split("#")[1], welcome, user.getEffectiveAvatarUrl());
@@ -28,7 +29,7 @@ public class ImageGenerator {
             ImageIO.write(image, "png", tempFile);
 
             return tempFile;
-        } catch (Exception exception){
+        } catch (Exception exception) {
             logger.error("Cannot generate welcome image", exception);
         }
         return null;
@@ -42,7 +43,7 @@ public class ImageGenerator {
             ImageIO.write(image, "png", tempFile);
 
             return tempFile;
-        } catch (Exception exception){
+        } catch (Exception exception) {
             logger.error("Cannot generate leave image", exception);
         }
         return null;
@@ -59,8 +60,7 @@ public class ImageGenerator {
 
         BufferedImage avatarImage = null;
 
-        try
-        {
+        try {
             URL url = new URL(avatarUrl);
             avatarImage = ImageIO.read(url);
         } catch (IOException exception) {
@@ -104,8 +104,7 @@ public class ImageGenerator {
 
         BufferedImage avatarImage = null;
 
-        try
-        {
+        try {
             URL url = new URL(avatarUrl);
             avatarImage = ImageIO.read(url);
         } catch (IOException exception) {
@@ -151,7 +150,7 @@ public class ImageGenerator {
     private BufferedImage generateRoundAvatar(BufferedImage bufferedImage) {
         assert bufferedImage != null;
         var diameter = Math.min(bufferedImage.getWidth(), bufferedImage.getHeight());
-        var mask = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(),  BufferedImage.TYPE_INT_ARGB);
+        var mask = new BufferedImage(bufferedImage.getWidth(), bufferedImage.getHeight(), BufferedImage.TYPE_INT_ARGB);
         var g2d = mask.createGraphics();
         g2d.fillOval(0, 0, diameter - 1, diameter - 1);
         g2d.dispose();
@@ -162,7 +161,7 @@ public class ImageGenerator {
         var y = (diameter - bufferedImage.getHeight()) / 2;
         g2d.drawImage(bufferedImage, x, y, null);
         g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.DST_IN));
-        g2d.drawImage(mask, 0,0, null);
+        g2d.drawImage(mask, 0, 0, null);
         g2d.dispose();
 
         return masked;

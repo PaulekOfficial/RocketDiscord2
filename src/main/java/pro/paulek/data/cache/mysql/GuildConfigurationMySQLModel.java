@@ -30,8 +30,8 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
 
     @Override
     public Optional<GuildConfiguration> load(String s) {
-        try(Connection connection = rocketDiscord.getDatabaseConnection();
-            var ps = connection.prepareStatement("SELECT * FROM `setting` WHERE `guild_id` = ?")) {
+        try (Connection connection = rocketDiscord.getDatabaseConnection();
+             var ps = connection.prepareStatement("SELECT * FROM `setting` WHERE `guild_id` = ?")) {
             ps.setString(1, s);
             var resultSet = ps.executeQuery();
 
@@ -51,11 +51,11 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     @Override
     public Future<Boolean> createTable() {
         return executorService.submit(() -> {
-            try(Connection connection = rocketDiscord.getDatabaseConnection();
-                var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `channel_id` text NOT NULL, `type` text NOT NULL, `added_by` text NOT NULL, PRIMARY KEY (`id`))");
-                var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL, PRIMARY KEY (`id`))")) {
+            try (Connection connection = rocketDiscord.getDatabaseConnection();
+                 var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `channel_id` text NOT NULL, `type` text NOT NULL, `added_by` text NOT NULL, PRIMARY KEY (`id`))");
+                 var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL, PRIMARY KEY (`id`))")) {
 
-                return  ps1.executeUpdate() > 0 && ps2.executeUpdate() > 0;
+                return ps1.executeUpdate() > 0 && ps2.executeUpdate() > 0;
             } catch (SQLException exception) {
                 logger.error("Failed to create database tables: ", exception);
             }
@@ -72,8 +72,8 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     @Override
     public Optional<Collection<GuildConfiguration>> load() {
         List<String> guilds = new ArrayList<>();
-        try(Connection connection = rocketDiscord.getDatabaseConnection();
-            var ps = connection.prepareStatement("SELECT DISTINCT `guild_id` FROM `setting`")) {
+        try (Connection connection = rocketDiscord.getDatabaseConnection();
+             var ps = connection.prepareStatement("SELECT DISTINCT `guild_id` FROM `setting`")) {
             var rs = ps.executeQuery();
 
             while (rs.next()) {
@@ -85,10 +85,10 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
         }
 
         List<GuildConfiguration> guildConfigurations = new ArrayList<>();
-         guilds.forEach(guild -> {
-             var settings = this.load(guild);
-             settings.ifPresent(guildConfigurations::add);
-         });
+        guilds.forEach(guild -> {
+            var settings = this.load(guild);
+            settings.ifPresent(guildConfigurations::add);
+        });
 
         return Optional.of(guildConfigurations);
     }
@@ -114,7 +114,7 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
         return executorService.submit(() -> {
             var guidID = guildConfiguration.getGuildID();
 
-            try (Connection connection = this.rocketDiscord.getDatabaseConnection()){
+            try (Connection connection = this.rocketDiscord.getDatabaseConnection()) {
                 this.saveSetting(connection, guidID, "guildID", guidID, "system");
                 this.saveSetting(connection, guidID, "guildName", guildConfiguration.getGuildName(), "system");
                 this.saveSetting(connection, guidID, "commandsChannelsWhitelistMode", String.valueOf(guildConfiguration.isCommandsChannelsWhitelistMode()), "system");
@@ -151,9 +151,9 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     @Override
     public Future<Boolean> delete(String s) {
         return executorService.submit(() -> {
-            try(Connection connection = rocketDiscord.getDatabaseConnection();
-                var ps = connection.prepareStatement("DELETE * FROM `setting` WHERE `guild_id` = ?");
-                var ps2 = connection.prepareStatement("DELETE * FROM `channel` WHERE `guild_id` = ?")) {
+            try (Connection connection = rocketDiscord.getDatabaseConnection();
+                 var ps = connection.prepareStatement("DELETE * FROM `setting` WHERE `guild_id` = ?");
+                 var ps2 = connection.prepareStatement("DELETE * FROM `channel` WHERE `guild_id` = ?")) {
                 ps.setString(1, s);
                 ps2.setString(1, s);
 
@@ -180,26 +180,26 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
             values.put(name, value);
         }
 
-        try (Connection connection = this.rocketDiscord.getDatabaseConnection()){
+        try (Connection connection = this.rocketDiscord.getDatabaseConnection()) {
 
-        String guildID = (String) values.get("guildID");
-        String guildName = (String) values.get("guildName");
+            String guildID = (String) values.get("guildID");
+            String guildName = (String) values.get("guildName");
 
-        boolean commandsChannelsWhitelistMode = values.get("commandsChannelsWhitelistMode") != null && Boolean.parseBoolean((String) values.get("commandsChannelsWhitelistMode"));
-        boolean welcomeImageEnable = values.get("welcomeImageEnable") != null && Boolean.parseBoolean((String) values.get("welcomeImageEnable"));
-        boolean leaveImageEnable = values.get("leaveImageEnable") != null && Boolean.parseBoolean((String) values.get("leaveImageEnable"));
-        String welcomeImageMessage = values.get("welcomeImageMessage") != null ? (String) values.get("welcomeImageMessage") : "";
-        String leaveImageMessage = values.get("leaveImageMessage") != null ? (String) values.get("leaveImageMessage") : "";
-        String welcomeChannel = values.get("welcomeChannel") != null ? (String) values.get("welcomeChannel") : "";
-        String announcementsChannel = values.get("announcementsChannel") != null ? (String) values.get("announcementsChannel") : "";
-        String djRole = values.get("djRole") != null ? (String) values.get("djRole") : "";
+            boolean commandsChannelsWhitelistMode = values.get("commandsChannelsWhitelistMode") != null && Boolean.parseBoolean((String) values.get("commandsChannelsWhitelistMode"));
+            boolean welcomeImageEnable = values.get("welcomeImageEnable") != null && Boolean.parseBoolean((String) values.get("welcomeImageEnable"));
+            boolean leaveImageEnable = values.get("leaveImageEnable") != null && Boolean.parseBoolean((String) values.get("leaveImageEnable"));
+            String welcomeImageMessage = values.get("welcomeImageMessage") != null ? (String) values.get("welcomeImageMessage") : "";
+            String leaveImageMessage = values.get("leaveImageMessage") != null ? (String) values.get("leaveImageMessage") : "";
+            String welcomeChannel = values.get("welcomeChannel") != null ? (String) values.get("welcomeChannel") : "";
+            String announcementsChannel = values.get("announcementsChannel") != null ? (String) values.get("announcementsChannel") : "";
+            String djRole = values.get("djRole") != null ? (String) values.get("djRole") : "";
 
-        List<String> commandChannels = this.getChannelValues(connection, guildID, "commandChannels");
-        List<String> memesChannels = this.getChannelValues(connection, guildID, "memesChannels");
-        List<String> autoVoiceChannels = this.getChannelValues(connection, guildID, "autoVoiceChannels");
-        List<String> botAdmins = this.getChannelValues(connection, guildID, "botAdmins");
+            List<String> commandChannels = this.getChannelValues(connection, guildID, "commandChannels");
+            List<String> memesChannels = this.getChannelValues(connection, guildID, "memesChannels");
+            List<String> autoVoiceChannels = this.getChannelValues(connection, guildID, "autoVoiceChannels");
+            List<String> botAdmins = this.getChannelValues(connection, guildID, "botAdmins");
 
-        return new GuildConfiguration(guildID, guildName, commandsChannelsWhitelistMode, commandChannels, memesChannels, autoVoiceChannels, welcomeImageEnable, leaveImageEnable, welcomeImageMessage, leaveImageMessage, welcomeChannel, announcementsChannel, botAdmins, djRole);
+            return new GuildConfiguration(guildID, guildName, commandsChannelsWhitelistMode, commandChannels, memesChannels, autoVoiceChannels, welcomeImageEnable, leaveImageEnable, welcomeImageMessage, leaveImageMessage, welcomeChannel, announcementsChannel, botAdmins, djRole);
         } catch (SQLException exception) {
             logger.error("Cannot load guild settings: ", exception);
         }
@@ -208,11 +208,11 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
 
     @Override
     public int count() {
-        try(Connection connection = rocketDiscord.getDatabaseConnection();
-            var ps = connection.prepareStatement("SELECT COUNT(DISTINCT `guild_id`) as `guildCount` FROM `setting`")) {
+        try (Connection connection = rocketDiscord.getDatabaseConnection();
+             var ps = connection.prepareStatement("SELECT COUNT(DISTINCT `guild_id`) as `guildCount` FROM `setting`")) {
             var rs = ps.executeQuery();
             rs.next();
-            return  rs.getInt("guildCount");
+            return rs.getInt("guildCount");
         } catch (SQLException exception) {
             logger.error("Cannot count guilds: ", exception);
         }

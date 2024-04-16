@@ -17,9 +17,8 @@ import java.util.Objects;
 
 public class DeleteMessagesCommand extends Command {
 
-    private final IRocketDiscord rocketDiscord;
-
     private final static Logger logger = LoggerFactory.getLogger(DeleteMessagesCommand.class);
+    private final IRocketDiscord rocketDiscord;
 
     public DeleteMessagesCommand(IRocketDiscord rocketDiscord) {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);

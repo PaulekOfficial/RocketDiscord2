@@ -29,12 +29,12 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
 
     @Override
     public Optional<DiscordMessage> load(String id) {
-        try(Connection connection = rocketDiscord.getDatabaseConnection();
-            var ps = connection.prepareStatement("SELECT * FROM messages WHERE message_id = ?")) {
+        try (Connection connection = rocketDiscord.getDatabaseConnection();
+             var ps = connection.prepareStatement("SELECT * FROM messages WHERE message_id = ?")) {
             ps.setString(1, id);
             var rs = ps.executeQuery();
 
-            if(rs.next()) {
+            if (rs.next()) {
                 var data = this.deserializeData(rs);
                 if (data == null) {
                     return Optional.empty();
@@ -52,17 +52,17 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
     @Override
     public Future<Boolean> createTable() {
         return executorService.submit(() -> {
-            try(Connection connection = rocketDiscord.getDatabaseConnection();
-                var ps = connection.prepareStatement("create table if not exists message" +
-                        "(" +
-                        "    id int auto_increment" +
-                        "    primary key," +
-                        "    author_name varchar(80)     null," +
-                        "    author_id   varchar(30)     null," +
-                        "    message_id  varchar(30) not null," +
-                        "    content     text             null," +
-                        "    action      varchar(15)  not null," +
-                        "    created_at  timestamp default current_timestamp() not null)")) {
+            try (Connection connection = rocketDiscord.getDatabaseConnection();
+                 var ps = connection.prepareStatement("create table if not exists message" +
+                         "(" +
+                         "    id int auto_increment" +
+                         "    primary key," +
+                         "    author_name varchar(80)     null," +
+                         "    author_id   varchar(30)     null," +
+                         "    message_id  varchar(30) not null," +
+                         "    content     text             null," +
+                         "    action      varchar(15)  not null," +
+                         "    created_at  timestamp default current_timestamp() not null)")) {
 
                 return ps.executeUpdate() > 0;
             } catch (SQLException exception) {
@@ -75,12 +75,12 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
 
     @Override
     public Optional<DiscordMessage> load(int id) {
-        try(Connection connection = rocketDiscord.getDatabaseConnection();
-            var ps = connection.prepareStatement("SELECT * FROM message WHERE id = ?")) {
+        try (Connection connection = rocketDiscord.getDatabaseConnection();
+             var ps = connection.prepareStatement("SELECT * FROM message WHERE id = ?")) {
             ps.setInt(1, id);
             var rs = ps.executeQuery();
 
-            if(rs.next()) {
+            if (rs.next()) {
                 var data = this.deserializeData(rs);
                 if (data == null) {
                     return Optional.empty();
@@ -99,10 +99,10 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
     public Optional<Collection<DiscordMessage>> load() {
         var collection = new ArrayList<DiscordMessage>();
         try (Connection connection = this.rocketDiscord.getDatabaseConnection();
-            var ps = connection.prepareStatement("SELECT * FROM message")) {
+             var ps = connection.prepareStatement("SELECT * FROM message")) {
             var rs = ps.executeQuery();
 
-            while(rs.next()) {
+            while (rs.next()) {
                 collection.add(this.deserializeData(rs));
             }
         } catch (SQLException exception) {
@@ -131,8 +131,8 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
     @Override
     public Future<Boolean> save(DiscordMessage discordMessage) {
         return executorService.submit(() -> {
-            try(Connection connection = rocketDiscord.getDatabaseConnection();
-                var ps = connection.prepareStatement("INSERT INTO message (author_name, author_id, message_id, content, action, created_at) VALUES (?, ?, ?, ?, ?, ?)")) {
+            try (Connection connection = rocketDiscord.getDatabaseConnection();
+                 var ps = connection.prepareStatement("INSERT INTO message (author_name, author_id, message_id, content, action, created_at) VALUES (?, ?, ?, ?, ?, ?)")) {
                 ps.setString(1, discordMessage.getAuthorName());
                 ps.setString(2, discordMessage.getAuthorID());
                 ps.setString(3, discordMessage.getMessageID());
@@ -153,7 +153,7 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
     public Future<Boolean> delete(String id) {
         return executorService.submit(() -> {
             try (Connection connection = rocketDiscord.getDatabaseConnection();
-                var ps = connection.prepareStatement("DELETE FROM message WHERE message_id = ?")) {
+                 var ps = connection.prepareStatement("DELETE FROM message WHERE message_id = ?")) {
                 ps.setString(1, id);
 
                 return ps.executeUpdate() > 0;
@@ -169,7 +169,7 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
     public Future<Boolean> delete(int id) {
         return executorService.submit(() -> {
             try (Connection connection = rocketDiscord.getDatabaseConnection();
-                var ps = connection.prepareStatement("DELETE FROM message WHERE id = ?")) {
+                 var ps = connection.prepareStatement("DELETE FROM message WHERE id = ?")) {
                 ps.setInt(1, id);
 
                 return ps.executeUpdate() > 0;
@@ -196,10 +196,10 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
 
     @Override
     public int count() {
-        try(Connection connection = rocketDiscord.getDatabaseConnection();
-            var ps = connection.prepareStatement("SELECT COUNT(*) FROM message")) {
+        try (Connection connection = rocketDiscord.getDatabaseConnection();
+             var ps = connection.prepareStatement("SELECT COUNT(*) FROM message")) {
             var rs = ps.executeQuery();
-            if(rs.next()) {
+            if (rs.next()) {
                 return rs.getInt(1);
             }
 

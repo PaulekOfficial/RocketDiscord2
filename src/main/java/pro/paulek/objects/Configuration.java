@@ -5,13 +5,11 @@ import java.util.Map;
 
 public class Configuration {
 
+    Map<String, String> mysql;
+    List<String> adminIds;
     private String endpoint;
     private String status;
-
     private String storageType;
-    Map<String, String> mysql;
-
-    List<String> adminIds;
 
     public Configuration() {
     }

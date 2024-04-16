@@ -26,7 +26,7 @@ public class MusicPlayerCache implements ICache<MusicManager, String> {
 
     @Override
     public void init() {
-        
+
     }
 
     @Override

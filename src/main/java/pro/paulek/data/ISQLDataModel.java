@@ -16,6 +16,7 @@ public interface ISQLDataModel<T, U> extends IData<T, U>, ISerializable<T, Resul
 
     /**
      * Counts number of records stored in database
+     *
      * @return
      */
     int count();

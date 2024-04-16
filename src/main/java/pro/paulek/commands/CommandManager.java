@@ -59,7 +59,7 @@ public class CommandManager extends ListenerAdapter {
         var gc = guildConfiguration.get();
         var channel = (TextChannel) event.getChannel();
         if (!event.getMember().hasPermission(Permission.MANAGE_CHANNEL) && (gc.isCommandsChannelsWhitelistMode() && !gc.getCommandChannels().contains(channel.getId())
-        || !gc.isCommandsChannelsWhitelistMode() && gc.getCommandChannels().contains(channel.getId()))) {
+                || !gc.isCommandsChannelsWhitelistMode() && gc.getCommandChannels().contains(channel.getId()))) {
             event.reply(":man_detective: Nie możesz używać poleceń na tym kanale!").queue();
             return;
         }

@@ -1,16 +1,5 @@
 package pro.paulek.test;
 
-import jakarta.xml.bind.JAXBException;
-import org.junit.Test;
-import org.xml.sax.SAXException;
-import pro.paulek.objects.react.Rule34Posts;
-import pro.paulek.util.RuleUtil;
-
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-
-import static junit.framework.TestCase.fail;
-
 public class Rule34Test {
 //    @Test
 //    public void testGettingURL() throws IOException, JAXBException, ParserConfigurationException, SAXException {

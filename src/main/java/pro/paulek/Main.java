@@ -57,7 +57,7 @@ public class Main {
                 logger.error("Cannot create settings.yml file", exception);
             }
 
-            try(var os = new FileWriter(settingsFile)){
+            try (var os = new FileWriter(settingsFile)) {
                 IOUtils.copy(reader, os);
             } catch (FileNotFoundException exception) {
                 logger.error("Could not find settings.yml in order to copy from pattern", exception);

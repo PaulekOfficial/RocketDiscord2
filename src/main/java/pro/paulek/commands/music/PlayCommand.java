@@ -81,78 +81,78 @@ public class PlayCommand extends Command {
                 event.getGuild(),
                 searchStr,
                 new AudioLoadResultHandler() {
-            @Override
-            public void trackLoaded(AudioTrack audioTrack) {
-                var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-                if (!event.getMember().getVoiceState().inAudioChannel()) {
-                    event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
-                    return;
-                }
+                    @Override
+                    public void trackLoaded(AudioTrack audioTrack) {
+                        var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
+                        if (!event.getMember().getVoiceState().inAudioChannel()) {
+                            event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
+                            return;
+                        }
 
-                if (!guild.getAudioManager().isConnected()) {
-                    guild.getAudioManager().openAudioConnection(audioChannel);
-                    musicPlayer.setAudioChannel(audioChannel);
-                }
+                        if (!guild.getAudioManager().isConnected()) {
+                            guild.getAudioManager().openAudioConnection(audioChannel);
+                            musicPlayer.setAudioChannel(audioChannel);
+                        }
 
-                var playedIn = "Teraz";
-                if (TimeUtils.playlistTime(musicPlayer) >= 30000L) {
-                    playedIn = TimeUtils.calculateTimeToPlayTrack(musicPlayer);
-                }
+                        var playedIn = "Teraz";
+                        if (TimeUtils.playlistTime(musicPlayer) >= 30000L) {
+                            playedIn = TimeUtils.calculateTimeToPlayTrack(musicPlayer);
+                        }
 
-                musicPlayer.queue(audioTrack);
-                var embed = new EmbedBuilder()
-                        .setDescription(audioTrack.getInfo().title)
-                        .setThumbnail("https://img.youtube.com/vi/" + audioTrack.getIdentifier() + "/0.jpg")
-                        .setColor(Color.GREEN)
-                        .addField("Kanał", audioChannel.getName(), true)
-                        .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
-                        .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
-                        .addField("Pozycja w kolejne", String.valueOf(musicPlayer.getPlaylist().size()), true)
-                        .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
-                        .setTimestamp(LocalDateTime.now())
-                        .build();
+                        musicPlayer.queue(audioTrack);
+                        var embed = new EmbedBuilder()
+                                .setDescription(audioTrack.getInfo().title)
+                                .setThumbnail("https://img.youtube.com/vi/" + audioTrack.getIdentifier() + "/0.jpg")
+                                .setColor(Color.GREEN)
+                                .addField("Kanał", audioChannel.getName(), true)
+                                .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
+                                .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
+                                .addField("Pozycja w kolejne", String.valueOf(musicPlayer.getPlaylist().size()), true)
+                                .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
+                                .setTimestamp(LocalDateTime.now())
+                                .build();
 
-                Button pauseButton = Button.primary("rocket-player-pause", "⏯");
-                Button previousButton = Button.secondary("rocket-player-previous", "⏪");
-                Button nextButton = Button.secondary("rocket-player-next", "⏩");
-                Button repeatButton = Button.secondary("rocket-player-repeat", "\uD83D\uDD01");
-                Button stopButton = Button.danger("rocket-player-stop", "⏹");
+                        Button pauseButton = Button.primary("rocket-player-pause", "⏯");
+                        Button previousButton = Button.secondary("rocket-player-previous", "⏪");
+                        Button nextButton = Button.secondary("rocket-player-next", "⏩");
+                        Button repeatButton = Button.secondary("rocket-player-repeat", "\uD83D\uDD01");
+                        Button stopButton = Button.danger("rocket-player-stop", "⏹");
 
-                event.replyEmbeds(embed)
-                        .addActionRow(pauseButton,
-                                previousButton,
-                                nextButton,
-                                repeatButton,
-                                stopButton)
-                        .queue();
-            }
+                        event.replyEmbeds(embed)
+                                .addActionRow(pauseButton,
+                                        previousButton,
+                                        nextButton,
+                                        repeatButton,
+                                        stopButton)
+                                .queue();
+                    }
 
-            @Override
-            public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-                if (!Objects.requireNonNull(event.getMember().getVoiceState()).inAudioChannel()) {
-                    event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
-                    return;
-                }
-                if (!guild.getAudioManager().isConnected()) {
-                    guild.getAudioManager().openAudioConnection(audioChannel);
-                }
+                    @Override
+                    public void playlistLoaded(AudioPlaylist audioPlaylist) {
+                        var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
+                        if (!Objects.requireNonNull(event.getMember().getVoiceState()).inAudioChannel()) {
+                            event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
+                            return;
+                        }
+                        if (!guild.getAudioManager().isConnected()) {
+                            guild.getAudioManager().openAudioConnection(audioChannel);
+                        }
 
-                audioPlaylist.getTracks().forEach(musicPlayer::queue);
+                        audioPlaylist.getTracks().forEach(musicPlayer::queue);
 
-                event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicPlayer, ":arrow_lower_left: Dodaję do playlisty :arrow_lower_right:").build()).queue();
-            }
+                        event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicPlayer, ":arrow_lower_left: Dodaję do playlisty :arrow_lower_right:").build()).queue();
+                    }
 
-            @Override
-            public void noMatches() {
-                event.reply(":dragon: Nie znalazłęm dopasowań do podanego linku").queue();
-            }
+                    @Override
+                    public void noMatches() {
+                        event.reply(":dragon: Nie znalazłęm dopasowań do podanego linku").queue();
+                    }
 
-            @Override
-            public void loadFailed(FriendlyException e) {
-                logger.warn("Error while loading music", e);
-                event.reply(":screwdriver: Wystąpił nieznany błąd podczas wyszukiwania muzyki").queue();
-            }
-        });
+                    @Override
+                    public void loadFailed(FriendlyException e) {
+                        logger.warn("Error while loading music", e);
+                        event.reply(":screwdriver: Wystąpił nieznany błąd podczas wyszukiwania muzyki").queue();
+                    }
+                });
     }
 }

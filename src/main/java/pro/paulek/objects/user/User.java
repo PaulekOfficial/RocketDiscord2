@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.util.Objects;
 
 public class User {
+    private final static Logger logger = LoggerFactory.getLogger(User.class);
     private int id;
     private String discordID;
     private String username;
@@ -23,10 +24,7 @@ public class User {
     private int premiumType;
     private int publicFlags;
     private LocalDateTime timestamp;
-
     private int experience;
-
-    private final static Logger logger = LoggerFactory.getLogger(User.class);
 
     public User(int id, String discordID, String username, String avatarUrl, boolean bot, boolean system, boolean mfaEnabled, boolean verification, String bannerUrl, int accentColor, String locale, String email, int flags, int premiumType, int publicFlags, LocalDateTime timestamp) {
         this.id = id;

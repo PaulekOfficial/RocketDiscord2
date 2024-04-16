@@ -14,7 +14,7 @@ import pro.paulek.managers.MusicManager;
 
 import java.util.Objects;
 
-public class StopCommand  extends Command {
+public class StopCommand extends Command {
 
     private final static Logger logger = LoggerFactory.getLogger(StopCommand.class);
 
@@ -46,7 +46,7 @@ public class StopCommand  extends Command {
         }
 
         var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
+        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
             event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
             return;
         }

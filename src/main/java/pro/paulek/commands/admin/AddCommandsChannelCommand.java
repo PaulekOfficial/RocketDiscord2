@@ -15,7 +15,7 @@ import pro.paulek.commands.music.PlayCommand;
 
 import java.util.Objects;
 
-public class AddCommandsChannelCommand  extends Command {
+public class AddCommandsChannelCommand extends Command {
 
     private final static Logger logger = LoggerFactory.getLogger(PlayCommand.class);
 

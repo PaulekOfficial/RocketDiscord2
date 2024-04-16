@@ -63,8 +63,7 @@ public class PlaylistUtils {
                 .setColor(Color.GREEN)
                 .setThumbnail("https://img.youtube.com/vi/" + manager.getPlaylist().element().getIdentifier() + "/0.jpg")
                 .setAuthor("Dodano do playlisty", "https://paulek.pro/", "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
-                .setTimestamp(LocalDateTime.now())
-                ;
+                .setTimestamp(LocalDateTime.now());
 
         if (manager.getNowPlayingTrack().isPresent()) {
             embed.setThumbnail("https://img.youtube.com/vi/" + manager.getNowPlayingTrack().get().getIdentifier() + "/0.jpg");

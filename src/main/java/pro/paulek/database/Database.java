@@ -12,6 +12,7 @@ public abstract class Database {
 
     /**
      * Get valid connection to database
+     *
      * @return sql connection
      * @throws SQLException
      */

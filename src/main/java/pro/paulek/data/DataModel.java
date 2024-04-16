@@ -9,7 +9,7 @@ public enum DataModel {
     SQLITE;
 
     public static DataModel getModelByName(@NotNull String string) {
-        if(string.equalsIgnoreCase("mysql")){
+        if (string.equalsIgnoreCase("mysql")) {
             return DataModel.MYSQL;
         }
         return DataModel.SQLITE;

@@ -21,7 +21,7 @@ public class MySQL extends Database {
     }
 
     @Override
-    public void init(){
+    public void init() {
         HikariConfig config = new HikariConfig();
 
         Map<String, String> linkMap = credentials;

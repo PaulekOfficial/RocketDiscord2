@@ -33,7 +33,7 @@ public class RuleUtil {
             url.append(String.join("%20", tags));
         }
 
-        if(random) {
+        if (random) {
             url.append("?id=");
             //url.append(String.valueOf(randomizer.nextInt(1, 5410582)));
         }
@@ -49,7 +49,7 @@ public class RuleUtil {
 
         StringBuilder response = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
-            for (String line; (line = reader.readLine()) != null;) {
+            for (String line; (line = reader.readLine()) != null; ) {
                 response.append(line);
             }
         }
@@ -60,7 +60,7 @@ public class RuleUtil {
     public static Rule34Posts UnmarshallRule34Post(String response) throws SAXException, ParserConfigurationException, JAXBException {
         JAXBContext jaxbContext = JAXBContext.newInstance(Rule34Posts.class);
         Unmarshaller unmarshaller = jaxbContext.createUnmarshaller();
-        InputSource inputSource = new InputSource( new StringReader(response));
+        InputSource inputSource = new InputSource(new StringReader(response));
         return (Rule34Posts) unmarshaller.unmarshal(inputSource);
     }
 }

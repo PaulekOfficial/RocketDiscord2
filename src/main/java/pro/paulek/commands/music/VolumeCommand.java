@@ -50,7 +50,7 @@ public class VolumeCommand extends Command {
         }
 
         var memberAudioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-        if ((!event.getMember().getVoiceState().inAudioChannel() ||  !Objects.requireNonNull(memberAudioChannel).getId().equals(musicPlayer.getAudioChannel().getId())) &&
+        if ((!event.getMember().getVoiceState().inAudioChannel() || !Objects.requireNonNull(memberAudioChannel).getId().equals(musicPlayer.getAudioChannel().getId())) &&
                 !event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
             event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
             return;

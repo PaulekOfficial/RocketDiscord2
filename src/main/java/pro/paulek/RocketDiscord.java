@@ -30,9 +30,9 @@ import pro.paulek.listeners.commands.MusicButtonListener;
 import pro.paulek.listeners.commands.SlashCommandListener;
 import pro.paulek.listeners.fun.MemesListeners;
 import pro.paulek.listeners.modlog.LoggingListeners;
-import pro.paulek.objects.Configuration;
 import pro.paulek.managers.MusicManager;
 import pro.paulek.managers.RocketPlayerManager;
+import pro.paulek.objects.Configuration;
 import pro.paulek.objects.guild.DiscordMessage;
 
 import java.io.File;
@@ -47,24 +47,17 @@ import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
     private final static Logger logger = LoggerFactory.getLogger(RocketDiscord.class);
-
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     private JDA jda;
     private JDABuilder jdaBuilder;
-
     private Database database;
     private DataModel dataModel;
-
     private GuildConfigurationICache guildConfigurationCache;
-
     private Configuration configuration;
     private CommandManager commandManager;
-
     private RocketPlayerManager audioPlayerManager;
-
     private ICache<MusicManager, String> musicManager;
     private ICache<DiscordMessage, String> discordMessageCache;
-
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public RocketDiscord() {
     }
@@ -195,19 +188,19 @@ public class RocketDiscord implements IRocketDiscord {
     }
 
     @Override
-    public Database createDatabase(){
+    public Database createDatabase() {
         dataModel = DataModel.getModelByName(configuration.getStorageType());
-        if(dataModel.equals(DataModel.MYSQL)) {
+        if (dataModel.equals(DataModel.MYSQL)) {
             MySQL mySQL = new MySQL(configuration.getMysql());
             mySQL.init();
             return mySQL;
         }
 
         File databaseFile = new File("database.db");
-        if(!databaseFile.exists()){
+        if (!databaseFile.exists()) {
             try {
                 databaseFile.createNewFile();
-            } catch (IOException exception){
+            } catch (IOException exception) {
                 logger.error("Cannot create SQLite database file", exception);
             }
         }
@@ -219,7 +212,7 @@ public class RocketDiscord implements IRocketDiscord {
     @Override
     public Optional<User> getJDAUser(String discordID) {
         var user = jda.getUserById(discordID);
-        if(user != null) {
+        if (user != null) {
             return Optional.of(user);
         }
 
@@ -232,7 +225,7 @@ public class RocketDiscord implements IRocketDiscord {
 
         executorService.submit(() -> {
             var user = this.getJDAUser(discordID);
-            if(user.isEmpty()) {
+            if (user.isEmpty()) {
                 return;
             }
 

@@ -8,8 +8,8 @@ import pro.paulek.data.DataModel;
 import pro.paulek.data.ICache;
 import pro.paulek.data.cache.GuildConfigurationICache;
 import pro.paulek.database.Database;
-import pro.paulek.objects.Configuration;
 import pro.paulek.managers.MusicManager;
+import pro.paulek.objects.Configuration;
 import pro.paulek.objects.guild.DiscordMessage;
 
 import java.sql.Connection;
@@ -32,36 +32,42 @@ public interface IRocketDiscord {
 
     /**
      * Creates database according to #DataModel
+     *
      * @return
      */
     Database createDatabase();
 
     /**
      * Get current application storage method
+     *
      * @return
      */
     DataModel getDataModel();
 
     /**
      * Returns JDA api main class
+     *
      * @return
      */
     JDA getJda();
 
     /**
      * Returns the general bot configuration
+     *
      * @return
      */
     Configuration getConfiguration();
 
     /**
      * Return command manager that holds all the commands
+     *
      * @return
      */
     CommandManager getCommandManager();
 
     /**
      * Returns database connection to chosen database type
+     *
      * @return
      * @throws SQLException
      */
@@ -69,6 +75,7 @@ public interface IRocketDiscord {
 
     /**
      * Gets user data from discord id
+     *
      * @param discordID
      * @return
      */
@@ -76,6 +83,7 @@ public interface IRocketDiscord {
 
     /**
      * Gets user profile from discord id
+     *
      * @param discordID
      * @return
      */
@@ -83,6 +91,7 @@ public interface IRocketDiscord {
 
     /**
      * Gets user profile from discord user
+     *
      * @param user
      * @return
      */
@@ -90,6 +99,7 @@ public interface IRocketDiscord {
 
     /**
      * Gets music manager for guilds
+     *
      * @return
      */
     ICache<MusicManager, String> getMusicManagers();
@@ -97,12 +107,14 @@ public interface IRocketDiscord {
 
     /**
      * Gets discord messages cache
+     *
      * @return
      */
     ICache<DiscordMessage, String> getDiscordMessages();
 
     /**
      * Gets discord message by id
+     *
      * @param id
      * @return
      */
@@ -110,18 +122,21 @@ public interface IRocketDiscord {
 
     /**
      * Gets music manager for guild
+     *
      * @return
      */
     Optional<MusicManager> getMusicManager(String guildID);
 
     /**
      * Get audio manager
+     *
      * @return
      */
     AudioPlayerManager getAudioManager();
 
     /**
      * Get guild configurations
+     *
      * @return
      */
     GuildConfigurationICache getGuildConfigurations();

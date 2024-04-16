@@ -26,11 +26,11 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 
     private final ExecutorService executorService;
     private final Guild guild;
-    private AudioChannel audioChannel;
     private final AudioPlayer player;
     private final ByteBuffer byteBuffer;
     private final MutableAudioFrame audioFrame;
     private final BlockingQueue<AudioTrack> playlist;
+    private AudioChannel audioChannel;
     private RepeatType repeat;
     private AudioTrack nowPlayingTrack;
     private LocalDateTime lastPlayed;
@@ -160,6 +160,10 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         return Optional.ofNullable(audioChannel);
     }
 
+    public void setAudioChannel(AudioChannel channel) {
+        this.audioChannel = channel;
+    }
+
     public Optional<AudioPlayer> getPlayer() {
         return Optional.ofNullable(player);
     }
@@ -265,10 +269,6 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     @Override
     public void onTrackStuck(AudioPlayer player, AudioTrack track, long thresholdMs) {
         logger.warn("Music player stuck at " + thresholdMs + " on " + guild.getName());
-    }
-
-    public void setAudioChannel(AudioChannel channel) {
-        this.audioChannel = channel;
     }
 
     public RepeatType isRepeat() {

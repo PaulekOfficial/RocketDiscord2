@@ -46,10 +46,11 @@ public class RepeatCommand extends Command {
         }
 
         var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() ||  !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
+        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
             event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
             return;
-        };
+        }
+        ;
 
         if (musicPlayer.getNowPlayingTrack() == null) {
             event.reply(":snake: Ale żadna muzyka nie jest włączona").queue();
