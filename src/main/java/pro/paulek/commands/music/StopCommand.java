@@ -31,28 +31,37 @@ public class StopCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        MusicManager musicPlayer = null;
+        MusicManager musicPlayer = getOrCreateMusicManager(guild);
 
+//        var memberAudioChannel = event.getMember().getVoiceState().getChannel();
+//        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
+//            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
+//            return;
+//        }
+
+        var stopped = musicPlayer.stopTrack();
+        try {
+            if (stopped.get()) {
+                event.reply(":o: Zatrzymano odtwarzanie muzyki").queue();
+                return;
+            }
+
+            event.reply(":o: Nie udało się zatrzymać muzyki").queue();
+        } catch (Exception e) {
+            event.reply(":o: Nie udało się zatrzymać muzyki").queue();
+        }
+    }
+
+    private MusicManager getOrCreateMusicManager(Guild guild) {
         var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            logger.warn("Music manager is empty for guild {}", guild.getId());
-            musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
-            musicPlayer.init();
-            rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
-        }
-
         if (manager.isPresent()) {
-            musicPlayer = manager.get();
+            return manager.get();
         }
 
-        var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
-            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
-            return;
-        }
-
-        musicPlayer.removeAllTracks();
-        musicPlayer.getPlayer().stopTrack();
-        event.reply(":o: Zatrzymano odtwarzenie muzyki").queue();
+        logger.warn("Music manager is empty for guild {}", guild.getId());
+        MusicManager musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+        musicPlayer.init();
+        rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        return musicPlayer;
     }
 }

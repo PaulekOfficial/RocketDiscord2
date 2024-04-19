@@ -119,6 +119,7 @@ public class RocketDiscord implements IRocketDiscord {
         commandManager.addCommand(new VolumeCommand(this));
         commandManager.addCommand(new StopCommand(this));
         commandManager.addCommand(new LeaveCommand(this));
+        commandManager.addCommand(new PauseCommand(this));
         commandManager.addCommand(new JoinCommand(this));
         commandManager.addCommand(new SkipCommand(this));
         commandManager.addCommand(new DeleteMessagesCommand(this));

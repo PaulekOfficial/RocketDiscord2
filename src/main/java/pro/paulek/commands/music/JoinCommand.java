@@ -3,11 +3,11 @@ package pro.paulek.commands.music;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
 import pro.paulek.commands.Command;
 import pro.paulek.managers.MusicManager;
@@ -15,7 +15,6 @@ import pro.paulek.managers.MusicManager;
 import java.util.Objects;
 
 public class JoinCommand extends Command {
-    private final static Logger logger = LoggerFactory.getLogger(PlayCommand.class);
 
     private final IRocketDiscord rocketDiscord;
 
@@ -23,40 +22,57 @@ public class JoinCommand extends Command {
         this.rocketDiscord = Objects.requireNonNull(rocketDiscord);
 
         this.setName("join");
-        this.setDescription("dołącza bota do kanału głosowego, na którym aktualnie się znajdujesz");
-        this.setUsage("/join");
-        var commandData = Commands.slash("join", "Joins music bot to voice channel");
+        this.setDescription("Joins the bot to a voice channel");
+        this.setUsage("/join [channel name]");
+        var commandData = Commands.slash("join", "Joins the bot to a voice channel");
+        commandData.addOption(OptionType.STRING, "channel", "Name of the channel to join", false);
         this.setCommandData(commandData);
     }
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        MusicManager musicPlayer = null;
+        MusicManager musicPlayer = getOrCreateMusicManager(guild);
 
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            logger.warn("Music manager is empty for guild {}", guild.getId());
-            musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
-            musicPlayer.init();
-            rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        String channelName = event.getOption("channel") != null ? event.getOption("channel").getAsString() : null;
+        VoiceChannel voiceChannel = null;
+
+        if (channelName != null) {
+            for (VoiceChannel vc : guild.getVoiceChannels()) {
+                if (vc.getName().equalsIgnoreCase(channelName)) {
+                    voiceChannel = vc;
+                    break;
+                }
+            }
+        } else if (Objects.requireNonNull(member.getVoiceState()).inAudioChannel()) {
+            voiceChannel = (VoiceChannel) member.getVoiceState().getChannel();
         }
 
-        if (manager.isPresent()) {
-            musicPlayer = manager.get();
-        }
-
-        var audioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel()) {
-            event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
+        if (voiceChannel == null) {
+            event.reply(":x: Nie mogę dołączyć do kanału głosowego").queue();
             return;
         }
 
-        if (!guild.getAudioManager().isConnected()) {
-            guild.getAudioManager().openAudioConnection(audioChannel);
-            event.reply(":cookie: Dołączyłem!").queue();
-            musicPlayer.setAudioChannel(audioChannel);
-        } else {
-            event.reply(":confused: Ale ja już jestem na kanale głosowym").queue();
+        var joined = musicPlayer.joinChannel(voiceChannel);
+        try {
+            if (joined.get()) {
+                event.reply(":white_check_mark: Dołączono do kanału głosowego " + voiceChannel.getName()).queue();
+            } else {
+                event.reply(":x: Nie mogłem dołączyć do kanału głosowego " + voiceChannel.getName()).queue();
+            }
+        } catch (Exception e) {
+            event.reply(":x: Nie mogłem dołączyć do kanału głosowego " + voiceChannel.getName()).queue();
         }
+    }
+
+    private MusicManager getOrCreateMusicManager(Guild guild) {
+        var manager = rocketDiscord.getMusicManager(guild.getId());
+        if (manager.isPresent()) {
+            return manager.get();
+        }
+
+        MusicManager musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+        musicPlayer.init();
+        rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        return musicPlayer;
     }
 }

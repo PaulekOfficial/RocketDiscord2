@@ -13,6 +13,7 @@ import pro.paulek.commands.Command;
 import pro.paulek.managers.MusicManager;
 
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class LeaveCommand extends Command {
 
@@ -49,19 +50,28 @@ public class LeaveCommand extends Command {
         var musicPlayer = manager.get();
 
         var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
-            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
-            return;
-        }
+//        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel())) {
+//            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
+//            return;
+//        }
 
         if (!guild.getAudioManager().isConnected()) {
             event.reply(":confused: Ale ja przecież nie jestem połączony z chatem głosowym").queue();
             return;
         }
 
-        musicPlayer.removeAllTracks();
-        musicPlayer.getPlayer().stopTrack();
-        guild.getAudioManager().closeAudioConnection();
-        event.reply(":boomerang: Wyszedłem z kanału").queue();
+        var stopped = musicPlayer.stopTrack();
+        try {
+            if (stopped.isDone() && !stopped.get()) {
+                event.reply(":confused: Coś poszło nie tak, spróbuj ponownie").queue();
+                return;
+            }
+
+            event.reply(":boomerang: Wyszedłem z kanału").queue();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -80,9 +80,20 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         }
     }
 
-    //TOOD better implementation of this method
-    public CompletableFuture<BlockingQueue<AudioTrack>> getPlaylist() {
-        return CompletableFuture.completedFuture(playlist);
+    public Future<Boolean> joinChannel(AudioChannel channel) {
+        return executorService.submit(() -> {
+//            if (guild.getAudioManager().isConnected()) {
+//                return false;
+//            }
+
+            guild.getAudioManager().openAudioConnection(channel);
+            this.audioChannel = channel;
+            return true;
+        });
+    }
+
+    public BlockingQueue<AudioTrack> getPlaylist() {
+        return playlist;
     }
 
     public Future<Boolean> playTrack(AudioTrack track) {
@@ -169,8 +180,8 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
     }
 
     //TODO better implementation
-    public CompletableFuture<Optional<AudioTrack>> getNowPlayingTrack() {
-        return CompletableFuture.completedFuture(Optional.ofNullable(nowPlayingTrack));
+    public Optional<AudioTrack> getNowPlayingTrack() {
+        return Optional.ofNullable(nowPlayingTrack);
     }
 
     public void queue(AudioTrack audioTrack) {

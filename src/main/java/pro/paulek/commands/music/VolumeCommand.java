@@ -35,34 +35,40 @@ public class VolumeCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        MusicManager musicPlayer = null;
+        MusicManager musicPlayer = getOrCreateMusicManager(guild);
 
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            logger.warn("Music manager is empty for guild {}", guild.getId());
-            musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
-            musicPlayer.init();
-            rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
-        }
-
-        if (manager.isPresent()) {
-            musicPlayer = manager.get();
-        }
-
-        var memberAudioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-        if ((!event.getMember().getVoiceState().inAudioChannel() || !Objects.requireNonNull(memberAudioChannel).getId().equals(musicPlayer.getAudioChannel().getId())) &&
-                !event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
-            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
-            return;
-        }
+//        var memberAudioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
+//        if ((!event.getMember().getVoiceState().inAudioChannel() || !Objects.requireNonNull(memberAudioChannel).getId().equals(musicPlayer.getAudioChannel().getId())) &&
+//                !event.getMember().hasPermission(Permission.ADMINISTRATOR)) {
+//            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
+//            return;
+//        }
 
         int volume = Objects.requireNonNull(event.getOption("volume")).getAsInt();
         if (volume > 200) {
             event.reply(":speaker: Przekroczono dopuszczalny poziom dzwięku, maksymalny to 200%!").queue();
             return;
         }
+        var player = musicPlayer.getPlayer();
+        if (player.isEmpty()) {
+            event.reply(":x: Bot nie jest podłączony do kanału głosowego").queue();
+            return;
+        }
 
-        musicPlayer.getPlayer().setVolume(volume);
-        event.reply("Zmieniłem głośność :wink:").queue();
+        player.get().setVolume(volume);
+        event.reply(":wink: Zmieniłem głośność na " + volume + "%").queue();
+    }
+
+    private MusicManager getOrCreateMusicManager(Guild guild) {
+        var manager = rocketDiscord.getMusicManager(guild.getId());
+        if (manager.isPresent()) {
+            return manager.get();
+        }
+
+        logger.warn("Music manager is empty for guild {}", guild.getId());
+        MusicManager musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+        musicPlayer.init();
+        rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        return musicPlayer;
     }
 }

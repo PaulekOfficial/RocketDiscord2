@@ -1,8 +1,10 @@
 package pro.paulek.commands.music;
 
+import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -17,6 +19,7 @@ import pro.paulek.util.TimeUtils;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class SkipCommand extends Command {
 
@@ -35,49 +38,54 @@ public class SkipCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        MusicManager musicPlayer = null;
+        MusicManager musicPlayer = getOrCreateMusicManager(guild);
 
+        try {
+            if (!musicPlayer.skipTrack().get()) {
+                event.reply(":face_with_monocle: Ale co ja mam pominąć, skoro nic nie leci").queue();
+                return;
+            }
+
+            event.reply(":rewind: Pominięto utwór").queue();
+
+            var audioTrack = musicPlayer.getNowPlayingTrack();
+
+            if (audioTrack.isEmpty()) {
+                return;
+            }
+
+            var embed = this.createEmbed(event, audioTrack.get());
+
+            event.getChannel().sendMessageEmbeds(embed).queue();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private MusicManager getOrCreateMusicManager(Guild guild) {
         var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            logger.warn("Music manager is empty for guild {}", guild.getId());
-            musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
-            musicPlayer.init();
-            rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
-        }
-
         if (manager.isPresent()) {
-            musicPlayer = manager.get();
+            return manager.get();
         }
 
-        var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
-            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
-            return;
-        }
+        logger.warn("Music manager is empty for guild {}", guild.getId());
+        MusicManager musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+        musicPlayer.init();
+        rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        return musicPlayer;
+    }
 
-        musicPlayer.getPlayer().stopTrack();
-        musicPlayer.nextTrack();
-
-
-        if (musicPlayer.getNowPlayingTrack().isEmpty()) {
-            event.reply(":face_with_monocle: Ale co ja mam pominąć, skoro nic nie leci").queue();
-            return;
-        }
-        event.reply(":rewind: Pominięto utwór").queue();
-
-        var currentTrack = musicPlayer.getNowPlayingTrack().get();
-
-        var embed = new EmbedBuilder()
+    private MessageEmbed createEmbed(SlashCommandInteractionEvent event, AudioTrack track) {
+        return new EmbedBuilder()
                 .setTitle("Następnie grane")
-                .setDescription(currentTrack.getInfo().title)
+                .setDescription(track.getInfo().title)
                 .setColor(Color.GREEN)
                 .addField("Kanał", event.getChannel().getName(), true)
-                .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(currentTrack.getDuration()), true)
+                .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(track.getDuration()), true)
                 .addField("Przewidywany czas odtworzenia utworu", "Teraz", true)
                 .addField("Pozycja w kolejne", "Teraz", true)
-                .setAuthor(currentTrack.getInfo().author, currentTrack.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
+                .setAuthor(track.getInfo().author, track.getInfo().uri, "https://cdn.discordapp.com/attachments/885206963598819360/927269255337087026/butelka.png")
                 .setTimestamp(LocalDateTime.now())
                 .build();
-        event.getChannel().sendMessageEmbeds(embed).queue();
     }
 }

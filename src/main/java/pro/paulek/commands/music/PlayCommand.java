@@ -7,7 +7,10 @@ import com.sedmelluq.discord.lavaplayer.track.AudioTrack;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
+import net.dv8tion.jda.api.entities.channel.concrete.VoiceChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -22,8 +25,11 @@ import pro.paulek.util.PlaylistUtils;
 import pro.paulek.util.TimeUtils;
 
 import java.awt.*;
+import java.lang.reflect.Array;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class PlayCommand extends Command {
 
@@ -46,32 +52,9 @@ public class PlayCommand extends Command {
 
     @Override
     public void execute(@NotNull SlashCommandInteractionEvent event, TextChannel channel, Guild guild, Member member) {
-        var manager = rocketDiscord.getMusicManager(guild.getId());
-        if (manager.isEmpty()) {
-            logger.warn("Music manager is empty for guild {}", guild.getId());
+        MusicManager musicPlayer = getOrCreateMusicManager(guild);
 
-            var musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
-            musicPlayer.init();
-
-            rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
-            manager = rocketDiscord.getMusicManager(guild.getId());
-        }
-
-        if (manager.isEmpty()) {
-            event.reply(":screwdriver: Wystąpił nieznany błąd podczas inicjalizacji odtwarzacza").queue();
-            return;
-        }
-
-        var musicPlayer = manager.get();
-        var searchStr = "";
-        if (event.getOption("tags") != null) {
-            searchStr = SEARCH_PREFIX + event.getOption("tags").getAsString();
-        }
-
-        if (event.getOption("url") != null) {
-            searchStr = event.getOption("url").getAsString();
-        }
-
+        String searchStr = getSearchString(event);
         if (searchStr.isBlank()) {
             event.reply(":satellite: Musisz podać link do utworu lub tagi, aby wyszukać muzykę").queue();
             return;
@@ -83,64 +66,12 @@ public class PlayCommand extends Command {
                 new AudioLoadResultHandler() {
                     @Override
                     public void trackLoaded(AudioTrack audioTrack) {
-                        var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-                        if (!event.getMember().getVoiceState().inAudioChannel()) {
-                            event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
-                            return;
-                        }
-
-                        if (!guild.getAudioManager().isConnected()) {
-                            guild.getAudioManager().openAudioConnection(audioChannel);
-                            musicPlayer.setAudioChannel(audioChannel);
-                        }
-
-                        var playedIn = "Teraz";
-                        if (TimeUtils.playlistTime(musicPlayer) >= 30000L) {
-                            playedIn = TimeUtils.calculateTimeToPlayTrack(musicPlayer);
-                        }
-
-                        musicPlayer.queue(audioTrack);
-                        var embed = new EmbedBuilder()
-                                .setDescription(audioTrack.getInfo().title)
-                                .setThumbnail("https://img.youtube.com/vi/" + audioTrack.getIdentifier() + "/0.jpg")
-                                .setColor(Color.GREEN)
-                                .addField("Kanał", audioChannel.getName(), true)
-                                .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
-                                .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
-                                .addField("Pozycja w kolejne", String.valueOf(musicPlayer.getPlaylist().size()), true)
-                                .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
-                                .setTimestamp(LocalDateTime.now())
-                                .build();
-
-                        Button pauseButton = Button.primary("rocket-player-pause", "⏯");
-                        Button previousButton = Button.secondary("rocket-player-previous", "⏪");
-                        Button nextButton = Button.secondary("rocket-player-next", "⏩");
-                        Button repeatButton = Button.secondary("rocket-player-repeat", "\uD83D\uDD01");
-                        Button stopButton = Button.danger("rocket-player-stop", "⏹");
-
-                        event.replyEmbeds(embed)
-                                .addActionRow(pauseButton,
-                                        previousButton,
-                                        nextButton,
-                                        repeatButton,
-                                        stopButton)
-                                .queue();
+                        handleTrackLoaded(event, guild, musicPlayer, audioTrack);
                     }
 
                     @Override
                     public void playlistLoaded(AudioPlaylist audioPlaylist) {
-                        var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-                        if (!Objects.requireNonNull(event.getMember().getVoiceState()).inAudioChannel()) {
-                            event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
-                            return;
-                        }
-                        if (!guild.getAudioManager().isConnected()) {
-                            guild.getAudioManager().openAudioConnection(audioChannel);
-                        }
-
-                        audioPlaylist.getTracks().forEach(musicPlayer::queue);
-
-                        event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicPlayer, ":arrow_lower_left: Dodaję do playlisty :arrow_lower_right:").build()).queue();
+                        handlePlaylistLoaded(event, guild, musicPlayer, audioPlaylist);
                     }
 
                     @Override
@@ -154,5 +85,101 @@ public class PlayCommand extends Command {
                         event.reply(":screwdriver: Wystąpił nieznany błąd podczas wyszukiwania muzyki").queue();
                     }
                 });
+    }
+
+    private MusicManager getOrCreateMusicManager(Guild guild) {
+        var manager = rocketDiscord.getMusicManager(guild.getId());
+        if (manager.isPresent()) {
+            return manager.get();
+        }
+
+        MusicManager musicPlayer = new MusicManager(rocketDiscord.getAudioManager().createPlayer(), guild);
+        musicPlayer.init();
+        rocketDiscord.getMusicManagers().add(guild.getId(), musicPlayer);
+        return musicPlayer;
+    }
+
+    private String getSearchString(SlashCommandInteractionEvent event) {
+        String searchStr = "";
+        if (event.getOption("tags") != null) {
+            searchStr = SEARCH_PREFIX + event.getOption("tags").getAsString();
+        }
+
+        if (event.getOption("url") != null) {
+            searchStr = event.getOption("url").getAsString();
+        }
+
+        return searchStr;
+    }
+
+    private void handleTrackLoaded(SlashCommandInteractionEvent event, Guild guild, MusicManager musicPlayer, AudioTrack audioTrack) {
+        var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
+        if (!event.getMember().getVoiceState().inAudioChannel()) {
+            event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
+            return;
+        }
+
+        if (!guild.getAudioManager().isConnected()) {
+            guild.getAudioManager().openAudioConnection(audioChannel);
+            musicPlayer.setAudioChannel(audioChannel);
+        }
+
+        var playedIn = "Teraz";
+        if (TimeUtils.playlistTime(musicPlayer) >= 30000L) {
+            playedIn = TimeUtils.calculateTimeToPlayTrack(musicPlayer);
+        }
+
+        musicPlayer.queue(audioTrack);
+        MessageEmbed embed = null;
+        try {
+            embed = createEmbed(audioTrack, (VoiceChannel) audioChannel, playedIn, musicPlayer);
+            event.replyEmbeds(embed)
+                    .addActionRow(createButtons())
+                    .queue();
+
+        } catch (ExecutionException e) {
+            throw new RuntimeException(e);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void handlePlaylistLoaded(SlashCommandInteractionEvent event, Guild guild, MusicManager musicPlayer, AudioPlaylist audioPlaylist) {
+        var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
+        if (!Objects.requireNonNull(event.getMember().getVoiceState()).inAudioChannel()) {
+            event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
+            return;
+        }
+        if (!guild.getAudioManager().isConnected()) {
+            guild.getAudioManager().openAudioConnection(audioChannel);
+        }
+
+        audioPlaylist.getTracks().forEach(musicPlayer::queue);
+
+        event.replyEmbeds(PlaylistUtils.generatePlaylistEmbed(musicPlayer, ":arrow_lower_left: Dodaję do playlisty :arrow_lower_right:").build()).queue();
+    }
+
+    private MessageEmbed createEmbed(AudioTrack audioTrack, VoiceChannel audioChannel, String playedIn, MusicManager musicPlayer) throws ExecutionException, InterruptedException {
+        return new EmbedBuilder()
+                .setDescription(audioTrack.getInfo().title)
+                .setThumbnail("https://img.youtube.com/vi/" + audioTrack.getIdentifier() + "/0.jpg")
+                .setColor(Color.GREEN)
+                .addField("Kanał", audioChannel.getName(), true)
+                .addField("Czas trwania", TimeUtils.millisecondsToMinutesFormat(audioTrack.getDuration()), true)
+                .addField("Przewidywany czas odtworzenia utworu", playedIn, true)
+                .addField("Pozycja w kolejne", String.valueOf(musicPlayer.getPlaylist().size()), true)
+                .setAuthor("Teraz gram", audioTrack.getInfo().uri, "https://cdn.pixabay.com/photo/2019/08/11/18/27/icon-4399630_1280.png")
+                .setTimestamp(LocalDateTime.now())
+                .build();
+    }
+
+    private List<Button> createButtons() {
+        Button pauseButton = Button.primary("rocket-player-pause", "⏯");
+        Button previousButton = Button.secondary("rocket-player-previous", "⏪");
+        Button nextButton = Button.secondary("rocket-player-next", "⏩");
+        Button repeatButton = Button.secondary("rocket-player-repeat", "\uD83D\uDD01");
+        Button stopButton = Button.danger("rocket-player-stop", "⏹");
+
+        return List.of(pauseButton, previousButton, nextButton, repeatButton, stopButton);
     }
 }

@@ -46,25 +46,26 @@ public class RepeatCommand extends Command {
         }
 
         var memberAudioChannel = event.getMember().getVoiceState().getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
-            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
-            return;
-        }
-        ;
+//        if (!event.getMember().getVoiceState().inAudioChannel() || !memberAudioChannel.getId().equals(musicPlayer.getAudioChannel().getId())) {
+//            event.reply(":construction: Aby kontrolować bota, musisz byc na kanale z nim!").queue();
+//            return;
+//        }
 
         if (musicPlayer.getNowPlayingTrack() == null) {
             event.reply(":snake: Ale żadna muzyka nie jest włączona").queue();
             return;
         }
 
-        boolean repeat = musicPlayer.isRepeat();
-        musicPlayer.setRepeat(!repeat);
+        event.reply("Funkcja nie dostępna :x:").queue();
 
-        if (!repeat) {
-            event.reply(":repeat_one: Włączono powtarzanie utowru").queue();
-            return;
-        }
-
-        event.reply(":repeat: Wyłączono powtarzanie utowrów").queue();
+//        var repeat = musicPlayer.isRepeat();
+//        musicPlayer.setRepeat(!);
+//
+//        if (!repeat) {
+//            event.reply(":repeat_one: Włączono powtarzanie utowru").queue();
+//            return;
+//        }
+//
+//        event.reply(":repeat: Wyłączono powtarzanie utowrów").queue();
     }
 }
