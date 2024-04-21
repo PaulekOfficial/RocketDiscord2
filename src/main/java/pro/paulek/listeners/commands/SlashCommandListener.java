@@ -27,9 +27,30 @@ public class SlashCommandListener extends ListenerAdapter {
             return;
         }
 
-        if (!event.getMessage().getContentDisplay().toLowerCase().contains("rocket, update commands now!")) {
+        if (event.getMessage().getContentDisplay().contains("rocket, update commands now!")) {
+            this.updateCommands(event);
             return;
         }
+
+        if (event.getMessage().getContentDisplay().contains("rocket, purge commands now!")) {
+            this.purgeCommands(event);
+            return;
+        }
+    }
+
+    private void purgeCommands(MessageReceivedEvent event) {
+        logger.info(String.format("Purge slash commands on %s command used by %s", event.getGuild().getName(), event.getMember().getNickname()));
+
+        List<Command> commands = event.getGuild().retrieveCommands().complete();
+        commands.forEach(command -> {
+            event.getGuild().deleteCommandById(command.getId()).queue();
+        });
+        event.getGuild().updateCommands().queue();
+
+        event.getMessage().reply(":fire: :fire: :fire: Jeb z laserka :fire: :fire: :fire:").queue();
+    }
+
+    private void updateCommands(MessageReceivedEvent event) {
         logger.info(String.format("Updating slash commands on %s command used by %s", event.getGuild().getName(), event.getMember().getNickname()));
 
         List<Command> commands = event.getGuild().retrieveCommands().complete();

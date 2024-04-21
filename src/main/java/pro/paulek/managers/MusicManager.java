@@ -43,7 +43,7 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
         this.playlist = new LinkedBlockingQueue<>();
         this.repeat = RepeatType.NONE;
 
-        this.executorService = Executors.newSingleThreadExecutor();
+        this.executorService = Executors.newFixedThreadPool(5);
     }
 
     public void init() {
@@ -86,8 +86,20 @@ public class MusicManager extends AudioEventAdapter implements Runnable, AudioSe
 //                return false;
 //            }
 
-            guild.getAudioManager().openAudioConnection(channel);
             this.audioChannel = channel;
+            guild.getAudioManager().openAudioConnection(channel);
+            return true;
+        });
+    }
+
+    public Future<Boolean> leaveChannel() {
+        return executorService.submit(() -> {
+            if (!guild.getAudioManager().isConnected()) {
+                return false;
+            }
+
+            guild.getAudioManager().closeAudioConnection();
+            this.audioChannel = null;
             return true;
         });
     }

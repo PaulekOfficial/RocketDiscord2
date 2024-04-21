@@ -113,10 +113,15 @@ public class PlayCommand extends Command {
     }
 
     private void handleTrackLoaded(SlashCommandInteractionEvent event, Guild guild, MusicManager musicPlayer, AudioTrack audioTrack) {
-        var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-        if (!event.getMember().getVoiceState().inAudioChannel()) {
+        AudioChannel audioChannel = event.getMember().getVoiceState().getChannel();
+        if (!event.getMember().getVoiceState().inAudioChannel() && musicPlayer.getAudioChannel().isEmpty()) {
             event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
             return;
+        }
+
+        var optionalChannel = musicPlayer.getAudioChannel();
+        if (optionalChannel.isPresent()) {
+            audioChannel = optionalChannel.get();
         }
 
         if (!guild.getAudioManager().isConnected()) {
@@ -145,11 +150,17 @@ public class PlayCommand extends Command {
     }
 
     private void handlePlaylistLoaded(SlashCommandInteractionEvent event, Guild guild, MusicManager musicPlayer, AudioPlaylist audioPlaylist) {
-        var audioChannel = Objects.requireNonNull(Objects.requireNonNull(event.getMember()).getVoiceState()).getChannel();
-        if (!Objects.requireNonNull(event.getMember().getVoiceState()).inAudioChannel()) {
+        AudioChannel audioChannel = event.getMember().getVoiceState().getChannel();
+        if (!event.getMember().getVoiceState().inAudioChannel() && musicPlayer.getAudioChannel().isEmpty()) {
             event.reply(":satellite: Muszisz być na jakimś kanale, abym mógł dołączyć do niego").queue();
             return;
         }
+
+        var optionalChannel = musicPlayer.getAudioChannel();
+        if (optionalChannel.isPresent()) {
+            audioChannel = optionalChannel.get();
+        }
+
         if (!guild.getAudioManager().isConnected()) {
             guild.getAudioManager().openAudioConnection(audioChannel);
         }

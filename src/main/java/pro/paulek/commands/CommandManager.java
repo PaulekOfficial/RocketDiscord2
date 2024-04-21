@@ -54,6 +54,8 @@ public class CommandManager extends ListenerAdapter {
                     ""
             );
             rocketDiscord.getGuildConfigurations().add(event.getGuild().getId(), configuration);
+
+            guildConfiguration = rocketDiscord.getGuildConfigurations().get(event.getGuild().getId());
         }
 
         var gc = guildConfiguration.get();

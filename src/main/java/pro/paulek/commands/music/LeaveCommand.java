@@ -61,8 +61,9 @@ public class LeaveCommand extends Command {
         }
 
         var stopped = musicPlayer.stopTrack();
+        var leaved = musicPlayer.leaveChannel();
         try {
-            if (stopped.isDone() && !stopped.get()) {
+            if ((stopped.isDone() && !stopped.get()) || (leaved.isDone() && !leaved.get())){
                 event.reply(":confused: Coś poszło nie tak, spróbuj ponownie").queue();
                 return;
             }

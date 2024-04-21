@@ -38,7 +38,7 @@ public class JoinCommand extends Command {
 
         if (channelName != null) {
             for (VoiceChannel vc : guild.getVoiceChannels()) {
-                if (vc.getName().equalsIgnoreCase(channelName)) {
+                if (vc.getName().equalsIgnoreCase(channelName) || vc.getId().equalsIgnoreCase(channelName)) {
                     voiceChannel = vc;
                     break;
                 }
