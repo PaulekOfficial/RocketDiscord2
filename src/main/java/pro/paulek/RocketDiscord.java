@@ -1,12 +1,15 @@
 package pro.paulek;
 
 import com.sedmelluq.discord.lavaplayer.player.AudioPlayerManager;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.interactions.commands.Command;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.FileUpload;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.LoaderOptions;
@@ -30,19 +33,24 @@ import pro.paulek.listeners.commands.MusicButtonListener;
 import pro.paulek.listeners.commands.SlashCommandListener;
 import pro.paulek.listeners.fun.MemesListeners;
 import pro.paulek.listeners.modlog.LoggingListeners;
+import pro.paulek.listeners.modlog.ModLogListener;
 import pro.paulek.managers.MusicManager;
 import pro.paulek.managers.RocketPlayerManager;
 import pro.paulek.objects.Configuration;
 import pro.paulek.objects.guild.DiscordMessage;
+import pro.paulek.util.ImageGenerator;
 
+import javax.imageio.ImageIO;
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.*;
 
 public class RocketDiscord implements IRocketDiscord {
@@ -132,6 +140,7 @@ public class RocketDiscord implements IRocketDiscord {
         jdaBuilder.addEventListeners(commandManager);
         //jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners(this));
+        jdaBuilder.addEventListeners(new ModLogListener(this));
         jdaBuilder.addEventListeners(new SlashCommandListener(this));
         jdaBuilder.addEventListeners(new MemesListeners(this));
         jdaBuilder.addEventListeners(new WelcomeListener(this));
@@ -186,6 +195,50 @@ public class RocketDiscord implements IRocketDiscord {
         });
 
         jda.updateCommands().queue();
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+               jda.getGuilds().stream().filter(guild -> guild.getId().equalsIgnoreCase("740276300815663105")).forEach(guild -> {
+                   if (!guild.getCategoriesByName("RocketDiscord Configuration", true).isEmpty()) {
+                       return;
+                   }
+
+                   guild.createCategory("RocketDiscord Configuration")
+                           .setPosition(0)
+                           .addPermissionOverride(guild.getPublicRole(), 0, Permission.VIEW_CHANNEL.getRawValue()) // Deny VIEW_CHANNEL permission for @everyone role
+                           .addPermissionOverride(guild.getOwner().getRoles().getFirst(), Permission.ALL_CHANNEL_PERMISSIONS, 0) // Grant all permissions to the guild owner
+                           .queue(category -> {
+                       guild.createTextChannel("initial-bot-setup")
+                               .setParent(category)
+                               .queue(textChannel -> {
+                                   try {
+                                       var image = ImageIO.read(Objects.requireNonNull(RocketDiscord.class.getClassLoader().getResource("welcome-text.jpg")));
+                                       var tempFile = File.createTempFile("welcome-text", ".jpg");
+
+                                       ImageIO.write(image, "png", tempFile);
+                                       textChannel.sendFiles(FileUpload.fromData(tempFile)).queue();
+
+                                       tempFile.delete();
+                                   } catch (IOException e) {
+                                       throw new RuntimeException(e);
+                                   }
+
+                                   String ownerMention = guild.getOwner().getAsMention();
+                                   EmbedBuilder embedBuilder = new EmbedBuilder();
+                                   embedBuilder.setAuthor("RocketDiscord", null, "https://cdn.discordapp.com/avatars/770759255459627010/5dd6b70a5adcc9fcc94d248972e58afe?size=1024");
+                                   embedBuilder.setThumbnail("https://cdn.discordapp.com/attachments/602973050190954506/1197518975228182529/b527b167-626f-46d4-a0b1-e8cff035311c.jpg?ex=662e41f4&is=662cf074&hm=a7fb72ba3d109735d8f41f6ce6e143585ad6f5da6ed512ff6f49512d571bcf35&");
+                                   embedBuilder.setDescription("Welcome to RocketDiscord! " + ownerMention + " This is a bot that can play music, moderate your server, and more! To get started, please follow the instructions below.");
+                                   embedBuilder.addField("Version", "ALPHA", false);
+                                   embedBuilder.setColor(Color.GREEN);
+                                   embedBuilder.setTimestamp(Instant.now());
+
+                                   textChannel.sendMessageEmbeds(embedBuilder.build()).queue();
+                               });
+                   });
+               });
+            }
+        }, 10 * 1000);
     }
 
     @Override

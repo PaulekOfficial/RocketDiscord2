@@ -11,5 +11,8 @@ mysql:
   "database-name": "RocketDiscord"
   "pool-size": 2
 
+youtubeOauth2: "your-youtube-api-key"
+initializeOauth2ForYoutube: false
+
 adminIds:
   - "419203785190014987"
