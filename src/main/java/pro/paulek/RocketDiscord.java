@@ -32,6 +32,7 @@ import pro.paulek.listeners.WelcomeListener;
 import pro.paulek.listeners.commands.MusicButtonListener;
 import pro.paulek.listeners.commands.SlashCommandListener;
 import pro.paulek.listeners.fun.MemesListeners;
+import pro.paulek.listeners.fun.RandomFunctionsListeners;
 import pro.paulek.listeners.modlog.LoggingListeners;
 import pro.paulek.listeners.modlog.ModLogListener;
 import pro.paulek.managers.MusicManager;
@@ -105,7 +106,6 @@ public class RocketDiscord implements IRocketDiscord {
         //Intends
         jdaBuilder.enableIntents(
                 GatewayIntent.GUILD_MEMBERS,
-                GatewayIntent.GUILD_EMOJIS_AND_STICKERS,
                 GatewayIntent.GUILD_VOICE_STATES,
                 GatewayIntent.GUILD_PRESENCES,
                 GatewayIntent.GUILD_MESSAGES,
@@ -138,7 +138,7 @@ public class RocketDiscord implements IRocketDiscord {
         //Load listeners
         logger.info("Initializing bot listeners...");
         jdaBuilder.addEventListeners(commandManager);
-        //jdaBuilder.addEventListeners(new RandomFunctionsListeners());
+        jdaBuilder.addEventListeners(new RandomFunctionsListeners());
         jdaBuilder.addEventListeners(new LoggingListeners(this));
         jdaBuilder.addEventListeners(new ModLogListener(this));
         jdaBuilder.addEventListeners(new SlashCommandListener(this));
@@ -207,7 +207,7 @@ public class RocketDiscord implements IRocketDiscord {
                    guild.createCategory("RocketDiscord Configuration")
                            .setPosition(0)
                            .addPermissionOverride(guild.getPublicRole(), 0, Permission.VIEW_CHANNEL.getRawValue()) // Deny VIEW_CHANNEL permission for @everyone role
-                           .addPermissionOverride(guild.getOwner().getRoles().getFirst(), Permission.ALL_CHANNEL_PERMISSIONS, 0) // Grant all permissions to the guild owner
+//                           .addPermissionOverride(guild.getOwner().getRoles().getFirst(), 0, Permission.ADMINISTRATOR) // Grant all permissions to the guild owner
                            .queue(category -> {
                        guild.createTextChannel("initial-bot-setup")
                                .setParent(category)

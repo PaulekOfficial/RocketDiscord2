@@ -1,6 +1,5 @@
 package pro.paulek.managers;
 
-import com.dunctebot.sourcemanagers.DuncteBotSources;
 import com.sedmelluq.discord.lavaplayer.player.DefaultAudioPlayerManager;
 import com.sedmelluq.discord.lavaplayer.source.AudioSourceManagers;
 import dev.lavalink.youtube.YoutubeAudioSourceManager;
@@ -18,9 +17,10 @@ public class RocketPlayerManager extends DefaultAudioPlayerManager {
 
     public void initialize() {
         AudioSourceManagers.registerLocalSource(this);
-        DuncteBotSources.registerAll(this, "pl-PL");
+//        DuncteBotSources.registerAll(this, "pl-PL");
 
         YoutubeAudioSourceManager ytSourceManager = new dev.lavalink.youtube.YoutubeAudioSourceManager();
+//        ytSourceManager.useOauth2(null, false);
         ytSourceManager.setPlaylistPageCount(5);
         ytSourceManager.useOauth2(rocketDiscord.getConfiguration().getYoutubeOauth2(), rocketDiscord.getConfiguration().isInitializeOauth2ForYoutube());
 

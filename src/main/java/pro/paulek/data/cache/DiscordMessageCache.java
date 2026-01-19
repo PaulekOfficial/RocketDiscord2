@@ -22,7 +22,11 @@ public class DiscordMessageCache implements ICache<DiscordMessage, String> {
     @Override
     public void init() {
         mySQLModel = new DiscordMessageMySQLModel(rocketDiscord);
-        mySQLModel.createTable();
+        try {
+            mySQLModel.createTable().get();
+        } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+            // Log error
+        }
     }
 
     @Override

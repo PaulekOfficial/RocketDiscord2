@@ -12,6 +12,7 @@ import pro.paulek.util.TimeUtils;
 
 import java.awt.*;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class MusicButtonListener extends ListenerAdapter {
     private final IRocketDiscord rocketDiscord;
@@ -22,12 +23,12 @@ public class MusicButtonListener extends ListenerAdapter {
 
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        String buttonId = event.getButton().getId();
+        String buttonId = event.getButton().getCustomId();
         if (buttonId == null || !buttonId.startsWith("rocket-player-")) {
             return;
         }
 
-        var manager = rocketDiscord.getMusicManager(event.getGuild().getId());
+        var manager = rocketDiscord.getMusicManager(Objects.requireNonNull(event.getGuild()).getId());
         if (manager.isEmpty()) {
             event.reply(":x: Bot nie jest podłączony do kanału głosowego").queue();
             return;

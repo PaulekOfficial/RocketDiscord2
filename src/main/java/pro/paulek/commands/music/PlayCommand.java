@@ -14,8 +14,8 @@ import net.dv8tion.jda.api.entities.channel.middleman.AudioChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import org.jetbrains.annotations.NotNull;
+import net.dv8tion.jda.api.components.buttons.Button;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import pro.paulek.IRocketDiscord;
@@ -139,7 +139,7 @@ public class PlayCommand extends Command {
         try {
             embed = createEmbed(audioTrack, (VoiceChannel) audioChannel, playedIn, musicPlayer);
             event.replyEmbeds(embed)
-                    .addActionRow(createButtons())
+//                    .addComponents(createButtons())
                     .queue();
 
         } catch (ExecutionException e) {

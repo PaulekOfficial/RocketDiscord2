@@ -31,7 +31,11 @@ public class GuildConfigurationICache implements ICache<GuildConfiguration, Stri
     @Override
     public void init() {
         mySQLModel = new GuildConfigurationMySQLModel(rocketDiscord);
-        mySQLModel.createTable();
+        try {
+            mySQLModel.createTable().get();
+        } catch (InterruptedException | java.util.concurrent.ExecutionException e) {
+            logger.error("Cannot create guild configuration table", e);
+        }
 
         var settings = mySQLModel.load();
         if (settings.isEmpty()) {
@@ -49,7 +53,11 @@ public class GuildConfigurationICache implements ICache<GuildConfiguration, Stri
             return Optional.of(guildConfigurationMap.get(s));
         }
 
-        return Optional.empty();
+        var configuration = new GuildConfiguration(s, "unknown", false, new java.util.ArrayList<>(), new java.util.ArrayList<>(), new java.util.ArrayList<>(), false, false, "Witaj {user} na serwerze!", "Żegnaj {user}!", "0", "0", new java.util.ArrayList<>(), "0");
+        this.add(s, configuration);
+        this.save(configuration);
+
+        return Optional.of(configuration);
     }
 
     @Override

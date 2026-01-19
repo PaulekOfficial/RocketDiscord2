@@ -30,7 +30,7 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
     @Override
     public Optional<DiscordMessage> load(String id) {
         try (Connection connection = rocketDiscord.getDatabaseConnection();
-             var ps = connection.prepareStatement("SELECT * FROM messages WHERE message_id = ?")) {
+             var ps = connection.prepareStatement("SELECT * FROM message WHERE message_id = ?")) {
             ps.setString(1, id);
             var rs = ps.executeQuery();
 
@@ -53,7 +53,7 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
     public Future<Boolean> createTable() {
         return executorService.submit(() -> {
             try (Connection connection = rocketDiscord.getDatabaseConnection();
-                 var ps = connection.prepareStatement("create table if not exists message" +
+                 var ps = connection.prepareStatement("CREATE TABLE IF NOT EXISTS message" +
                          "(" +
                          "    id int auto_increment" +
                          "    primary key," +
@@ -62,9 +62,11 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
                          "    message_id  varchar(30) not null," +
                          "    content     text             null," +
                          "    action      varchar(15)  not null," +
-                         "    created_at  timestamp default current_timestamp() not null)")) {
+                         "    created_at  timestamp default current_timestamp() not null," +
+                         "    UNIQUE KEY `msg_id` (`message_id`))")) {
 
-                return ps.executeUpdate() > 0;
+                ps.executeUpdate();
+                return true;
             } catch (SQLException exception) {
                 logger.error("Cannot create discord message table: ", exception);
             }
@@ -132,13 +134,16 @@ public class DiscordMessageMySQLModel implements ISQLDataModel<DiscordMessage, S
     public Future<Boolean> save(DiscordMessage discordMessage) {
         return executorService.submit(() -> {
             try (Connection connection = rocketDiscord.getDatabaseConnection();
-                 var ps = connection.prepareStatement("INSERT INTO message (author_name, author_id, message_id, content, action, created_at) VALUES (?, ?, ?, ?, ?, ?)")) {
+                 var ps = connection.prepareStatement("INSERT INTO message (author_name, author_id, message_id, content, action, created_at) VALUES (?, ?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE author_name = ?, content = ?, action = ?")) {
                 ps.setString(1, discordMessage.getAuthorName());
                 ps.setString(2, discordMessage.getAuthorID());
                 ps.setString(3, discordMessage.getMessageID());
                 ps.setString(4, discordMessage.getContent());
                 ps.setString(5, discordMessage.getAction().name());
                 ps.setTimestamp(6, Timestamp.from(discordMessage.getCreatedAt()));
+                ps.setString(7, discordMessage.getAuthorName());
+                ps.setString(8, discordMessage.getContent());
+                ps.setString(9, discordMessage.getAction().name());
 
                 return ps.executeUpdate() > 0;
             } catch (SQLException exception) {

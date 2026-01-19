@@ -52,10 +52,13 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     public Future<Boolean> createTable() {
         return executorService.submit(() -> {
             try (Connection connection = rocketDiscord.getDatabaseConnection();
-                 var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `channel_id` text NOT NULL, `type` text NOT NULL, `added_by` text NOT NULL, PRIMARY KEY (`id`))");
-                 var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` text NOT NULL, `name` text NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` text NOT NULL, PRIMARY KEY (`id`))")) {
+                 var ps1 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `channel` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` varchar(255) NOT NULL, `channel_id` varchar(255) NOT NULL, `type` varchar(255) NOT NULL, `added_by` varchar(255) NOT NULL, PRIMARY KEY (`id`))");
+                 var ps2 = connection.prepareStatement("CREATE TABLE IF NOT EXISTS `setting` (`id` int(11) NOT NULL AUTO_INCREMENT, `guild_id` varchar(255) NOT NULL, `name` varchar(255) NOT NULL, `value` text NOT NULL, `timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(), `added_by` varchar(255) NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `guild_setting` (`guild_id`, `name`))")) {
 
-                return ps1.executeUpdate() > 0 && ps2.executeUpdate() > 0;
+                ps1.executeUpdate();
+                ps2.executeUpdate();
+
+                return true;
             } catch (SQLException exception) {
                 logger.error("Failed to create database tables: ", exception);
             }
@@ -173,7 +176,10 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
 
     @Override
     public GuildConfiguration deserializeData(ResultSet resultSet) throws SQLException {
-        Map<String, Object> values = new HashMap<>(resultSet.getFetchSize());
+        if (!resultSet.isBeforeFirst()) {
+            return null;
+        }
+        Map<String, Object> values = new HashMap<>();
         while (resultSet.next()) {
             var name = resultSet.getString("name");
             var value = resultSet.getObject("value");
@@ -220,12 +226,16 @@ public class GuildConfigurationMySQLModel implements ISQLDataModel<GuildConfigur
     }
 
     private void saveSetting(Connection connection, String guildID, String name, String value, String editedBy) {
-        try (var ps = connection.prepareStatement("INSERT INTO `setting` (`guild_id`, `name`, `value`, `timestamp`, `added_by`) VALUES (?, ?, ?, ?, ?)")) {
+        try (var ps = connection.prepareStatement("INSERT INTO `setting` (`guild_id`, `name`, `value`, `timestamp`, `added_by`) VALUES (?, ?, ?, ?, ?) ON DUPLICATE KEY UPDATE `value` = ?, `timestamp` = ?, `added_by` = ?")) {
             ps.setString(1, guildID);
             ps.setString(2, name);
             ps.setString(3, value);
-            ps.setTimestamp(4, Timestamp.valueOf(LocalDateTime.now()));
+            var timestamp = Timestamp.valueOf(LocalDateTime.now());
+            ps.setTimestamp(4, timestamp);
             ps.setString(5, editedBy);
+            ps.setString(6, value);
+            ps.setTimestamp(7, timestamp);
+            ps.setString(8, editedBy);
             ps.executeUpdate();
         } catch (SQLException exception) {
             logger.error("Cannot save setting: ", exception);
